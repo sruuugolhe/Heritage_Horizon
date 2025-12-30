@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Heritage of India - Brilliant Word Quest Puzzle</title>
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://upload.wikimedia.org/wikipedia/commons/d/da/Taj_Mahal_in_India_-_Kristian_Bertel.jpg') center/cover no-repeat fixed;
+    color: #111;
+    user-select: none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Container layout */
+  #container {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: 40px auto;
+    background: rgba(255 255 255 / 0.85);
+    border-radius: 18px;
+    box-shadow: 0 0 20px rgb(0 0 0 / 0.3);
+    overflow: hidden;
+  }
+
+  /* Left panel */
+  #left-panel {
+    flex: 1 1 300px;
+    min-width: 280px;
+    padding: 25px 30px;
+    border-right: 2px solid #ccc;
+  }
+  #left-panel h1 {
+    margin-top: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #2e7d32; /* green */
+  }
+  #left-panel small {
+    display: block;
+    margin-bottom: 20px;
+    font-weight: 500;
+    color: #555;
+  }
+  #left-panel button {
+    margin: 5px 5px 15px 0;
+    padding: 10px 18px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 2px solid #2e7d32;
+    background: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  #left-panel button:hover:not(:disabled) {
+    background-color: #2e7d32;
+    color: white;
+  }
+  #left-panel button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  #left-panel .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  #left-panel .stats div {
+    background: #f1f8e9;
+    border-radius: 8px;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 18px;
+    color: #33691e;
+    user-select: none;
+  }
+  #word-list-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  #words-to-find {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #words-to-find span {
+    background: #a5d6a7;
+    color: #1b5e20;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    user-select: none;
+  }
+
+  /* Right panel */
+  #right-panel {
+    flex: 2 1 600px;
+    min-width: 300px;
+    padding: 25px 30px;
+  }
+
+  #settings-panel {
+    border: 2px solid #ccc;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    background: #fafafa;
+  }
+
+  #settings-panel label {
+    margin-right: 8px;
+    font-weight: 600;
+    user-select: none;
+  }
+  #settings-panel select, #settings-panel input[type="range"] {
+    margin-bottom: 15px;
+    margin-right: 25px;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  #settings-panel button {
+    margin-right: 15px;
+    margin-top: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 2px solid #2e7d32;
+    background: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  #settings-panel button:hover {
+    background-color: #2e7d32;
+    color: white;
+  }
+
+  /* Puzzle grid */
+  #puzzle-grid {
+    display: grid;
+    justify-content: center;
+    gap: 5px;
+    touch-action: none;
+  }
+  .cell {
+    width: 36px;
+    height: 36px;
+    background: #a5d6a7;
+    font-weight: 700;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+    user-select: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.3s ease;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+  }
+  .cell.selected {
+    background-color: #4caf50;
+    color: white;
+    transform: scale(1.2);
+    box-shadow: 0 0 12px 3px #4caf50;
+  }
+  .cell.found {
+    background-color: #2e7d32;
+    color: white;
+    cursor: default;
+    box-shadow: 0 0 15px 4px #1b5e20;
+    transform: scale(1.25);
+  }
+
+  /* Themes */
+  body.theme-dark {
+    background: #121212;
+    color: #ddd;
+  }
+  body.theme-dark #container {
+    background: rgba(40,40,40,0.95);
+  }
+  body.theme-dark .cell {
+    background: #455a64;
+    color: #cfd8dc;
+  }
+  body.theme-dark .cell.selected {
+    background-color: #81c784;
+    color: #003300;
+    box-shadow: 0 0 12px 3px #81c784;
+  }
+  body.theme-dark .cell.found {
+    background-color: #388e3c;
+    box-shadow: 0 0 15px 4px #2e7d32;
+  }
+
+  /* Scroll for smaller screens */
+  @media (max-width: 700px) {
+    #container {
+      flex-direction: column;
+      max-width: 100vw;
+      margin: 20px 0;
+      border-radius: 0;
+    }
+    #left-panel, #right-panel {
+      border: none;
+      padding: 15px 20px;
+      min-width: auto;
+    }
+    #puzzle-grid {
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body class="theme-default">
+
+<div id="container">
+
+  <section id="left-panel" role="region" aria-label="Game Dashboard">
+    <h1>WQ</h1>
+    <small>Brilliant Puzzle — Word Quest<br>Find words. Level up. Keep your brain bright.</small>
+
+    <button id="btn-new-puzzle" title="Start New Puzzle">New Puzzle</button>
+    <button id="btn-hint" title="Use a Hint (3 per level)">Hint (<span id="hint-count">3</span>)</button>
+    <button id="btn-pause" title="Pause Game">Pause</button>
+    <button id="btn-settings" title="Open Settings">Settings</button>
+
+    <div class="stats" aria-live="polite" aria-atomic="true">
+      <div><strong>Time:</strong> <span id="time-display">00:00</span></div>
+      <div><strong>Score:</strong> <span id="score-display">0</span></div>
+      <div><strong>Found:</strong> <span id="found-count">0</span></div>
+      <div><strong>Level:</strong> <span id="level-display">1</span></div>
+    </div>
+
+    <h2 id="word-list-title">Words to find</h2>
+    <div id="words-to-find" aria-live="polite" aria-atomic="true"></div>
+
+    <h3>High Scores</h3>
+    <p style="font-size:0.85rem; color:#555;">
+      Tip: Drag across the grid to select words.<br>
+      Use settings to tune difficulty.
+    </p>
+  </section>
+
+  <section id="right-panel" role="main" aria-label="Puzzle Grid and Settings">
+    <div id="settings-panel" hidden>
+      <label for="difficulty-select">Difficulty</label>
+      <select id="difficulty-select" aria-label="Select difficulty">
+        <option>Easy</option>
+        <option selected>Medium</option>
+        <option>Hard</option>
+      </select>
+
+      <label for="theme-select">Theme</label>
+      <select id="theme-select" aria-label="Select theme">
+        <option value="default" selected>Default</option>
+        <option value="dark">Dark</option>
+        <option value="india">India</option>
+        <option value="minimal">Minimal</option>
+        <option value="kids">Kids Mode</option>
+      </select>
+
+      <label for="grid-size-range">Grid Size</label>
+      <input type="range" id="grid-size-range" min="8" max="18" value="12" aria-valuemin="8" aria-valuemax="18" aria-valuenow="12" aria-label="Grid size slider">
+
+      <div style="margin-top: 15px;">
+        <button id="btn-save-progress">Save Progress</button>
+        <button id="btn-load-progress">Load Progress</button>
+        <button id="btn-reset-scores">Reset Scores</button>
+      </div>
+    </div>
+
+    <div id="puzzle-grid" tabindex="0" aria-label="Puzzle Word Search Grid"></div>
+  </section>
+
+</div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas" style="position:fixed;pointer-events:none;top:0;left:0;width:100vw;height:100vh;z-index:9999;"></canvas>
+
+<script>
+(() => {
+  "use strict";
+
+  // Word list (mix of states, sites, cities, monuments)
+  const ALL_WORDS = [
+    "ANDHRAPRADESH", "BIHAR", "KERALA", "GOA", "TAMILNADU",
+    "TAJMAHAL", "HAMPI", "QUTUBMINAR", "AJANTA", "ELLORA",
+    "DELHI", "AGRA", "JAIPUR", "MYSORE", "KOLKATA", "LADAKH",
+    "RAJASTHAN", "CHENNAI", "VARANASI", "HYDERABAD"
+  ];
+
+  // Game variables
+  let gridSize = 12;
+  let difficulty = "Medium";
+  let words = [];
+  let grid = [];
+  let foundWords = new Set();
+  let selectedCells = [];
+  let hintCount = 3;
+  let timer = null;
+  let timeSeconds = 0;
+  let score = 0;
+  let level = 1;
+  let paused = false;
+
+  // Elements
+  const puzzleGrid = document.getElementById("puzzle-grid");
+  const wordsToFind = document.getElementById("words-to-find");
+  const timeDisplay = document.getElementById("time-display");
+  const scoreDisplay = document.getElementById("score-display");
+  const foundCount = document.getElementById("found-count");
+  const levelDisplay = document.getElementById("level-display");
+  const hintCountSpan = document.getElementById("hint-count");
+  const btnNewPuzzle = document.getElementById("btn-new-puzzle");
+  const btnHint = document.getElementById("btn-hint");
+  const btnPause = document.getElementById("btn-pause");
+  const btnSettings = document.getElementById("btn-settings");
+  const settingsPanel = document.getElementById("settings-panel");
+  const difficultySelect = document.getElementById("difficulty-select");
+  const themeSelect = document.getElementById("theme-select");
+  const gridSizeRange = document.getElementById("grid-size-range");
+  const btnSaveProgress = document.getElementById("btn-save-progress");
+  const btnLoadProgress = document.getElementById("btn-load-progress");
+  const btnResetScores = document.getElementById("btn-reset-scores");
+  const confettiCanvas = document.getElementById("confetti-canvas");
+  const confettiCtx = confettiCanvas.getContext("2d");
+
+  // Sound effects setup
+  const sounds = {
+    click: new Audio('https://actions.google.com/sounds/v1/ui/click.ogg'),
+    success: new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg'),
+    win: new Audio('https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg'),
+    hover: new Audio('https://actions.google.com/sounds/v1/ui/hover.ogg'),
+  };
+
+  // Play sound helper
+  function playSound(name) {
+    if (!settings.soundEnabled) return;
+    if (sounds[name]) {
+      sounds[name].currentTime = 0;
+      sounds[name].play().catch(() => {});
+    }
+  }
+
+  // Settings object to track toggles
+  const settings = {
+    soundEnabled: true
+  };
+
+  // Utils: format time mm:ss
+  function formatTime(sec) {
+    let m = Math.floor(sec / 60);
+    let s = sec % 60;
+    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // Resize confetti canvas to full window
+  function resizeConfettiCanvas() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeConfettiCanvas);
+  resizeConfettiCanvas();
+
+  /* Confetti implementation */
+  class ConfettiParticle {
+    constructor(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.size = Math.random() * 8 + 4;
+      this.speedX = (Math.random() - 0.5) * 5;
+      this.speedY = Math.random() * -7 - 3;
+      this.rotation = Math.random() * 360;
+      this.rotationSpeed = (Math.random() - 0.5) * 10;
+      this.opacity = 1;
+      this.gravity = 0.25;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      this.speedY += this.gravity;
+      this.rotation += this.rotationSpeed;
+      this.opacity -= 0.02;
+    }
+    draw(ctx) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation * Math.PI / 180);
+      ctx.fillStyle = this.color;
+      ctx.globalAlpha = this.opacity;
+      ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size/2);
+      ctx.restore();
+    }
+    isAlive() {
+      return this.opacity > 0;
+    }
+  }
+
+  let confettiParticles = [];
+  let confettiRunning = false;
+
+  function startConfetti() {
+    if (confettiRunning) return;
+    confettiRunning = true;
+    confettiParticles = [];
+    for(let i=0; i<150; i++) {
+      confettiParticles.push(new ConfettiParticle(Math.random()*window.innerWidth, window.innerHeight + 50, `hsl(${Math.random()*360}, 70%, 60%)`));
+    }
+    requestAnimationFrame(confettiLoop);
+    setTimeout(() => {
+      confettiRunning = false;
+      confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }, 7000);
+  }
+
+  function confettiLoop() {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiParticles.forEach(p => {
+      p.update();
+      p.draw(confettiCtx);
+    });
+    confettiParticles = confettiParticles.filter(p => p.isAlive());
+    if (confettiRunning && confettiParticles.length > 0) {
+      requestAnimationFrame(confettiLoop);
+    }
+  }
+
+  /* =================
+     GAME LOGIC
+  =================== */
+
+  // Create empty grid
+  function createEmptyGrid(size) {
+    let arr = [];
+    for(let i=0; i<size; i++) {
+      arr.push(Array(size).fill(''));
+    }
+    return arr;
+  }
+
+  // Try placing words horizontally and vertically only for simplicity
+  // Return placed word positions [{row, col}] or null if cannot place
+  function tryPlaceWord(grid, word) {
+    let size = grid.length;
+    const directions = [
+      {r:0, c:1}, // horizontal right
+      {r:1, c:0}, // vertical down
+      {r:0, c:-1}, // horizontal left
+      {r:-1, c:0}  // vertical up
+    ];
+    let attempts = 100;
+    while(attempts--) {
+      let dir = directions[Math.floor(Math.random()*directions.length)];
+      let row = Math.floor(Math.random() * size);
+      let col = Math.floor(Math.random() * size);
+
+      // Check if word fits
+      let fits = true;
+      let positions = [];
+      for(let i=0; i<word.length; i++) {
+        let r = row + i*dir.r;
+        let c = col + i*dir.c;
+        if (r < 0 || r >= size || c < 0 || c >= size) {
+          fits = false;
+          break;
+        }
+        let letterAtPos = grid[r][c];
+        if (letterAtPos !== '' && letterAtPos !== word[i]) {
+          fits = false;
+          break;
+        }
+        positions.push({r,c});
+      }
+      if (!fits) continue;
+
+      // Place word in grid
+      positions.forEach(({r,c}, i) => grid[r][c] = word[i]);
+      return positions;
+    }
+    return null;
+  }
+
+  // Fill remaining empty spots with random letters
+  function fillGridRandom(grid) {
+    let size = grid.length;
+    for(let r=0; r<size; r++) {
+      for(let c=0; c<size; c++) {
+        if (grid[r][c] === '') {
+          grid[r][c] = String.fromCharCode(65 + Math.floor(Math.random()*26));
+        }
+      }
+    }
+  }
+
+  // Initialize game grid & words
+  function setupGameGrid() {
+    // Reset found words
+    foundWords.clear();
+    selectedCells = [];
+    hintCount = 3;
+    hintCountSpan.textContent = hintCount;
+    score = 0;
+    timeSeconds = 0;
+    paused = false;
+
+    // Filter words by difficulty (word length)
+    let minLen = 4, maxLen = 15;
+    if (difficulty === "Easy") { minLen = 4; maxLen = 8; }
+    else if (difficulty === "Medium") { minLen = 6; maxLen = 12; }
+    else if (difficulty === "Hard") { minLen = 8; maxLen = 15; }
+
+    words = ALL_WORDS.filter(w => (w.length >= minLen && w.length <= maxLen));
+    // Shuffle words and pick max 20 or gridSize - 2 words
+    words = shuffleArray(words).slice(0, Math.min(20, gridSize - 2));
+    levelDisplay.textContent = level;
+
+    // Create empty grid
+    grid = createEmptyGrid(gridSize);
+
+    // Place words
+    for (let w of words) {
+      let positions = tryPlaceWord(grid, w);
+      if (!positions) {
+        // If placement failed, try reversed word
+        let rev = w.split('').reverse().join('');
+        positions = tryPlaceWord(grid, rev);
+        if (!positions) {
+          // Give up on this word for now (small chance)
+          console.warn(`Could not place word: ${w}`);
+          continue;
+        } else {
+          // Place reversed word
+          // Already placed in tryPlaceWord, no extra step needed
+        }
+      }
+    }
+    fillGridRandom(grid);
+
+    // Render grid & word list
+    renderGrid();
+    renderWordList();
+    updateStats();
+    startTimer();
+  }
+
+  // Render puzzle grid DOM
+  function renderGrid() {
+    puzzleGrid.innerHTML = '';
+    puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    puzzleGrid.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+    for(let r=0; r<gridSize; r++) {
+      for(let c=0; c<gridSize; c++) {
+        const letter = grid[r][c];
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.textContent = letter;
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        puzzleGrid.appendChild(cell);
+      }
+    }
+  }
+
+  // Render word list UI
+  function renderWordList() {
+    wordsToFind.innerHTML = '';
+    for(let w of words) {
+      let span = document.createElement('span');
+      span.textContent = w;
+      if (foundWords.has(w)) {
+        span.style.textDecoration = 'line-through';
+        span.style.opacity = '0.5';
+      }
+      wordsToFind.appendChild(span);
+    }
+  }
+
+  // Update stats UI
+  function updateStats() {
+    timeDisplay.textContent = formatTime(timeSeconds);
+    scoreDisplay.textContent = score;
+    foundCount.textContent = foundWords.size;
+    levelDisplay.textContent = level;
+    hintCountSpan.textContent = hintCount;
+
+    // Disable hint button if no hints left
+    btnHint.disabled = hintCount === 0;
+  }
+
+  // Timer functions
+  function startTimer() {
+    if(timer) clearInterval(timer);
+    timer = setInterval(() => {
+      if (!paused) {
+        timeSeconds++;
+        updateStats();
+      }
+    }, 1000);
+  }
+  function pauseTimer() {
+    paused = true;
+    btnPause.textContent = "Resume";
+  }
+  function resumeTimer() {
+    paused = false;
+    btnPause.textContent = "Pause";
+  }
+
+  // Shuffle helper
+  function shuffleArray(arr) {
+    let array = arr.slice();
+    for(let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Check if cells are adjacent (4-direction)
+  function areCellsAdjacent(cellA, cellB) {
+    let r1 = +cellA.dataset.row, c1 = +cellA.dataset.col;
+    let r2 = +cellB.dataset.row, c2 = +cellB.dataset.col;
+    return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
+  }
+
+  // Selected cells array & word formation
+  let selected = [];
+
+  // Reset selection UI
+  function resetSelection() {
+    selected.forEach(cell => cell.classList.remove('selected'));
+    selected = [];
+  }
+
+  // Check if word is found & mark it
+  function checkWordFound() {
+    if (selected.length === 0) return;
+
+    const word = selected.map(c => c.textContent).join('');
+    const reversed = selected.map(c => c.textContent).reverse().join('');
+
+    if (words.includes(word) && !foundWords.has(word)) {
+      markWordFound(word, selected);
+      return true;
+    }
+    if (words.includes(reversed) && !foundWords.has(reversed)) {
+      markWordFound(reversed, selected);
+      return true;
+    }
+    return false;
+  }
+
+  // Mark word found in UI & update score
+  function markWordFound(word, cells) {
+    foundWords.add(word);
+    cells.forEach(cell => {
+      cell.classList.add('found');
+      cell.classList.remove('selected');
+      cell.style.cursor = 'default';
+    });
+    score += word.length * 10 + (difficulty === "Hard" ? 20 : difficulty === "Medium" ? 10 : 5);
+    updateStats();
+    playSound('success');
+    renderWordList();
+    selected = [];
+
+    // Check if game finished
+    if (foundWords.size === words.length) {
+      gameWon();
+    }
+  }
+
+  // Game won handler
+  function gameWon() {
+    playSound('win');
+    alert(`🎉 Congratulations! You found all words on Level ${level}.`);
+
+    startConfetti();
+
+    // Next level setup
+    level++;
+    gridSize = Math.min(18, gridSize + 1); // increase grid size a bit
+    setupGameGrid();
+  }
+
+  // Selection handlers
+  let isSelecting = false;
+
+  function handleMouseDown(e) {
+    if (paused) return;
+    if (!e.target.classList.contains('cell')) return;
+    resetSelection();
+    selected.push(e.target);
+    e.target.classList.add('selected');
+    isSelecting = true;
+  }
+  function handleMouseMove(e) {
+    if (!isSelecting) return;
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    if (!target || !target.classList.contains('cell')) return;
+    if (selected.includes(target)) return;
+
+    // Check adjacency
+    let last = selected[selected.length - 1];
+    if (!areCellsAdjacent(last, target)) return;
+
+    selected.push(target);
+    target.classList.add('selected');
+  }
+  function handleMouseUp(e) {
+    if (!isSelecting) return;
+    isSelecting = false;
+    if (checkWordFound()) {
+      playSound('success');
+    }
+    resetSelection();
+  }
+
+  // Touch handlers
+  function handleTouchStart(e) {
+    if (paused) return;
+    if (e.target.classList.contains('cell')) {
+      resetSelection();
+      selected.push(e.target);
+      e.target.classList.add('selected');
+      isSelecting = true;
+      e.preventDefault();
+    }
+  }
+  function handleTouchMove(e) {
+    if (!isSelecting) return;
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!target || !target.classList.contains('cell')) return;
+    if (selected.includes(target)) return;
+
+    let last = selected[selected.length - 1];
+    if (!areCellsAdjacent(last, target)) return;
+
+    selected.push(target);
+    target.classList.add('selected');
+    e.preventDefault();
+  }
+  function handleTouchEnd(e) {
+    if (!isSelecting) return;
+    isSelecting = false;
+    if (checkWordFound()) {
+      playSound('success');
+    }
+    resetSelection();
+  }
+
+  // Hint function - highlights one letter of an unfound word
+  function useHint() {
+    if (hintCount === 0) return;
+    let unfound = words.filter(w => !foundWords.has(w));
+    if (unfound.length === 0) return;
+
+    // Pick a random unfound word
+    let hintWord = unfound[Math.floor(Math.random() * unfound.length)];
+
+    // Find cells for this word
+    let lettersToHighlight = [];
+    for(let r=0; r<gridSize; r++) {
+      for(let c=0; c<gridSize; c++) {
+        if (grid[r][c] === hintWord[0]) {
+          // Could be start of word
+          lettersToHighlight.push({r,c});
+        }
+      }
+    }
+
+    // Highlight a letter cell for the hint (pick first letter cell)
+    // Find first occurrence of the word in grid to highlight first letter cell
+    let highlighted = false;
+    for(let r=0; r<gridSize; r++) {
+      for(let c=0; c<gridSize; c++) {
+        if (grid[r][c] === hintWord[0]) {
+          let cell = getCell(r, c);
+          if (cell && !cell.classList.contains('found')) {
+            // Briefly highlight
+            cell.classList.add('selected');
+            setTimeout(() => cell.classList.remove('selected'), 1000);
+            highlighted = true;
+            break;
+          }
+        }
+      }
+      if (highlighted) break;
+    }
+
+    hintCount--;
+    updateStats();
+    playSound('click');
+  }
+
+  // Helper: get cell div by row & col
+  function getCell(row, col) {
+    return puzzleGrid.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+  }
+
+  // Save game state in localStorage
+  function saveProgress() {
+    const state = {
+      grid,
+      foundWords: Array.from(foundWords),
+      score,
+      timeSeconds,
+      level,
+      hintCount,
+      difficulty,
+      gridSize,
+      words
+    };
+    localStorage.setItem('heritageWordPuzzleSave', JSON.stringify(state));
+    alert('Game progress saved!');
+    playSound('click');
+  }
+
+  // Load game state from localStorage
+  function loadProgress() {
+    const data = localStorage.getItem('heritageWordPuzzleSave');
+    if (!data) {
+      alert('No saved progress found.');
+      return;
+    }
+    try {
+      const state = JSON.parse(data);
+      grid = state.grid;
+      foundWords = new Set(state.foundWords);
+      score = state.score;
+      timeSeconds = state.timeSeconds;
+      level = state.level;
+      hintCount = state.hintCount;
+      difficulty = state.difficulty;
+      gridSize = state.gridSize;
+      words = state.words;
+
+      difficultySelect.value = difficulty;
+      gridSizeRange.value = gridSize;
+      levelDisplay.textContent = level;
+      renderGridFromLoaded();
+      renderWordList();
+      updateStats();
+      startTimer();
+      alert('Game progress loaded!');
+      playSound('click');
+    } catch (e) {
+      alert('Failed to load saved progress.');
+    }
+  }
+
+  // Render grid from loaded grid variable
+  function renderGridFromLoaded() {
+    puzzleGrid.innerHTML = '';
+    puzzleGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    puzzleGrid.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+
+    for(let r=0; r<gridSize; r++) {
+      for(let c=0; c<gridSize; c++) {
+        const letter = grid[r][c];
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.textContent = letter;
+        cell.dataset.row = r;
+        cell.dataset.col = c;
+        if (foundWords.has(words.find(w => w.includes(letter)))) {
+          cell.classList.add('found');
+        }
+        puzzleGrid.appendChild(cell);
+      }
+    }
+  }
+
+  // Reset scores and progress
+  function resetScores() {
+    if(confirm("Are you sure you want to reset your progress and scores?")) {
+      localStorage.removeItem('heritageWordPuzzleSave');
+      score = 0;
+      level = 1;
+      timeSeconds = 0;
+      foundWords.clear();
+      hintCount = 3;
+      updateStats();
+      setupGameGrid();
+      playSound('click');
+    }
+  }
+
+  // Toggle settings panel
+  function toggleSettings() {
+    if (settingsPanel.hidden) {
+      settingsPanel.hidden = false;
+      btnSettings.textContent = "Close Settings";
+    } else {
+      settingsPanel.hidden = true;
+      btnSettings.textContent = "Settings";
+    }
+  }
+
+  // Change difficulty handler
+  difficultySelect.addEventListener("change", (e) => {
+    difficulty = e.target.value;
+    setupGameGrid();
+  });
+
+  // Change theme handler
+  themeSelect.addEventListener("change", (e) => {
+    const theme = e.target.value;
+    document.body.className = `theme-${theme}`;
+  });
+
+  // Change grid size handler
+  gridSizeRange.addEventListener("input", (e) => {
+    gridSize = parseInt(e.target.value, 10);
+    setupGameGrid();
+  });
+
+  // Button event listeners
+  btnNewPuzzle.addEventListener("click", () => {
+    level = 1;
+    score = 0;
+    timeSeconds = 0;
+    foundWords.clear();
+    hintCount = 3;
+    updateStats();
+    setupGameGrid();
+    playSound('click');
+  });
+
+  btnHint.addEventListener("click", () => {
+    useHint();
+  });
+
+  btnPause.addEventListener("click", () => {
+    if (paused) resumeTimer();
+    else pauseTimer();
+    playSound('click');
+  });
+
+  btnSettings.addEventListener("click", () => {
+    toggleSettings();
+    playSound('click');
+  });
+
+  btnSaveProgress.addEventListener("click", saveProgress);
+  btnLoadProgress.addEventListener("click", loadProgress);
+  btnResetScores.addEventListener("click", resetScores);
+
+  // Drag-select event listeners on puzzle grid
+  puzzleGrid.addEventListener("mousedown", handleMouseDown);
+  window.addEventListener("mouseup", handleMouseUp);
+  puzzleGrid.addEventListener("mousemove", handleMouseMove);
+  puzzleGrid.addEventListener("touchstart", handleTouchStart, {passive:false});
+  puzzleGrid.addEventListener("touchmove", handleTouchMove, {passive:false});
+  window.addEventListener("touchend", handleTouchEnd);
+
+  // Initialize game on page load
+  setupGameGrid();
+
+})();
+</script>
+
+</body>
+</html>
