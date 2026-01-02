@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choose Your Journey</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+body{
+    height:100vh;
+    background:black;
+    overflow:hidden;
+}
+
+/* ===== BACKGROUND ===== */
+.background{
+    height:100vh;
+    width:100%;
+    background:
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,20,40,0.95)),
+        url("https://images.unsplash.com/photo-1587474260584-136574528ed5"),
+        url("https://images.unsplash.com/photo-1450849608880-6f787542c88a");
+    background-size:cover, cover, cover;
+    background-position:bottom, center, center;
+    background-repeat:no-repeat;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+}
+}
+/* ===== CONTAINER ===== */
+.container{
+    text-align:center;
+    color:white;
+}
+
+.container h1{
+    font-size:3rem;
+    letter-spacing:3px;
+    margin-bottom:15px;
+    text-shadow:0 0 20px rgba(255,255,255,0.4);
+}
+
+.container p{
+    font-size:1.1rem;
+    opacity:0.85;
+    margin-bottom:50px;
+}
+
+/* ===== OPTION CARDS ===== */
+.options{
+    display:flex;
+    gap:40px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.card{
+    width:300px;
+    height:360px;
+    border-radius:25px;
+    overflow:hidden;
+    position:relative;
+    text-decoration:none;
+    color:white;
+    box-shadow:0 25px 60px rgba(0,0,0,0.6);
+    transition:0.5s ease;
+}
+
+/* Heritage Card */
+.card.heritage{
+    background:
+        linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),
+        url("https://images.unsplash.com/photo-1564507592333-c60657eea523");
+    background-size:cover;
+    background-position:center;
+}
+
+/* Universe Card */
+.card.universe{
+    background:
+        linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),
+        url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564");
+    background-size:cover;
+    background-position:center;
+}
+
+/* Hover Effect */
+.card:hover{
+    transform:scale(1.08);
+    box-shadow:0 0 40px rgba(0,212,255,0.8);
+}
+
+/* Card Content */
+.card-content{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    padding:25px;
+    text-align:center;
+}
+
+.card h2{
+    font-size:1.8rem;
+    margin-bottom:10px;
+}
+
+.card p{
+    font-size:1rem;
+    opacity:0.85;
+}
+
+.card span{
+    display:inline-block;
+    margin-top:15px;
+    padding:8px 25px;
+    border:2px solid #00d4ff;
+    border-radius:25px;
+    font-size:0.9rem;
+    letter-spacing:2px;
+    color:#00d4ff;
+    transition:0.4s;
+}
+
+.card:hover span{
+    background:#00d4ff;
+    color:black;
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .container h1{
+        font-size:2.2rem;
+    }
+    .options{
+        gap:25px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+
+    <div class="container">
+        <h1>Choose Your Journey</h1>
+        
+
+        <div class="options">
+
+            <!-- INDIA HERITAGE OPTION -->
+            <a href="heritage.html" class="card heritage">
+                <div class="card-content">
+                    <h2>India’s Heritage</h2>
+                    <p>Explore monuments, culture & history through interactive games</p>
+                    <span>EXPLORE</span>
+                </div>
+            </a>
+
+            <!-- UNIVERSE OPTION -->
+            <a href="universe.html" class="card universe">
+                <div class="card-content">
+                    <h2>The Universe</h2>
+                    <p>Discover planets, stars & space mysteries with fun puzzles</p>
+                    <span>EXPLORE</span>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
