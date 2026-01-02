@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Choose Your Space Activity</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+body{
+    height:100vh;
+    background:black;
+    overflow:hidden;
+}
+
+/* ===== SPACE BACKGROUND ===== */
+@keyframes starMove{
+    from{background-position:0 0;}
+    to{background-position:0 -1000px;}
+}
+
+.background{
+    height:100vh;
+    background:black;
+    background-image:
+        /* Extra Large Stars */
+        radial-gradient(8px 8px at 120px 180px, white, transparent),
+        radial-gradient(7px 7px at 420px 260px, white, transparent),
+        radial-gradient(9px 9px at 720px 140px, white, transparent),
+        radial-gradient(8px 8px at 980px 380px, white, transparent),
+        radial-gradient(7.5px 7.5px at 1150px 220px, white, transparent),
+
+        /* Medium Stars */
+        radial-gradient(5px 5px at 220px 520px, white, transparent),
+        radial-gradient(5.5px 5.5px at 480px 460px, white, transparent),
+        radial-gradient(6px 6px at 760px 520px, white, transparent),
+        radial-gradient(5px 5px at 980px 580px, white, transparent),
+        radial-gradient(5.5px 5.5px at 1100px 650px, white, transparent),
+
+        /* Small Stars */
+        radial-gradient(3px 3px at 150px 750px, white, transparent),
+        radial-gradient(3.5px 3.5px at 350px 820px, white, transparent),
+        radial-gradient(3px 3px at 550px 900px, white, transparent),
+        radial-gradient(3.5px 3.5px at 750px 980px, white, transparent),
+        radial-gradient(3px 3px at 950px 860px, white, transparent),
+        radial-gradient(3.5px 3.5px at 1150px 950px, white, transparent),
+
+        /* Tiny Stars */
+        radial-gradient(2px 2px at 80px 420px, white, transparent),
+        radial-gradient(2px 2px at 300px 320px, white, transparent),
+        radial-gradient(2px 2px at 600px 280px, white, transparent),
+        radial-gradient(2px 2px at 900px 200px, white, transparent),
+        radial-gradient(2px 2px at 1100px 120px, white, transparent);
+
+    background-size:1600px 1600px;
+    animation: starMove 100s linear infinite;
+    display:flex;
+    align-items:center;
+    justify-content:center; 
+}
+
+/* STAR MOVEMENT */
+@keyframes starMove{
+    from{
+        background-position:0 0;
+    }
+    to{
+        background-position:0 -1600px;
+    }
+}
+
+
+/* TITLE */
+.card h1{
+    text-align:center;
+    font-size:2.5rem;
+    margin-bottom:30px;
+    letter-spacing:3px;
+    background:linear-gradient(90deg,#00d4ff,#ffffff,#00d4ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 0 20px rgba(0,212,255,0.6);
+}
+
+/* OPTIONS */
+.option{
+    margin-bottom:18px;
+}
+
+.option a{
+    display:block;
+    padding:14px 20px;
+    border-radius:18px;
+    text-decoration:none;
+    color:white;
+    border:2px solid rgba(255,255,255,0.25);
+    font-size:1.1rem;
+    letter-spacing:1px;
+    transition:0.4s;
+}
+
+/* Hover Effect */
+.option a:hover{
+    background:#00d4ff;
+    color:black;
+    transform:translateX(10px);
+    box-shadow:0 0 25px rgba(0,212,255,0.8);
+}
+
+/* Responsive */
+@media(max-width:600px){
+    .card h1{
+        font-size:2rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <div class="card">
+
+        <h1>What Do You Want To Do?</h1>
+
+        <div class="option">
+            <a href="space-quiz.html">🚀 Space Quiz Missions</a>
+        </div>
+
+        <div class="option">
+            <a href="asteroid-game.html">☄️ Asteroid Dodge Mini-Game</a>
+        </div>
+
+        <div class="option">
+            <a href="constellation.html">✨ Constellation Puzzle</a>
+        </div>
+
+        <div class="option">
+            <a href="planet-tasks.html">🪐 Planet Exploration Tasks</a>
+        </div>
+
+        <div class="option">
+            <a href="rocket.html">🚀 Rocket Building Challenge</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
