@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heritage Horizons | Earth to Universe</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI', sans-serif;
+}
+
+body{
+    height:100vh;
+    overflow:hidden;
+    background:black;
+}
+
+/* ===== SPACE + UNIVERSE BACKGROUND ===== */
+.background{
+    height:100vh;
+    width:100%;
+    background:
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
+        url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Galaxy Glow */
+.galaxy{
+    position:absolute;
+    width:600px;
+    height:600px;
+    background:radial-gradient(circle, rgba(138,43,226,0.4), transparent 70%);
+    filter:blur(40px);
+    animation: galaxyRotate 40s linear infinite;
+}
+
+@keyframes galaxyRotate{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+}
+
+/* ===== GLASS CARD ===== */
+.title-card{
+    position:relative;
+    background:rgba(255,255,255,0.15);
+    backdrop-filter:blur(16px);
+    border-radius:25px;
+    padding:60px 80px;
+    text-align:center;
+    color:white;
+    box-shadow:0 30px 70px rgba(0,0,0,0.7);
+    z-index:2;
+    animation:fadeIn 1.5s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(40px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+/* TITLES */
+.title-card h1,
+.title-card h2{
+    font-size:3rem;
+    letter-spacing:4px;
+    text-shadow:0 0 15px rgba(255,255,255,0.4);
+}
+
+.title-card h2{
+    margin-top:12px;
+    font-weight:600;
+    opacity:0.95;
+}
+
+/* Divider */
+.line{
+    width:140px;
+    height:3px;
+    background:linear-gradient(to right, #00d4ff, #ffffff);
+    margin:30px auto;
+    border-radius:10px;
+}
+
+/* ===== LET'S START BUTTON ===== */
+.start-text{
+    margin-top:30px;
+    display:inline-block;
+    padding:14px 45px;
+    border-radius:30px;
+    border:2px solid #00d4ff;
+    color:#00d4ff;
+    font-size:1.1rem;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    text-decoration:none;
+    transition:0.4s ease;
+    box-shadow:0 0 15px rgba(0,212,255,0.4);
+}
+
+.start-text:hover{
+    background:#00d4ff;
+    color:black;
+    box-shadow:0 0 30px rgba(0,212,255,0.9);
+    transform:scale(1.08);
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .title-card{
+        padding:40px 30px;
+    }
+    .title-card h1,
+    .title-card h2{
+        font-size:2.2rem;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+
+    <div class="galaxy"></div>
+
+    <div class="title-card">
+        <h1>HERITAGE HORIZONS</h1>
+        <h2>Earth to Universe</h2>
+
+        <div class="line"></div>
+
+        <!-- CLICKABLE BUTTON -->
+        <a href="nextpage.html" class="start-text">LET’S START</a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
