@@ -1,44 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>User Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+            margin-bottom: 20px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            background: #ddd;
+            border-radius: 20px;
+            overflow: hidden;
+            height: 20px;
+        }
+
+        .progress {
+            height: 20px;
+            background: green;
+            width: 0%;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: gold;
+            padding: 8px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 12px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h2>Welcome to Dashboard</h2>
+    <h2>🎯 User Dashboard</h2>
 
-    <!-- User info -->
-    <p><b>Username:</b> <span id="username">Loading...</span></p>
-    <p><b>Points:</b> <span id="points">0</span></p>
-    <p><b>Level:</b> <span id="level">0</span></p>
+    <!-- USER INFO -->
+    <div class="card">
+        <p><b>Username:</b> <span id="username">Loading...</span></p>
+        <p><b>Level:</b> <span id="level">0</span></p>
+        <p><b>Points:</b> <span id="points">0</span></p>
+    </div>
 
-    <br>
+    <!-- PROGRESS -->
+    <div class="card">
+        <h4>Progress to Next Level</h4>
+        <div class="progress-bar">
+            <div class="progress" id="progress">0%</div>
+        </div>
+    </div>
 
-    <!-- Button to earn points -->
-    <button onclick="updateScore()">Complete Task (+10 points)</button>
+    <!-- REWARDS -->
+    <div class="card">
+        <h4>🏆 Rewards Earned</h4>
+        <div id="rewards">
+            <span class="badge">Beginner</span>
+        </div>
+    </div>
+
+    <!-- ACTION -->
+    <button onclick="completeTask()">Complete Task (+10 points)</button>
 
     <script>
-        // 🔹 STEP 1: Load dashboard data when page opens
+        let currentPoints = 0;
+
+        // LOAD DASHBOARD DATA
         fetch("http://127.0.0.1:5000/dashboard")
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             document.getElementById("username").innerText = data.username;
-            document.getElementById("points").innerText = data.points;
             document.getElementById("level").innerText = data.level;
+            document.getElementById("points").innerText = data.points;
+
+            currentPoints = data.points;
+            updateProgress();
+            updateRewards();
         });
 
-        // 🔹 STEP 2: Update score when button clicked
-        function updateScore() {
+        // COMPLETE TASK
+        function completeTask() {
             fetch("http://127.0.0.1:5000/update-score", {
                 method: "POST"
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 document.getElementById("points").innerText = data.points;
                 document.getElementById("level").innerText = data.level;
-                alert("Points updated!");
+
+                currentPoints = data.points;
+                updateProgress();
+                updateRewards();
             });
+        }
+
+        // PROGRESS BAR LOGIC
+        function updateProgress() {
+            let percent = (currentPoints % 100);
+            document.getElementById("progress").style.width = percent + "%";
+            document.getElementById("progress").innerText = percent + "%";
+        }
+
+        // REWARD LOGIC
+        function updateRewards() {
+            let rewardsDiv = document.getElementById("rewards");
+            rewardsDiv.innerHTML = "";
+
+            if (currentPoints >= 0) {
+                rewardsDiv.innerHTML += '<span class="badge">Beginner</span>';
+            }
+            if (currentPoints >= 50) {
+                rewardsDiv.innerHTML += '<span class="badge">Explorer</span>';
+            }
+            if (currentPoints >= 100) {
+                rewardsDiv.innerHTML += '<span class="badge">Master</span>';
+            }
         }
     </script>
 
