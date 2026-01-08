@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+    <h2>Welcome to Dashboard</h2>
+
+    <!-- User info -->
+    <p><b>Username:</b> <span id="username">Loading...</span></p>
+    <p><b>Points:</b> <span id="points">0</span></p>
+    <p><b>Level:</b> <span id="level">0</span></p>
+
+    <br>
+
+    <!-- Button to earn points -->
+    <button onclick="updateScore()">Complete Task (+10 points)</button>
+
+    <script>
+        // 🔹 STEP 1: Load dashboard data when page opens
+        fetch("http://127.0.0.1:5000/dashboard")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("username").innerText = data.username;
+            document.getElementById("points").innerText = data.points;
+            document.getElementById("level").innerText = data.level;
+        });
+
+        // 🔹 STEP 2: Update score when button clicked
+        function updateScore() {
+            fetch("http://127.0.0.1:5000/update-score", {
+                method: "POST"
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("points").innerText = data.points;
+                document.getElementById("level").innerText = data.level;
+                alert("Points updated!");
+            });
+        }
+    </script>
+
+</body>
+</html>
