@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🌌 Do You Know? – Planets</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- 🌌 PREMIUM SPACE GAME FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+body{
+  font-family:'Poppins','Segoe UI',system-ui;
+  background:black;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+/* 🌟 MOVING STAR BACKGROUND */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+    radial-gradient(2px 2px at 80% 40%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 50% 80%, #fff, transparent),
+    radial-gradient(2px 2px at 70% 70%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 30% 60%, #fff, transparent);
+  background-size:1200px 1200px;
+  animation:stars 80s linear infinite;
+  z-index:-1;
+}
+
+@keyframes stars{
+  from{ background-position:0 0; }
+  to{ background-position:0 -1200px; }
+}
+
+/* CONTAINER */
+.container{
+  width:92%;
+  max-width:1300px;
+  text-align:center;
+}
+
+/* 🌌 TITLE */
+h1{
+  font-family:'Cinzel',serif;
+  font-size:2.5rem;
+  letter-spacing:4px;
+  margin-bottom:45px;
+  text-shadow:0 0 30px #6fd3ff;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:34px;
+}
+
+/* CARD */
+.card{
+  perspective:1400px;
+  cursor:pointer;
+}
+
+.card-inner{
+  position:relative;
+  width:100%;
+  height:270px;
+  transform-style:preserve-3d;
+  transition:transform 0.9s cubic-bezier(.4,.2,.2,1);
+}
+
+/* FLOAT EFFECT */
+.card:hover .card-inner{
+  transform:translateY(-12px) scale(1.05);
+}
+
+/* FLIP */
+.card.flip .card-inner{
+  transform:rotateY(180deg);
+}
+
+/* CARD FACE */
+.card-face{
+  position:absolute;
+  inset:0;
+  border-radius:28px;
+  padding:28px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  backface-visibility:hidden;
+
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(16px);
+  border:2px solid rgba(255,255,255,0.35);
+  box-shadow:
+    0 0 28px rgba(0,170,255,0.55),
+    inset 0 0 20px rgba(255,255,255,0.1);
+}
+
+/* FRONT */
+.front span{
+  font-size:110px;
+  filter:drop-shadow(0 0 18px rgba(255,255,255,1));
+}
+
+.front h2{
+  margin-top:16px;
+  font-family:'Cinzel',serif;
+  font-size:1.3rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+/* BACK */
+.back{
+  transform:rotateY(180deg);
+  text-align:center;
+}
+
+.back h3{
+  font-family:'Cinzel',serif;
+  font-size:1.05rem;
+  margin-bottom:10px;
+  letter-spacing:1.5px;
+  color:#bde9ff;
+}
+
+.back p{
+  font-size:13.2px;
+  line-height:1.55;
+}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+  .grid{ grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:550px){
+  h1{ font-size:1.8rem; }
+  .grid{ grid-template-columns:1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Do You Know? – The 8 Planets</h1>
+
+<div class="grid">
+
+<div class="card" onclick="handleCardClick(this,'Mercury')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🌑</span><h2>Mercury</h2></div>
+    <div class="card-face back"><h3>About Mercury</h3><p>Closest planet to the Sun with extreme temperatures and a rocky surface.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Venus')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🟡</span><h2>Venus</h2></div>
+    <div class="card-face back"><h3>About Venus</h3><p>Venus is the hottest planet due to its thick CO₂ atmosphere and has many volcanoes.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Earth')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🌍</span><h2>Earth</h2></div>
+    <div class="card-face back"><h3>About Earth</h3><p>Earth is the only planet that supports life, with water, breathable air, and a stable climate.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Mars')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🔴</span><h2>Mars</h2></div>
+    <div class="card-face back"><h3>About Mars</h3><p>Mars, the Red Planet, has iron-rich soil and evidence of ancient water.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Jupiter')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🟠</span><h2>Jupiter</h2></div>
+    <div class="card-face back"><h3>About Jupiter</h3><p>Jupiter is the largest planet with a Great Red Spot and over 90 moons.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Saturn')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🪐</span><h2>Saturn</h2></div>
+    <div class="card-face back"><h3>About Saturn</h3><p>Saturn is known for its icy rings and many moons, including Titan.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Uranus')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🔵</span><h2>Uranus</h2></div>
+    <div class="card-face back"><h3>About Uranus</h3><p>Uranus rotates on its side, has a blue color from methane, faint rings, and many moons.</p></div>
+  </div>
+</div>
+
+<div class="card" onclick="handleCardClick(this,'Neptune')">
+  <div class="card-inner">
+    <div class="card-face front"><span>🌐</span><h2>Neptune</h2></div>
+    <div class="card-face back"><h3>About Neptune</h3><p>Neptune is the farthest planet with the fastest winds and a 165-year orbit.</p></div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- 🔊 FLIP SOUND -->
+<audio id="flipSound">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2043/2043-preview.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+let openCard=null;
+
+function handleCardClick(card,planet){
+  if(openCard && openCard!==card){
+    openCard.classList.remove("flip");
+  }
+
+  card.classList.toggle("flip");
+  openCard=card.classList.contains("flip")?card:null;
+
+  document.getElementById("flipSound").play();
+
+  window.speechSynthesis.cancel();
+  const speech=new SpeechSynthesisUtterance(planet);
+  speech.rate=0.9;
+  window.speechSynthesis.speak(speech);
+}
+</script>
+
+</body>
+</html>
