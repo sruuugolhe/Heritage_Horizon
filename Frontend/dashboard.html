@@ -1,200 +1,301 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>User Dashboard</title>
+<meta charset="UTF-8">
+<title>Gamified Dashboard</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: "Segoe UI", Arial, sans-serif;
-            background-color: #0f1115;
-            color: #ffffff;
-        }
+<style>
+*{box-sizing:border-box}
 
-        h2 {
-            margin-bottom: 20px;
-        }
+body{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    background:#071a1e;
+    color:#eafff7;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow:hidden;
+}
 
-        .container {
-            width: 90%;
-            margin: 30px auto;
-        }
+/* MAIN FRAME */
+.frame{
+    width:100%;
+    max-width:1150px;
+    padding:18px;
+    border:3px solid #36f5c7;
+    border-radius:22px;
+    box-shadow:0 0 25px #36f5c7;
+    background:radial-gradient(circle at top,#12343b,#07151a);
+    animation:fadeIn 0.8s ease;
+}
 
-        .card {
-            background: #1c1f26;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.6);
-        }
+@keyframes fadeIn{
+    from{opacity:0; transform:scale(0.96)}
+    to{opacity:1; transform:scale(1)}
+}
 
-        /* TABLE */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+/* LEVEL */
+.level{
+    text-align:center;
+    font-size:28px;
+    color:#7dffb3;
+    margin-bottom:14px;
+    text-shadow:0 0 12px #36f5c7;
+}
 
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
+/* GRID */
+.top,.mid{
+    display:grid;
+    grid-template-columns:1fr 2fr 1fr;
+    gap:14px;
+}
 
-        th {
-            background-color: #262a34;
-            color: #00d9ff;
-            font-weight: 600;
-        }
+/* CARD */
+.card{
+    background:#0f2f34;
+    padding:14px;
+    border-radius:14px;
+    border:1px solid #36f5c7;
+    transition:0.3s;
+}
+.card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 0 18px #36f5c7;
+}
 
-        tr:nth-child(even) {
-            background-color: #1a1d24;
-        }
+/* PROFILE */
+.profile img{
+    width:64px;
+    border-radius:50%;
+    border:2px solid #36f5c7;
+}
 
-        tr:nth-child(odd) {
-            background-color: #14171d;
-        }
+/* XP BAR */
+.xpbar{
+    display:flex;
+    gap:4px;
+    margin-top:8px;
+}
+.xpbar span{
+    flex:1;
+    height:14px;
+    background:#1c4449;
+    border-radius:4px;
+}
+.xpbar span.active{
+    background:linear-gradient(90deg,#00ffcc,#00ffaa);
+    box-shadow:0 0 8px #00ffcc;
+}
 
-        /* PROGRESS BAR */
-        .progress-box {
-            background: #333;
-            border-radius: 20px;
-            overflow: hidden;
-            height: 18px;
-            margin-top: 10px;
-        }
+/* COINS */
+.coins h2{
+    margin:6px 0 0;
+    font-size:20px;
+    color:#ffd966;
+    animation:coinGlow 2s infinite;
+}
+@keyframes coinGlow{
+    0%{text-shadow:0 0 4px gold}
+    50%{text-shadow:0 0 12px gold}
+    100%{text-shadow:0 0 4px gold}
+}
 
-        .progress {
-            background: #00d9ff;
-            height: 18px;
-            width: 0%;
-            text-align: center;
-            font-size: 12px;
-        }
+/* QUESTS */
+.quests p{
+    background:#133d42;
+    padding:7px;
+    border-radius:8px;
+    margin:6px 0;
+}
 
-        /* BADGES */
-        .badge {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 20px;
-            background: #00d9ff;
-            color: black;
-            margin: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
+/* ACHIEVEMENTS */
+.ach{
+    margin-top:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
 
-        button {
-            padding: 10px 18px;
-            background: #00d9ff;
-            color: black;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+/* BUTTON */
+button{
+    padding:7px 14px;
+    border:none;
+    border-radius:8px;
+    background:#36f5c7;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+button:hover{
+    transform:scale(1.08);
+    box-shadow:0 0 12px #36f5c7;
+}
 
-        button:hover {
-            background: #00b8d4;
-        }
-    </style>
+/* LEADERBOARD PANEL */
+.leaderboard{
+    position:fixed;
+    top:0;
+    right:-320px;
+    width:300px;
+    height:100%;
+    background:#0f2f34;
+    border-left:3px solid #36f5c7;
+    padding:20px;
+    transition:right 0.5s ease;
+    z-index:1000;
+}
+.leaderboard.active{
+    right:0;
+}
+
+.lb-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.close-btn{
+    background:none;
+    border:none;
+    color:#36f5c7;
+    font-size:22px;
+    cursor:pointer;
+}
+
+/* RECENT */
+.recent{
+    margin-top:14px;
+}
+</style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- SOUND EFFECTS -->
+<audio id="xpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-mystery-alert-234.wav"></audio>
+<audio id="levelSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.wav"></audio>
 
-    <h2> <b>User Dashboard</b> </h2>
+<div class="frame">
 
-    <!-- USER SUMMARY -->
+<div class="level" id="level">LEVEL 7</div>
+
+<div class="top">
+    <div class="card profile">
+        <img src="https://via.placeholder.com/64">
+        <h3>Captain Planet</h3>
+    </div>
+
     <div class="card">
-        <table>
-            <tr>
-                <th>Username</th>
-                <th>Level</th>
-                <th>Total Points</th>
-            </tr>
-            <tr>
-                <td id="username">Loading...</td>
-                <td id="level">0</td>
-                <td id="points">0</td>
-            </tr>
-        </table>
+        <div id="xpText">XP: 12450 / 15000</div>
+        <div class="xpbar" id="xpBar"></div>
     </div>
 
-    <!-- PROGRESS -->
+    <div class="card coins">
+        Coin Balance
+        <h2 id="coins">2500</h2>
+    </div>
+</div>
+
+<div class="mid">
     <div class="card">
-        <h3>Progress to Next Level</h3>
-        <div class="progress-box">
-            <div class="progress" id="progress">0%</div>
-        </div>
+        <h3>Missions</h3>
+        🏆 📜 🎁 🌱
     </div>
 
-    <!-- REWARDS -->
+    <div class="card quests">
+        <h3>Daily Quests</h3>
+        <p>✔ Recycle 5 Plastic Bottles</p>
+        <p>✔ Walk to Work</p>
+    </div>
+
     <div class="card">
-        <h3>🏆 Rewards Earned</h3>
-        <div id="rewards"></div>
+        <h3>Power-Ups</h3>
+        ⚡ Double XP<br>🤝 Friendly Boost
     </div>
+</div>
 
-    <!-- ACTION -->
-    <div class="card" style="text-align:center;">
-        <button onclick="completeTask()">Complete Task (+10 Points)</button>
+<div class="ach card">
+    <div>
+        <h3>Achievements</h3>
+        🌳 Tree Hugger<br>🏖 Beach Cleanup
     </div>
+    <button onclick="completeQuest()">Complete Quest</button>
+    <button onclick="toggleLeaderboard()">Leaderboard</button>
+</div>
+
+<div class="recent card" id="recent">
+    <h3>Recent</h3>
+    No recent activity
+</div>
 
 </div>
 
+<!-- LEADERBOARD -->
+<div class="leaderboard" id="leaderboard">
+    <div class="lb-header">
+        <h3>Leaderboard</h3>
+        <button class="close-btn" onclick="toggleLeaderboard()">✖</button>
+    </div>
+    <p>🥇 EcoWarrior – 18,500 XP</p>
+    <p>🥈 GreenHero – 16,900 XP</p>
+    <p>🥉 Captain Planet – 12,450 XP</p>
+</div>
+
 <script>
-    let currentPoints = 0;
+let xp=12450, maxXP=15000, level=7, coins=2500;
+const xpSound=document.getElementById("xpSound");
+const levelSound=document.getElementById("levelSound");
 
-    // LOAD DASHBOARD DATA
-    fetch("http://127.0.0.1:5000/dashboard")
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("username").innerText = data.username;
-        document.getElementById("level").innerText = data.level;
-        document.getElementById("points").innerText = data.points;
+function renderXP(){
+    document.getElementById("level").innerText="LEVEL "+level;
+    document.getElementById("xpText").innerText=`XP: ${xp} / ${maxXP}`;
+    document.getElementById("coins").innerText=coins;
 
-        currentPoints = data.points;
-        updateProgress();
-        updateRewards();
-    });
+    let bar=document.getElementById("xpBar");
+    bar.innerHTML="";
+    let target=Math.floor((xp/maxXP)*10);
+    let i=0;
 
-    // COMPLETE TASK
-    function completeTask() {
-        fetch("http://127.0.0.1:5000/update-score", {
-            method: "POST"
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById("points").innerText = data.points;
-            document.getElementById("level").innerText = data.level;
+    let interval=setInterval(()=>{
+        if(i<target){
+            let s=document.createElement("span");
+            s.classList.add("active");
+            bar.appendChild(s);
+            xpSound.currentTime=0;
+            xpSound.play();
+            i++;
+        }else{
+            clearInterval(interval);
+            while(bar.children.length<10){
+                bar.appendChild(document.createElement("span"));
+            }
+        }
+    },80);
+}
 
-            currentPoints = data.points;
-            updateProgress();
-            updateRewards();
-        });
+function completeQuest(){
+    xp+=600;
+    coins+=150;
+
+    if(xp>=maxXP){
+        xp-=maxXP;
+        level++;
+        levelSound.play();
     }
+    document.getElementById("recent").innerHTML=
+        "<h3>Recent</h3>✔ Quest completed! +600 XP, +150 Coins";
 
-    // PROGRESS BAR LOGIC
-    function updateProgress() {
-        let percent = currentPoints % 100;
-        document.getElementById("progress").style.width = percent + "%";
-        document.getElementById("progress").innerText = percent + "%";
-    }
+    renderXP();
+}
 
-    // REWARD LOGIC
-    function updateRewards() {
-        let rewards = document.getElementById("rewards");
-        rewards.innerHTML = "";
+function toggleLeaderboard(){
+    document.getElementById("leaderboard").classList.toggle("active");
+}
 
-        if (currentPoints >= 0)
-            rewards.innerHTML += '<span class="badge">Beginner</span>';
-
-        if (currentPoints >= 50)
-            rewards.innerHTML += '<span class="badge">Explorer</span>';
-
-        if (currentPoints >= 100)
-            rewards.innerHTML += '<span class="badge">Master</span>';
-    }
+renderXP();
 </script>
 
 </body>
