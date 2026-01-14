@@ -16,7 +16,7 @@ body{
     justify-content:center;
     align-items:center;
     min-height:100vh;
-    overflow:hidden;
+    overflow:auto;
 }
 
 /* MAIN FRAME */
@@ -29,6 +29,7 @@ body{
     box-shadow:0 0 25px #36f5c7;
     background:radial-gradient(circle at top,#12343b,#07151a);
     animation:fadeIn 0.8s ease;
+    margin-bottom:50px;
 }
 
 @keyframes fadeIn{
@@ -63,6 +64,9 @@ body{
 .card:hover{
     transform:translateY(-4px);
     box-shadow:0 0 18px #36f5c7;
+}
+.played{
+    background:#1a3f35; /* Slightly green for played games */
 }
 
 /* PROFILE */
@@ -169,6 +173,40 @@ button:hover{
 .recent{
     margin-top:14px;
 }
+
+/* GAME SECTIONS */
+.game-section{
+    margin-top:30px;
+}
+.game-section h3{
+    margin-bottom:10px;
+}
+.game-container{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+}
+.game-card{
+    background:#0f2f34;
+    padding:14px;
+    border-radius:12px;
+    border:1px solid #36f5c7;
+    width:180px;
+    cursor:pointer;
+    text-align:center;
+    transition:0.3s;
+}
+.game-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 0 12px #36f5c7;
+}
+.game-card.played{
+    background:#1a3f35;
+}
+.game-score{
+    margin-top:8px;
+    font-weight:bold;
+}
 </style>
 </head>
 
@@ -231,6 +269,17 @@ button:hover{
     No recent activity
 </div>
 
+<!-- NEW GAME SECTIONS -->
+<div class="game-section">
+    <h3>Heritage Games</h3>
+    <div class="game-container" id="heritage-games"></div>
+</div>
+
+<div class="game-section">
+    <h3>Universe Games</h3>
+    <div class="game-container" id="universe-games"></div>
+</div>
+
 </div>
 
 <!-- LEADERBOARD -->
@@ -259,7 +308,7 @@ function renderXP(){
     let target=Math.floor((xp/maxXP)*10);
     let i=0;
 
-    let interval=setInterval(()=>{
+    let interval=setInterval(()=> {
         if(i<target){
             let s=document.createElement("span");
             s.classList.add("active");
@@ -296,6 +345,57 @@ function toggleLeaderboard(){
 }
 
 renderXP();
+
+// =====================
+// FETCH GAMES FROM BACKEND
+// =====================
+const user_id = 1; // replace with dynamic logged-in user ID
+const backendUrl = "http://127.0.0.1:5000";
+
+async function fetchGames() {
+    try{
+        const res = await fetch(`${backendUrl}/dashboard/${user_id}`);
+        const games = await res.json();
+
+        const heritageContainer = document.getElementById("heritage-games");
+        const universeContainer = document.getElementById("universe-games");
+
+        heritageContainer.innerHTML = '';
+        universeContainer.innerHTML = '';
+
+        games.forEach(game => {
+            const card = document.createElement("div");
+            card.classList.add("game-card");
+            if(game.played) card.classList.add("played");
+
+            card.innerHTML = `<h4>${game.game_name}</h4>
+                              <div class="game-score">${game.played ? "Score: " + game.high_score : "Not Played"}</div>`;
+
+            card.onclick = () => {
+                const gameMap = {
+                    "Heritage Quiz": "quizfinalist.html",
+                    "Word Puzzle": "wordpuzzzleH.html",
+                    "Memory Game": "mcgfinal.html",
+                    "Maze Puzzle": "final maze.html",
+                    "Universe Quiz": "DoYouKnowSpace.html",
+                    "Asteroids Dodge": "optionsspace.html",
+                    "Solar Crush": "slide2.html"
+                };
+                const page = gameMap[game.game_name];
+                if(page) window.location.href = page;
+                else alert("Game page not mapped yet!");
+            };
+
+            if(game.section === "heritage") heritageContainer.appendChild(card);
+            else if(game.section === "universe") universeContainer.appendChild(card);
+        });
+
+    }catch(err){
+        console.error("Error fetching games:", err);
+    }
+}
+
+fetchGames();
 </script>
 
 </body>
