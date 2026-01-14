@@ -5,7 +5,6 @@
 <title>🌌 Do You Know? – Planets</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- 🌌 PREMIUM SPACE GAME FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
@@ -22,7 +21,6 @@ body{
   overflow:hidden;
 }
 
-/* 🌟 MOVING STAR BACKGROUND */
 body::before{
   content:"";
   position:fixed;
@@ -43,14 +41,12 @@ body::before{
   to{ background-position:0 -1200px; }
 }
 
-/* CONTAINER */
 .container{
   width:92%;
   max-width:1300px;
   text-align:center;
 }
 
-/* 🌌 TITLE */
 h1{
   font-family:'Cinzel',serif;
   font-size:2.5rem;
@@ -59,14 +55,12 @@ h1{
   text-shadow:0 0 30px #6fd3ff;
 }
 
-/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
   gap:34px;
 }
 
-/* CARD */
 .card{
   perspective:1400px;
   cursor:pointer;
@@ -80,17 +74,14 @@ h1{
   transition:transform 0.9s cubic-bezier(.4,.2,.2,1);
 }
 
-/* FLOAT EFFECT */
 .card:hover .card-inner{
   transform:translateY(-12px) scale(1.05);
 }
 
-/* FLIP */
 .card.flip .card-inner{
   transform:rotateY(180deg);
 }
 
-/* CARD FACE */
 .card-face{
   position:absolute;
   inset:0;
@@ -101,7 +92,6 @@ h1{
   justify-content:center;
   align-items:center;
   backface-visibility:hidden;
-
   background:rgba(255,255,255,0.12);
   backdrop-filter:blur(16px);
   border:2px solid rgba(255,255,255,0.35);
@@ -110,7 +100,6 @@ h1{
     inset 0 0 20px rgba(255,255,255,0.1);
 }
 
-/* FRONT */
 .front span{
   font-size:110px;
   filter:drop-shadow(0 0 18px rgba(255,255,255,1));
@@ -119,12 +108,11 @@ h1{
 .front h2{
   margin-top:16px;
   font-family:'Cinzel',serif;
-  font-size:1.3rem;
+  font-size:1.5rem;
   letter-spacing:2px;
   text-transform:uppercase;
 }
 
-/* BACK */
 .back{
   transform:rotateY(180deg);
   text-align:center;
@@ -139,11 +127,11 @@ h1{
 }
 
 .back p{
-  font-size:13.2px;
-  line-height:1.55;
+  font-size:16.5px;   /* BIGGER & CLEAR */
+  line-height:1.7;
+  font-weight:500;
 }
 
-/* RESPONSIVE */
 @media(max-width:1000px){
   .grid{ grid-template-columns:repeat(2,1fr); }
 }
@@ -164,83 +152,136 @@ h1{
 <div class="card" onclick="handleCardClick(this,'Mercury')">
   <div class="card-inner">
     <div class="card-face front"><span>🌑</span><h2>Mercury</h2></div>
-    <div class="card-face back"><h3>About Mercury</h3><p>Closest planet to the Sun with extreme temperatures and a rocky surface.</p></div>
+    <div class="card-face back"><h3>About Mercury</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Venus')">
   <div class="card-inner">
     <div class="card-face front"><span>🟡</span><h2>Venus</h2></div>
-    <div class="card-face back"><h3>About Venus</h3><p>Venus is the hottest planet due to its thick CO₂ atmosphere and has many volcanoes.</p></div>
+    <div class="card-face back"><h3>About Venus</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Earth')">
   <div class="card-inner">
     <div class="card-face front"><span>🌍</span><h2>Earth</h2></div>
-    <div class="card-face back"><h3>About Earth</h3><p>Earth is the only planet that supports life, with water, breathable air, and a stable climate.</p></div>
+    <div class="card-face back"><h3>About Earth</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Mars')">
   <div class="card-inner">
     <div class="card-face front"><span>🔴</span><h2>Mars</h2></div>
-    <div class="card-face back"><h3>About Mars</h3><p>Mars, the Red Planet, has iron-rich soil and evidence of ancient water.</p></div>
+    <div class="card-face back"><h3>About Mars</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Jupiter')">
   <div class="card-inner">
     <div class="card-face front"><span>🟠</span><h2>Jupiter</h2></div>
-    <div class="card-face back"><h3>About Jupiter</h3><p>Jupiter is the largest planet with a Great Red Spot and over 90 moons.</p></div>
+    <div class="card-face back"><h3>About Jupiter</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Saturn')">
   <div class="card-inner">
     <div class="card-face front"><span>🪐</span><h2>Saturn</h2></div>
-    <div class="card-face back"><h3>About Saturn</h3><p>Saturn is known for its icy rings and many moons, including Titan.</p></div>
+    <div class="card-face back"><h3>About Saturn</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Uranus')">
   <div class="card-inner">
     <div class="card-face front"><span>🔵</span><h2>Uranus</h2></div>
-    <div class="card-face back"><h3>About Uranus</h3><p>Uranus rotates on its side, has a blue color from methane, faint rings, and many moons.</p></div>
+    <div class="card-face back"><h3>About Uranus</h3><p></p></div>
   </div>
 </div>
 
 <div class="card" onclick="handleCardClick(this,'Neptune')">
   <div class="card-inner">
     <div class="card-face front"><span>🌐</span><h2>Neptune</h2></div>
-    <div class="card-face back"><h3>About Neptune</h3><p>Neptune is the farthest planet with the fastest winds and a 165-year orbit.</p></div>
+    <div class="card-face back"><h3>About Neptune</h3><p></p></div>
   </div>
 </div>
 
 </div>
 </div>
 
-<!-- 🔊 FLIP SOUND -->
 <audio id="flipSound">
-  <source src="https://assets.mixkit.co/active_storage/sfx/2043/2043-preview.mp3" type="audio/mpeg">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2043/2043-preview.mp3">
 </audio>
 
 <script>
+/* SEQUENCE FACTS */
+const planetFacts = {
+  Mercury: [
+    "Closest planet to the Sun.",
+    "Extreme hot days and freezing nights.",
+    "Rocky and heavily cratered surface."
+  ],
+  Venus: [
+    "Hottest planet in the solar system.",
+    "Thick carbon dioxide atmosphere.",
+    "Rotates very slowly and backwards."
+  ],
+  Earth: [
+    "Only known planet with life.",
+    "71% of surface covered by water.",
+    "Has breathable atmosphere."
+  ],
+  Mars: [
+    "Known as the Red Planet.",
+    "Iron oxide gives red color.",
+    "Evidence of ancient water."
+  ],
+  Jupiter: [
+    "Largest planet in the solar system.",
+    "Great Red Spot storm.",
+    "Has more than 90 moons."
+  ],
+  Saturn: [
+    "Famous for icy rings.",
+    "Low density planet.",
+    "Titan may support chemistry."
+  ],
+  Uranus: [
+    "Rotates on its side.",
+    "Blue color due to methane gas.",
+    "Has faint rings."
+  ],
+  Neptune: [
+    "Farthest planet from the Sun.",
+    "Fastest winds in the solar system.",
+    "165 Earth years per orbit."
+  ]
+};
+
+const factIndex = {
+  Mercury:0, Venus:0, Earth:0, Mars:0,
+  Jupiter:0, Saturn:0, Uranus:0, Neptune:0
+};
+
 let openCard=null;
 
 function handleCardClick(card,planet){
+  const p = card.querySelector(".back p");
+
+  p.textContent = planetFacts[planet][factIndex[planet]];
+  factIndex[planet] = (factIndex[planet]+1) % planetFacts[planet].length;
+
   if(openCard && openCard!==card){
     openCard.classList.remove("flip");
   }
 
   card.classList.toggle("flip");
-  openCard=card.classList.contains("flip")?card:null;
+  openCard = card.classList.contains("flip") ? card : null;
 
   document.getElementById("flipSound").play();
 
   window.speechSynthesis.cancel();
-  const speech=new SpeechSynthesisUtterance(planet);
-  speech.rate=0.9;
+  const speech = new SpeechSynthesisUtterance(planet);
+  speech.rate = 0.9;
   window.speechSynthesis.speak(speech);
 }
 </script>
