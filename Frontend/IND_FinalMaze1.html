@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>MindMap Maze — 25 Levels of Heritage</title>
+  <style>
+    :root {
+      --bg: #fdf6e3;
+      --accent: #7f4e1e;
+      --accent-2: #b8860b;
+      --muted: #5b3a29;
+      --card: #fef6d8;
+      --border: #a67c52;
+      font-family: 'Garamond', 'Georgia', serif;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden; 
+      background: var(--bg);
+      color: #4b2e2e;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 10px;
+      padding: 10px;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    header {
+      grid-column: 1/-1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px;
+      background: var(--card);
+      border: 2px solid var(--accent);
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--accent);
+      font-family: 'Papyrus', serif;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .game-area {
+      background: #fdf6e3;
+      border: 2px solid var(--accent);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+    
+    .btn {
+      cursor: pointer;
+      user-select: none;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      background: #fff8dc;
+      font-weight: bold;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      transition: 0.2s;
+    }
+    
+    .btn:hover { filter: brightness(0.9); }
+    .btn.primary { background: var(--accent); color: #fdf6e3; }
+    .btn.secondary { background: #d2b48c; color: #4b2e2e; }
+
+    #victory-screen {
+      display: none;
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(127, 78, 30, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .victory-card {
+      background: var(--card);
+      padding: 30px;
+      border: 5px double var(--accent);
+      text-align: center;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .victory-card h2 { font-family: 'Papyrus', serif; color: var(--accent); font-size: 28px; margin-top: 0; }
+
+    .stage-wrap { flex: 1; display: flex; justify-content: center; align-items: center; overflow: hidden;}
+    
+    canvas { 
+      background: #fffcf0; 
+      border: 1px solid var(--accent);
+      image-rendering: pixelated;
+    }
+
+    .panel {
+      background: var(--card);
+      padding: 15px;
+      border: 2px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    .stats { display: flex; gap: 5px; }
+    .stat { 
+      flex: 1;
+      background: #fdf6e3; 
+      padding: 5px; 
+      border: 1px solid var(--border);
+      text-align: center; 
+    }
+    .stat strong { display: block; font-size: 18px; color: var(--accent-2); }
+
+    .mindmap-canvas { 
+      width: 100%; 
+      height: 420px;
+      background: #fffcf5; 
+      border: 1px solid var(--border);
+    }
+
+    footer { grid-column: 1/-1; display: flex; justify-content: space-between; padding: 5px 10px; background: var(--card); border-top: 1px solid var(--accent); font-size: 11px; }
+
+    @media (max-width:980px) { 
+        .app { grid-template-columns: 1fr; overflow-y: auto; height: auto; } 
+        .mindmap-canvas { height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Bharat Heritage Quest: 25 Stages</h1>
+    </header>
+
+    <section class="game-area">
+      <div id="victory-screen">
+        <div class="victory-card">
+          <h2 id="vic-head">DHANYAVAAD!</h2>
+          <p id="vic-text">Region explored successfully.</p>
+          <div style="display:flex; gap: 10px; justify-content: center; margin-top: 20px;">
+            <div class="btn secondary" onclick="restartLevel()">Retry</div>
+            <div class="btn primary" id="next-btn" onclick="nextLevel()">Next Region</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="btn primary" id="btn-new">New Journey</div>
+        <div class="btn" id="btn-level">Level <span id="level">1</span>/25</div>
+        <div class="btn" id="btn-sound">🔊 Sound: ON</div>
+      </div>
+
+      <div class="stage-wrap">
+          <canvas id="mazeCanvas" width="760" height="600"></canvas>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h3>📜 Heritage Log</h3>
+      <div class="stats">
+        <div class="stat"><small>Time</small><strong id="time">00:00</strong></div>
+        <div class="stat"><small>Total Found</small><strong id="collected">0</strong></div>
+      </div>
+
+      <canvas id="mindmap" class="mindmap-canvas" width="350" height="420"></canvas>
+
+      <div style="display:flex;gap:8px;">
+        <div class="btn" id="btn-reset" style="flex:1;">Reset Stage</div>
+      </div>
+    </aside>
+
+    <footer>
+      <div>ॐ Ancient India Heritage Exploration</div>
+      <div>Use Arrow Keys or WASD to Navigate</div>
+    </footer>
+  </div>
+
+  <script>
+    const CELL = 40;
+    const COLS = 19; 
+    const ROWS = 15; 
+
+    // Expanded Database: 75 items (3 per level for 25 levels)
+    const HERITAGE_POOL = [
+      {name:'CHARMINAR', emoji:'🕌'}, {name:'KAZIRANGA', emoji:'🦏'}, {name:'NALANDA', emoji:'📜'}, // L1
+      {name:'HAMPI', emoji:'🏛️'}, {name:'SUN TEMPLE', emoji:'☸️'}, {name:'GOLDEN TEMPLE', emoji:'🕍'}, // L2
+      {name:'AMBER FORT', emoji:'🏰'}, {name:'TAJ MAHAL', emoji:'🕌'}, {name:'AJANTA CAVES', emoji:'🎨'}, // L3
+      {name:'ELLORA', emoji:'🗿'}, {name:'KHAJURAHO', emoji:'🛕'}, {name:'SANCHI STUPA', emoji:'⚪'}, // L4
+      {name:'BODH GAYA', emoji:'🌳'}, {name:'MEENAKSHI', emoji:'🌈'}, {name:'QUTUB MINAR', emoji:'🗼'}, // L5
+      {name:'RED FORT', emoji:'🚩'}, {name:'VICTORIA MEM', emoji:'🏢'}, {name:'GATEWAY INDIA', emoji:'⚓'}, // L6
+      {name:'MEHRANGARH', emoji:'⛰️'}, {name:'VARANASI', emoji:'📿'}, {name:'RISHIKESH', emoji:'🧘'}, // L7
+      {name:'KEDARNATH', emoji:'🏔️'}, {name:'CHOLA TEMPLE', emoji:'🐉'}, {name:'PATTADAKAL', emoji:'🧱'}, // L8
+      {name:'MAHABALIPURAM', emoji:'🐘'}, {name:'RANI KI VAV', emoji:'🌊'}, {name:'CHITTORGARH', emoji:'🗡️'}, // L9
+      {name:'GOA CHURCHES', emoji:'⛪'}, {name:'VALLEY FLOWERS', emoji:'🌸'}, {name:'SUNDARBANS', emoji:'🐅'}, // L10
+      {name:'AMARNATH', emoji:'❄️'}, {name:'SOMNATH', emoji:'🔱'}, {name:'ELEPHANTA', emoji:'🗿'}, // L11
+      {name:'GWALIOR FORT', emoji:'🏰'}, {name:'AMRITSAR', emoji:'🍛'}, {name:'JAGANNATH', emoji:'🚩'}, // L12
+      {name:'KUMBAKONAM', emoji:'🏺'}, {name:'MANDU', emoji:'🛖'}, {name:'LOTUS TEMPLE', emoji:'🪷'}, // L13
+      {name:'JAISALMER', emoji:'🏜️'}, {name:'BADAMI', emoji:'🧗'}, {name:'KANCHIPURAM', emoji:'🧵'}, // L14
+      {name:'TIRUPATI', emoji:'💰'}, {name:'AIHOLE', emoji:'🏛️'}, {name:'KOTESHWAR', emoji:'🛕'}, // L15
+      {name:'RUMTEK', emoji:'☸️'}, {name:'TOWANG', emoji:'🏔️'}, {name:'MAJULI', emoji:'🛶'}, // L16
+      {name:'CHILIKA', emoji:'🦢'}, {name:'DWARKA', emoji:'🔱'}, {name:'PALITANA', emoji:'⛰️'}, // L17
+      {name:'BISHNUPUR', emoji:'🧱'}, {name:'SHANTINIKETAN', emoji:'🎓'}, {name:'DARJEELING', emoji:'🚂'}, // L18
+      {name:'CHAMPAER', emoji:'🕌'}, {name:'KUMBALGARH', emoji:'🛡️'}, {name:'RANTHAMBORE', emoji:'🐅'}, // L19
+      {name:'LOTHAL', emoji:'⚓'}, {name:'DHOLAVIRA', emoji:'🏺'}, {name:'KALIBANGAN', emoji:'🔥'}, // L20
+      {name:'DAULATABAD', emoji:'🏰'}, {name:'GOLCONDA', emoji:'💎'}, {name:'BIDAR FORT', emoji:'🧱'}, // L21
+      {name:'BELUR', emoji:'🛕'}, {name:'HALEBIDU', emoji:'🗿'}, {name:'SRAVANABEL', emoji:'🧘'}, // L22
+      {name:'CHETINAD', emoji:'🏘️'}, {name:'DHANUSHKODI', emoji:'🛤️'}, {name:'VIVEKANANDA', emoji:'🗿'}, // L23
+      {name:'SUNCITY', emoji:'🌞'}, {name:'MUDHERA', emoji:'☀️'}, {name:'JUNAGADH', emoji:'🦁'}, // L24
+      {name:'KASHI VISH', emoji:'🔱'}, {name:'MATHURA', emoji:'🐄'}, {name:'AYODHYA', emoji:'🏹'} // L25
+    ];
+
+    let level = 1; 
+    let mazeCanvas = document.getElementById('mazeCanvas');
+    let mz = mazeCanvas.getContext('2d');
+    let mindCanvas = document.getElementById('mindmap');
+    let mg = mindCanvas.getContext('2d');
+    let grid, visited;
+    let player = {x:1,y:1};
+    let currentNodes = [];
+    let allCollected = [];
+    let startTime = null;
+    let timerInterval = null;
+    let soundOn = true;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq, type, duration) {
+      if (!soundOn) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function initMaze(){
+      grid = Array.from({length:ROWS},()=>Array(COLS).fill(1));
+      visited = Array.from({length:ROWS},()=>Array(COLS).fill(false));
+      carve(1,1);
+      player.x = 1; player.y = 1;
+    }
+
+    function carve(r,c){
+      visited[r][c]=true; grid[r][c]=0;
+      const dirs = [[0,-2],[0,2],[-2,0],[2,0]];
+      dirs.sort(() => Math.random() - 0.5);
+      for(let d of dirs){
+        let nr=r+d[0], nc=c+d[1];
+        if(nr>0 && nr<ROWS-1 && nc>0 && nc<COLS-1 && !visited[nr][nc]){
+          grid[(r+nr)/2][(c+nc)/2]=0;
+          carve(nr,nc);
+        }
+      }
+    }
+
+    function placeNodes(){
+      currentNodes = [];
+      let startIndex = (level - 1) * 3;
+      for(let i=0; i<3; i++) {
+        let item = HERITAGE_POOL[startIndex + i];
+        let placed = false;
+        while(!placed){
+          let rx = Math.floor(Math.random()*(COLS-2))+1;
+          let ry = Math.floor(Math.random()*(ROWS-2))+1;
+          let far = currentNodes.every(n => Math.hypot(n.x-rx, n.y-ry) > 3);
+          if(grid[ry][rx]===0 && Math.hypot(rx-player.x, ry-player.y)>4 && far){
+            currentNodes.push({x:rx, y:ry, ...item, found: false}); 
+            placed = true;
+          }
+        }
+      }
+    }
+
+    function drawMaze(){
+      mz.clearRect(0,0,mazeCanvas.width,mazeCanvas.height);
+      mz.fillStyle = '#fffcf5'; mz.fillRect(0,0,mazeCanvas.width,mazeCanvas.height);
+
+      for(let r=0;r<ROWS;r++){
+        for(let c=0;c<COLS;c++){
+          if(grid[r][c]===1){
+            mz.fillStyle = '#a67c52'; 
+            mz.fillRect(c*CELL,r*CELL,CELL,CELL);
+            mz.strokeStyle = '#8b6b4a';
+            mz.strokeRect(c*CELL,r*CELL,CELL,CELL);
+          }
+        }
+      }
+
+      mz.textAlign = 'center';
+      for(let n of currentNodes){
+        if(n.found) continue;
+        mz.font = 'bold 9px sans-serif';
+        mz.fillStyle = '#000'; 
+        mz.fillText(n.name, (n.x + 0.5) * CELL, (n.y + 0.3) * CELL);
+        mz.font = '22px serif';
+        mz.fillText(n.emoji, (n.x + 0.5) * CELL, (n.y + 0.8) * CELL);
+      }
+
+      mz.font = '28px serif';
+      mz.fillText('YOU', (player.x+0.5)*CELL, (player.y+0.75)*CELL);
+    }
+
+    function stepPlayer(dx,dy){
+      if(document.getElementById('victory-screen').style.display === 'flex') return;
+      let nx = player.x + dx, ny = player.y + dy;
+      if(nx<0||ny<0||ny>=ROWS||nx>=COLS) return;
+      if(grid[ny][nx]===0){
+        player.x=nx; player.y=ny; 
+        playSound(180, 'triangle', 0.05);
+        checkNode(); 
+        drawMaze();
+      }
+    }
+
+    function checkNode(){
+      for(let n of currentNodes){
+        if(n.x===player.x && n.y===player.y && !n.found){
+          n.found = true;
+          allCollected.push(n);
+          playSound(523, 'sine', 0.2);
+          document.getElementById('collected').textContent = allCollected.length;
+          updateMindmap();
+          
+          if(currentNodes.every(node => node.found)) levelComplete();
+        }
+      }
+    }
+
+    function updateMindmap(){
+      mg.clearRect(0,0,mindCanvas.width,mindCanvas.height);
+      const cx = mindCanvas.width/2;
+      mg.fillStyle='#7f4e1e'; mg.font='bold 14px serif'; mg.textAlign='center';
+      mg.fillText('DISCOVERED SITES ('+allCollected.length+'/75)', cx, 25);
+
+      // Only show the last 16 found to keep the log clean
+      let displayList = allCollected.slice(-16);
+      displayList.forEach((n, i) => {
+        const x = 15 + (i%2)*165;
+        const y = 45 + Math.floor(i/2)*45;
+        mg.fillStyle = '#fef6d8'; mg.fillRect(x, y, 155, 38);
+        mg.strokeStyle = '#7f4e1e'; mg.lineWidth = 1; mg.strokeRect(x, y, 155, 38);
+        mg.fillStyle='#333'; mg.font='bold 10px sans-serif'; mg.textAlign='left';
+        mg.fillText(n.emoji + " " + n.name, x+10, y+23);
+      });
+    }
+
+    function levelComplete(){
+      clearInterval(timerInterval);
+      playSound(659, 'sine', 0.1);
+      setTimeout(() => playSound(880, 'sine', 0.3), 150);
+      
+      if(level >= 25) {
+        document.getElementById('vic-head').textContent = "BHARAT RATNA!";
+        document.getElementById('vic-text').textContent = "Master Explorer! You mapped all 75 sacred sites.";
+        document.getElementById('next-btn').style.display = "none";
+      } else {
+        document.getElementById('vic-text').textContent = "Level " + level + " Completed!";
+      }
+      document.getElementById('victory-screen').style.display = 'flex';
+    }
+
+    function nextLevel() { if(level < 25) { level++; startNew(); } }
+    function restartLevel() { startNew(); }
+
+    function startTimer(){
+        if(timerInterval) clearInterval(timerInterval);
+        startTime = Date.now();
+        timerInterval = setInterval(()=>{
+            const s = Math.floor((Date.now()-startTime)/1000);
+            document.getElementById('time').textContent = String(Math.floor(s/60)).padStart(2,'0') + ":" + String(s%60).padStart(2,'0');
+        },1000);
+    }
+
+    window.addEventListener('keydown', (e)=>{
+      const key = e.key.toLowerCase();
+      if(['arrowup','w'].includes(key)) { e.preventDefault(); stepPlayer(0,-1); }
+      else if(['arrowdown','s'].includes(key)) { e.preventDefault(); stepPlayer(0,1); }
+      else if(['arrowleft','a'].includes(key)) { e.preventDefault(); stepPlayer(-1,0); }
+      else if(['arrowright','d'].includes(key)) { e.preventDefault(); stepPlayer(1,0); }
+    });
+
+    document.getElementById('btn-new').onclick = () => { 
+        if(confirm("Start from Level 1?")) { level=1; allCollected=[]; startNew(); }
+    };
+    document.getElementById('btn-sound').onclick = () => { 
+        soundOn = !soundOn; 
+        document.getElementById('btn-sound').textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+    };
+    document.getElementById('btn-reset').onclick = () => { startNew(); };
+
+    function startNew(){
+      document.getElementById('victory-screen').style.display = 'none';
+      document.getElementById('next-btn').style.display = "block";
+      initMaze(); 
+      placeNodes(); 
+      document.getElementById('level').textContent = level; 
+      document.getElementById('collected').textContent = allCollected.length;
+      updateMindmap(); 
+      drawMaze(); 
+      startTimer();
+    }
+
+    // Initial start
+    startNew();
+  </script>
+</body>
+</html>

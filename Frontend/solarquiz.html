@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Solar System Quiz – 20 Levels</title>
+
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background:radial-gradient(circle at top,#2b2d42,#0eadf7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+}
+
+/* MAIN CARD */
+.main{
+    width:90%;
+    max-width:800px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(15px);
+    border-radius:25px;
+    padding:25px;
+}
+
+h1{text-align:center;color:#ffd60a}
+#level,#qCount,#stopwatch{text-align:center;margin:6px 0}
+#stopwatch{color:#00f5d4;font-weight:bold}
+
+/* PROGRESS */
+#progress{
+    height:12px;
+    background:#1b263b;
+    border-radius:10px;
+    overflow:hidden;
+    margin:15px 0;
+}
+#progressBar{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,#00f5d4,#3a86ff);
+}
+
+/* GAME */
+#gameBox{
+    background:rgba(0,0,0,.6);
+    padding:20px;
+    border-radius:20px;
+}
+
+.option{
+    background:#415a77;
+    padding:14px;
+    margin:10px 0;
+    border-radius:14px;
+    cursor:pointer;
+}
+.option:hover{background:#3a86ff}
+.correct{background:#06d6a0!important;color:#000}
+.wrong{background:#ef476f!important}
+
+button{
+    padding:10px 18px;
+    border:none;
+    border-radius:12px;
+    background:#ffd60a;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btnCenter{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin-top:10px;
+}
+
+/* POPUPS */
+.popup{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
+.popup div{
+    background:#fff;
+    color:#000;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="main">
+    <h1>🌌 Solar System Quiz</h1>
+    <h2 id="level">Level 1</h2>
+    <p id="qCount">Question 1 / 10</p>
+    <div id="stopwatch">⏱ Time: 00:00</div>
+
+    <div id="progress"><div id="progressBar"></div></div>
+
+    <div id="gameBox">
+        <h3 id="question">Loading...</h3>
+        <div id="options"></div>
+
+        <div class="btnCenter">
+            <button id="hintBtn">Hint</button>
+            <button id="nextBtn" style="display:none;">Next</button>
+        </div>
+
+        <p id="hintText"></p>
+        <h3 id="scoreBox">Score: 0</h3>
+    </div>
+</div>
+
+<!-- POPUPS -->
+<div id="pass" class="popup">
+  <div>
+    <h2>🚀 Level Completed!</h2>
+    <p id="timeTaken"></p>
+    <button onclick="nextLevel()">Next Level</button>
+  </div>
+</div>
+
+<div id="fail" class="popup">
+  <div>
+    <h2>❌ Level Failed</h2>
+    <button onclick="restart()">Retry</button>
+  </div>
+</div>
+
+<script>
+/* ===== LEVEL DATA (USE YOUR FULL 20 LEVEL ARRAY HERE) ===== */
+const levels = [
+[
+{q:"Closest planet to Sun?",a:["Venus","Mercury","Earth","Mars"],c:1,h:"Smallest"},
+{q:"Red Planet?",a:["Mars","Jupiter","Venus","Saturn"],c:0,h:"Iron oxide"},
+{q:"Largest planet?",a:["Earth","Jupiter","Saturn","Neptune"],c:1,h:"Gas giant"},
+{q:"Planet with rings?",a:["Mars","Venus","Saturn","Earth"],c:2,h:"Visible"},
+{q:"Hottest planet?",a:["Mercury","Venus","Mars","Earth"],c:1,h:"Greenhouse"},
+{q:"Blue planet?",a:["Earth","Uranus","Neptune","Venus"],c:0,h:"Life"},
+{q:"Most moons?",a:["Mars","Earth","Jupiter","Venus"],c:2,h:"Many"},
+{q:"Tilted planet?",a:["Earth","Uranus","Saturn","Mars"],c:1,h:"Sideways"},
+{q:"Earth’s satellite?",a:["Sun","Moon","Mars","Asteroid"],c:1,h:"Night"},
+{q:"Farthest planet?",a:["Uranus","Saturn","Neptune","Jupiter"],c:2,h:"Cold"}
+],
+/* ================= LEVEL 2 ================= */
+[
+{q:"Smallest planet?",a:["Mars","Mercury","Venus","Earth"],c:1,h:"Tiny"},
+{q:"Great Red Spot belongs to?",a:["Saturn","Jupiter","Mars","Venus"],c:1,h:"Storm"},
+{q:"Morning Star?",a:["Mercury","Venus","Mars","Earth"],c:1,h:"Bright"},
+{q:"Planet with longest day?",a:["Earth","Venus","Mars","Mercury"],c:1,h:"Slow spin"},
+{q:"Gas giant?",a:["Mars","Earth","Jupiter","Venus"],c:2,h:"Big"},
+{q:"Planet with methane?",a:["Earth","Neptune","Mars","Venus"],c:1,h:"Blue"},
+{q:"Planet with 27 moons?",a:["Uranus","Neptune","Mars","Saturn"],c:0,h:"Many"},
+{q:"Largest moon?",a:["Titan","Moon","Ganymede","Io"],c:2,h:"Jupiter"},
+{q:"Brightest planet?",a:["Venus","Mars","Jupiter","Mercury"],c:0,h:"Shiny"},
+{q:"Ice giant?",a:["Mars","Earth","Neptune","Venus"],c:2,h:"Cold"}
+],
+
+/* ================= LEVEL 3 ================= */
+[
+{q:"Sun is a?",a:["Planet","Star","Moon","Asteroid"],c:1,h:"Hot"},
+{q:"Earth position from Sun?",a:["2nd","3rd","4th","5th"],c:1,h:"Home"},
+{q:"Asteroid belt between?",a:["Mars-Jupiter","Earth-Mars","Venus-Earth","Saturn-Uranus"],c:0,h:"Gap"},
+{q:"Dwarf planet?",a:["Pluto","Mars","Earth","Venus"],c:0,h:"Small"},
+{q:"Coldest planet?",a:["Uranus","Neptune","Mars","Saturn"],c:0,h:"Tilted"},
+{q:"Planet with fastest winds?",a:["Neptune","Jupiter","Saturn","Earth"],c:0,h:"Speed"},
+{q:"Planet without atmosphere?",a:["Mercury","Venus","Earth","Mars"],c:0,h:"Thin"},
+{q:"Retrograde rotation planet?",a:["Earth","Mars","Venus","Jupiter"],c:2,h:"Backward"},
+{q:"Gas planet?",a:["Jupiter","Mars","Earth","Venus"],c:0,h:"Huge"},
+{q:"Planet with hexagon storm?",a:["Saturn","Jupiter","Neptune","Uranus"],c:0,h:"North pole"}
+],
+
+/* ================= LEVEL 4 ================= */
+[
+{q:"Planet with strongest gravity?",a:["Earth","Jupiter","Saturn","Neptune"],c:1,h:"Massive"},
+{q:"Planet named after Roman god of war?",a:["Mars","Jupiter","Venus","Saturn"],c:0,h:"War"},
+{q:"Moon with volcanoes?",a:["Europa","Titan","Io","Moon"],c:2,h:"Fire"},
+{q:"Planet with thin atmosphere?",a:["Venus","Earth","Mars","Jupiter"],c:2,h:"Dry"},
+{q:"Ring system largest?",a:["Jupiter","Saturn","Uranus","Neptune"],c:1,h:"Famous"},
+{q:"Planet with blue rings?",a:["Saturn","Uranus","Neptune","Jupiter"],c:1,h:"Tilted"},
+{q:"Planet with shortest day?",a:["Jupiter","Earth","Mars","Venus"],c:0,h:"Fast spin"},
+{q:"Planet with sulphur smell?",a:["Earth","Venus","Jupiter","Mars"],c:1,h:"Clouds"},
+{q:"Moon larger than Mercury?",a:["Titan","Ganymede","Europa","Io"],c:1,h:"Biggest"},
+{q:"Planet farthest from Sun?",a:["Neptune","Uranus","Saturn","Jupiter"],c:0,h:"Last"}
+],
+
+/* ================= LEVEL 5 ================= */
+[
+{q:"Earth-like planet?",a:["Mars","Venus","Mercury","Neptune"],c:0,h:"Similar"},
+{q:"Planet with polar ice caps?",a:["Venus","Mars","Jupiter","Mercury"],c:1,h:"Ice"},
+{q:"Gas giant with faint rings?",a:["Neptune","Uranus","Saturn","Jupiter"],c:3,h:"Hidden"},
+{q:"Planet with blue-green color?",a:["Earth","Uranus","Neptune","Venus"],c:1,h:"Methane"},
+{q:"Moon with subsurface ocean?",a:["Europa","Moon","Io","Titan"],c:0,h:"Water"},
+{q:"Planet with highest mountain?",a:["Earth","Mars","Venus","Mercury"],c:1,h:"Olympus"},
+{q:"Planet with no moons?",a:["Earth","Mercury","Mars","Jupiter"],c:1,h:"None"},
+{q:"Moon with thick atmosphere?",a:["Titan","Europa","Io","Moon"],c:0,h:"Dense"},
+{q:"Planet with extreme seasons?",a:["Earth","Uranus","Mars","Venus"],c:1,h:"Tilt"},
+{q:"Planet with longest year?",a:["Neptune","Uranus","Saturn","Jupiter"],c:0,h:"Slow orbit"}
+],
+
+/* ================= LEVEL 6 ================= */
+[
+{q:"Sun’s energy comes from?",a:["Fission","Fusion","Combustion","Heat"],c:1,h:"Hydrogen"},
+{q:"Planet with strongest winds?",a:["Neptune","Jupiter","Saturn","Earth"],c:0,h:"Speed"},
+{q:"Planet with rings tilted?",a:["Saturn","Uranus","Neptune","Jupiter"],c:1,h:"Sideways"},
+{q:"Moon with lakes of methane?",a:["Titan","Europa","Io","Moon"],c:0,h:"Lakes"},
+{q:"Closest star to Earth?",a:["Sirius","Alpha Centauri","Sun","Proxima"],c:2,h:"Day"},
+{q:"Planet named after sea god?",a:["Neptune","Mars","Venus","Saturn"],c:0,h:"Ocean"},
+{q:"Planet with sulfuric acid clouds?",a:["Earth","Venus","Mars","Jupiter"],c:1,h:"Acid"},
+{q:"Small rocky bodies?",a:["Comets","Asteroids","Planets","Stars"],c:1,h:"Belt"},
+{q:"Tail visible object?",a:["Asteroid","Meteor","Comet","Moon"],c:2,h:"Ice"},
+{q:"Planet with no solid surface?",a:["Earth","Mars","Jupiter","Mercury"],c:2,h:"Gas"}
+],
+
+/* ================= LEVEL 7 ================= */
+[
+{q:"Center of solar system?",a:["Earth","Sun","Jupiter","Mars"],c:1,h:"Gravity"},
+{q:"Rocky planets called?",a:["Gas giants","Terrestrial","Ice giants","Stars"],c:1,h:"Solid"},
+{q:"Planet with backward rotation?",a:["Mars","Venus","Earth","Jupiter"],c:1,h:"Opposite"},
+{q:"Small icy bodies?",a:["Asteroids","Comets","Meteors","Moons"],c:1,h:"Ice"},
+{q:"Planet with magnetic field strongest?",a:["Earth","Jupiter","Saturn","Neptune"],c:1,h:"Huge"},
+{q:"Moon causing tides?",a:["Sun","Mars","Moon","Venus"],c:2,h:"Pull"},
+{q:"Planet with iron core?",a:["Earth","Venus","Mars","All"],c:3,h:"Common"},
+{q:"Planet with cloud bands?",a:["Earth","Mars","Jupiter","Venus"],c:2,h:"Stripes"},
+{q:"Moon with geysers?",a:["Titan","Europa","Enceladus","Io"],c:2,h:"Jets"},
+{q:"Planet with thin rings?",a:["Saturn","Uranus","Neptune","Jupiter"],c:3,h:"Faint"}
+],
+
+/* ================= LEVEL 8 ================= */
+[
+{q:"Day-night cycle due to?",a:["Revolution","Rotation","Gravity","Tilt"],c:1,h:"Spin"},
+{q:"Seasons caused by?",a:["Distance","Tilt","Speed","Gravity"],c:1,h:"Angle"},
+{q:"Planet with orange color?",a:["Earth","Mars","Venus","Jupiter"],c:1,h:"Rust"},
+{q:"Object burning in atmosphere?",a:["Meteor","Asteroid","Comet","Moon"],c:0,h:"Fire"},
+{q:"Largest ring system?",a:["Jupiter","Saturn","Uranus","Neptune"],c:1,h:"Iconic"},
+{q:"Planet with CO2 atmosphere?",a:["Earth","Venus","Mars","Both B & C"],c:3,h:"Gas"},
+{q:"Planet with longest eclipse?",a:["Earth","Jupiter","Saturn","Mars"],c:1,h:"Big"},
+{q:"Moon with cracks?",a:["Europa","Io","Moon","Titan"],c:0,h:"Ice"},
+{q:"Planet with polar hexagon?",a:["Saturn","Jupiter","Neptune","Uranus"],c:0,h:"Shape"},
+{q:"Closest planet to Earth?",a:["Mars","Venus","Mercury","Jupiter"],c:1,h:"Near"}
+],
+
+/* ================= LEVEL 9 ================= */
+[
+{q:"Planet with thick clouds?",a:["Venus","Earth","Mars","Mercury"],c:0,h:"Dense"},
+{q:"Moon that causes eclipses?",a:["Sun","Moon","Mars","Venus"],c:1,h:"Shadow"},
+{q:"Planet with fastest rotation?",a:["Earth","Mars","Jupiter","Venus"],c:2,h:"Spin"},
+{q:"Object hits Earth surface?",a:["Meteorite","Meteor","Asteroid","Comet"],c:0,h:"Impact"},
+{q:"Planet with auroras?",a:["Earth","Jupiter","Both","None"],c:2,h:"Magnetic"},
+{q:"Planet with strongest storms?",a:["Earth","Jupiter","Mars","Venus"],c:1,h:"Giant"},
+{q:"Moon of Mars?",a:["Titan","Phobos","Europa","Io"],c:1,h:"Small"},
+{q:"Ice giant planet?",a:["Mars","Earth","Uranus","Venus"],c:2,h:"Cold"},
+{q:"Planet with blue appearance?",a:["Earth","Neptune","Mars","Venus"],c:1,h:"Methane"},
+{q:"Planet with volcano Olympus Mons?",a:["Venus","Mars","Earth","Mercury"],c:1,h:"Tall"}
+],
+
+/* ================= LEVEL 10 ================= */
+[
+{q:"Sunspot temperature is?",a:["Hotter","Cooler","Same","Zero"],c:1,h:"Dark"},
+{q:"Moon without atmosphere?",a:["Moon","Titan","Europa","Io"],c:0,h:"Vacuum"},
+{q:"Planet with methane ice?",a:["Uranus","Earth","Mars","Venus"],c:0,h:"Cold"},
+{q:"Largest asteroid?",a:["Vesta","Ceres","Pallas","Eros"],c:1,h:"Dwarf"},
+{q:"Planet with rings discovered first?",a:["Saturn","Jupiter","Uranus","Neptune"],c:0,h:"Visible"},
+{q:"Moon with water ice?",a:["Moon","Mars","Europa","All"],c:3,h:"Common"},
+{q:"Planet named after sky god?",a:["Jupiter","Mars","Venus","Neptune"],c:0,h:"Roman"},
+{q:"Planet with no seasons?",a:["Earth","Mars","Mercury","Venus"],c:2,h:"No tilt"},
+{q:"Planet with strongest gravity pull?",a:["Earth","Jupiter","Neptune","Saturn"],c:1,h:"Mass"},
+{q:"Planet with faint rings?",a:["Saturn","Jupiter","Uranus","Neptune"],c:1,h:"Hidden"}
+],
+
+/* ================= LEVEL 11 ================= */
+[
+{q:"Planet with weakest gravity?",a:["Earth","Mars","Mercury","Venus"],c:2,h:"Small"},
+{q:"Moon with underground ocean?",a:["Europa","Io","Moon","Titan"],c:0,h:"Water"},
+{q:"Planet with longest sunrise?",a:["Earth","Venus","Mars","Mercury"],c:1,h:"Slow"},
+{q:"Solar wind comes from?",a:["Earth","Sun","Moon","Mars"],c:1,h:"Plasma"},
+{q:"Planet with largest magnetosphere?",a:["Earth","Jupiter","Saturn","Neptune"],c:1,h:"Huge"},
+{q:"Planet that rains diamonds?",a:["Earth","Neptune","Mars","Venus"],c:1,h:"Carbon"},
+{q:"Moon with thick haze?",a:["Titan","Europa","Io","Moon"],c:0,h:"Orange"},
+{q:"Planet closest in size to Earth?",a:["Venus","Mars","Mercury","Neptune"],c:0,h:"Twin"},
+{q:"Asteroids mostly made of?",a:["Ice","Rock","Gas","Water"],c:1,h:"Solid"},
+{q:"Planet with extreme pressure?",a:["Mars","Venus","Earth","Mercury"],c:1,h:"Dense"}
+],
+
+/* ================= LEVEL 12 ================= */
+[
+{q:"Planet with fastest orbit?",a:["Mercury","Venus","Earth","Mars"],c:0,h:"88 days"},
+{q:"Moon causing tides?",a:["Sun","Mars","Moon","Venus"],c:2,h:"Pull"},
+{q:"Planet with iron-rich surface?",a:["Mars","Mercury","Venus","Earth"],c:1,h:"Metal"},
+{q:"Sun’s outer atmosphere?",a:["Core","Corona","Photosphere","Mantle"],c:1,h:"Halo"},
+{q:"Planet with sulfur volcanoes?",a:["Earth","Mars","Io","Venus"],c:2,h:"Moon"},
+{q:"Planet with brightest rings?",a:["Jupiter","Saturn","Uranus","Neptune"],c:1,h:"Iconic"},
+{q:"Object from Kuiper belt?",a:["Comet","Asteroid","Meteor","Moon"],c:0,h:"Ice"},
+{q:"Planet with no tilt?",a:["Earth","Mars","Venus","Mercury"],c:3,h:"Stable"},
+{q:"Largest moon of Saturn?",a:["Io","Titan","Europa","Ganymede"],c:1,h:"Big"},
+{q:"Planet with thick CO₂ clouds?",a:["Mars","Venus","Earth","Mercury"],c:1,h:"Acid"}
+],
+
+/* ================= LEVEL 13 ================= */
+[
+{q:"Sun mainly made of?",a:["Oxygen","Hydrogen","Carbon","Iron"],c:1,h:"Fuel"},
+{q:"Planet with subsurface ice?",a:["Mars","Earth","Venus","Mercury"],c:0,h:"Poles"},
+{q:"Moon with salty ocean?",a:["Europa","Moon","Io","Titan"],c:0,h:"Salt"},
+{q:"Planet with chaotic tilt?",a:["Earth","Mars","Uranus","Venus"],c:2,h:"Sideways"},
+{q:"Small rocky fragments?",a:["Comets","Asteroids","Stars","Planets"],c:1,h:"Belt"},
+{q:"Planet with longest eclipse?",a:["Earth","Mars","Jupiter","Venus"],c:2,h:"Big"},
+{q:"Planet with frozen nitrogen?",a:["Pluto","Mars","Venus","Earth"],c:0,h:"Dwarf"},
+{q:"Planet with visible bands?",a:["Mars","Venus","Jupiter","Mercury"],c:2,h:"Stripes"},
+{q:"Moon with geysers of water?",a:["Io","Europa","Enceladus","Titan"],c:2,h:"Jets"},
+{q:"Closest planet during approach?",a:["Mars","Venus","Mercury","Jupiter"],c:1,h:"Near"}
+],
+
+/* ================= LEVEL 14 ================= */
+[
+{q:"Solar flare originates from?",a:["Moon","Sun","Earth","Mars"],c:1,h:"Explosion"},
+{q:"Planet with orange haze?",a:["Earth","Mars","Venus","Mercury"],c:2,h:"Clouds"},
+{q:"Planet with most rings?",a:["Jupiter","Saturn","Uranus","Neptune"],c:1,h:"Many"},
+{q:"Moon larger than Pluto?",a:["Europa","Ganymede","Moon","Io"],c:1,h:"Largest"},
+{q:"Planet with shortest year?",a:["Earth","Venus","Mercury","Mars"],c:2,h:"Fast"},
+{q:"Planet with violent storms?",a:["Earth","Jupiter","Mars","Venus"],c:1,h:"Red Spot"},
+{q:"Object entering atmosphere?",a:["Meteor","Meteorite","Asteroid","Comet"],c:0,h:"Burn"},
+{q:"Planet with icy rings?",a:["Saturn","Uranus","Neptune","Jupiter"],c:0,h:"Ice"},
+{q:"Planet with no atmosphere?",a:["Earth","Mercury","Venus","Mars"],c:1,h:"Bare"},
+{q:"Planet with iron oxide soil?",a:["Mars","Venus","Earth","Mercury"],c:0,h:"Rust"}
+],
+
+/* ================= LEVEL 15 ================= */
+[
+{q:"Energy from Sun travels as?",a:["Sound","Heat","Light","Electricity"],c:2,h:"Waves"},
+{q:"Planet with longest night?",a:["Earth","Venus","Mars","Mercury"],c:1,h:"Slow"},
+{q:"Planet with polar storms?",a:["Earth","Jupiter","Saturn","Mars"],c:2,h:"Hexagon"},
+{q:"Moon with liquid methane?",a:["Europa","Io","Titan","Moon"],c:2,h:"Lakes"},
+{q:"Planet with frozen CO₂?",a:["Earth","Mars","Venus","Mercury"],c:1,h:"Dry ice"},
+{q:"Object orbiting planets?",a:["Star","Moon","Asteroid","Comet"],c:1,h:"Natural"},
+{q:"Planet with deep oceans?",a:["Earth","Mars","Venus","Mercury"],c:0,h:"Water"},
+{q:"Planet with invisible rings?",a:["Saturn","Jupiter","Uranus","Neptune"],c:1,h:"Faint"},
+{q:"Planet with radioactive heat?",a:["Earth","Mars","Venus","All"],c:3,h:"Core"},
+{q:"Small icy body tail?",a:["Asteroid","Meteor","Comet","Moon"],c:2,h:"Ice"}
+],
+
+/* ================= LEVEL 16 ================= */
+[
+{q:"Sun’s visible surface?",a:["Corona","Core","Photosphere","Chromosphere"],c:2,h:"Light"},
+{q:"Planet with no magnetic field?",a:["Earth","Mars","Venus","Jupiter"],c:2,h:"Weak"},
+{q:"Moon with cracked ice?",a:["Europa","Moon","Titan","Io"],c:0,h:"Lines"},
+{q:"Planet with yellow clouds?",a:["Earth","Venus","Mars","Mercury"],c:1,h:"Sulfur"},
+{q:"Object deflected by gravity?",a:["Comet","Asteroid","Meteor","All"],c:3,h:"Mass"},
+{q:"Planet with molten core?",a:["Earth","Mars","Mercury","All"],c:3,h:"Heat"},
+{q:"Planet with longest orbit?",a:["Neptune","Uranus","Saturn","Jupiter"],c:0,h:"Far"},
+{q:"Planet with reflective clouds?",a:["Venus","Earth","Mars","Mercury"],c:0,h:"Bright"},
+{q:"Moon with dark plains?",a:["Moon","Europa","Titan","Io"],c:0,h:"Maria"},
+{q:"Planet with methane clouds?",a:["Neptune","Earth","Mars","Venus"],c:0,h:"Blue"}
+],
+
+/* ================= LEVEL 17 ================= */
+[
+{q:"Sun’s gravity holds?",a:["Moon","Planets","Stars","Asteroids"],c:1,h:"Orbit"},
+{q:"Planet with tilted axis most?",a:["Earth","Mars","Uranus","Venus"],c:2,h:"98°"},
+{q:"Moon orbiting Jupiter?",a:["Titan","Io","Moon","Phobos"],c:1,h:"Hot"},
+{q:"Planet with weak atmosphere?",a:["Mars","Earth","Venus","Neptune"],c:0,h:"Thin"},
+{q:"Planet with icy poles?",a:["Earth","Mars","Both","None"],c:2,h:"Caps"},
+{q:"Moon with nitrogen ice?",a:["Pluto","Moon","Titan","Europa"],c:0,h:"Cold"},
+{q:"Planet with radio emissions?",a:["Earth","Jupiter","Mars","Venus"],c:1,h:"Strong"},
+{q:"Planet with violent lightning?",a:["Earth","Jupiter","Venus","All"],c:3,h:"Storms"},
+{q:"Object leaving meteorite?",a:["Asteroid","Meteor","Comet","Moon"],c:1,h:"Impact"},
+{q:"Planet with thick clouds layer?",a:["Venus","Mars","Earth","Mercury"],c:0,h:"Dense"}
+],
+
+/* ================= LEVEL 18 ================= */
+[
+{q:"Solar eclipse caused by?",a:["Earth","Moon","Sun","Mars"],c:1,h:"Blocks"},
+{q:"Planet with shortest day?",a:["Earth","Jupiter","Mars","Venus"],c:1,h:"Fast"},
+{q:"Moon with underground ocean confirmed?",a:["Titan","Europa","Moon","Io"],c:1,h:"Confirmed"},
+{q:"Planet with sulfuric rain?",a:["Earth","Venus","Mars","Mercury"],c:1,h:"Acid"},
+{q:"Planet with methane rain?",a:["Titan","Mars","Earth","Moon"],c:0,h:"Cold"},
+{q:"Planet with extreme gravity?",a:["Earth","Jupiter","Mars","Mercury"],c:1,h:"Massive"},
+{q:"Planet with calm appearance?",a:["Earth","Mars","Venus","Mercury"],c:3,h:"Smooth"},
+{q:"Object seen as shooting star?",a:["Meteor","Asteroid","Comet","Moon"],c:0,h:"Flash"},
+{q:"Planet with blue storms?",a:["Neptune","Earth","Mars","Venus"],c:0,h:"Winds"},
+{q:"Planet with rocky surface?",a:["Jupiter","Saturn","Earth","Neptune"],c:2,h:"Solid"}
+],
+
+/* ================= LEVEL 19 ================= */
+[
+{q:"Sun is middle-aged?",a:["Yes","No","Dying","Born"],c:0,h:"Stable"},
+{q:"Planet with thick iron core?",a:["Mercury","Earth","Mars","Venus"],c:0,h:"Large core"},
+{q:"Planet with clouds of ammonia?",a:["Earth","Mars","Jupiter","Venus"],c:2,h:"Gas"},
+{q:"Moon responsible for eclipses?",a:["Sun","Moon","Mars","Venus"],c:1,h:"Shadow"},
+{q:"Planet with axial precession?",a:["Earth","Mars","Both","None"],c:2,h:"Wobble"},
+{q:"Planet with icy surface cracks?",a:["Europa","Moon","Titan","Io"],c:0,h:"Ice"},
+{q:"Planet with many storms?",a:["Earth","Mars","Jupiter","Venus"],c:2,h:"Giant"},
+{q:"Object in asteroid belt?",a:["Comet","Asteroid","Moon","Planet"],c:1,h:"Belt"},
+{q:"Planet with deep blue color?",a:["Uranus","Neptune","Earth","Mars"],c:1,h:"Methane"},
+{q:"Planet with volcanic plains?",a:["Venus","Mars","Earth","Mercury"],c:0,h:"Lava"}
+],
+
+
+[
+{q:"Sun will become?",a:["Supernova","Red Giant","White Dwarf","Black Hole"],c:1,h:"Future"},
+{q:"Planet with most extreme weather?",a:["Earth","Mars","Jupiter","Venus"],c:2,h:"Storms"},
+{q:"Moon with subsurface ocean confirmed?",a:["Europa","Titan","Moon","Io"],c:0,h:"Water"},
+{q:"Planet with carbon dioxide dominance?",a:["Earth","Venus","Mars","Both B & C"],c:3,h:"CO₂"},
+{q:"Planet with invisible rings?",a:["Saturn","Jupiter","Uranus","Neptune"],c:1,h:"Faint"},
+{q:"Planet with no magnetic field?",a:["Earth","Venus","Mars","Both B & C"],c:3,h:"Weak"},
+{q:"Planet with longest year?",a:["Neptune","Uranus","Saturn","Jupiter"],c:0,h:"165 yrs"},
+{q:"Moon with thick atmosphere?",a:["Titan","Moon","Io","Europa"],c:0,h:"Dense"},
+{q:"Planet with strongest auroras?",a:["Earth","Jupiter","Mars","Venus"],c:1,h:"Powerful"},
+{q:"Final object of solar system?",a:["Kuiper Belt","Oort Cloud","Asteroid Belt","Moon"],c:1,h:"Edge"}
+]
+];
+
+
+/* ===== GAME STATE ===== */
+let lvl=0, q=0, score=0, correct=0;
+let seconds=0, watch;
+
+/* ===== ELEMENTS ===== */
+const question=document.getElementById("question");
+const options=document.getElementById("options");
+const levelTxt=document.getElementById("level");
+const qCount=document.getElementById("qCount");
+const stopwatchTxt=document.getElementById("stopwatch");
+const scoreBox=document.getElementById("scoreBox");
+const progressBar=document.getElementById("progressBar");
+
+/* ===== STOPWATCH ===== */
+function startStopwatch(){
+ clearInterval(watch);
+ seconds=0;
+ watch=setInterval(()=>{
+  seconds++;
+  let m=String(Math.floor(seconds/60)).padStart(2,"0");
+  let s=String(seconds%60).padStart(2,"0");
+  stopwatchTxt.innerText=`⏱ Time: ${m}:${s}`;
+ },1000);
+}
+
+function stopStopwatch(){
+ clearInterval(watch);
+}
+
+/* ===== GAME LOGIC ===== */
+function loadQ(){
+ levelTxt.innerText="Level "+(lvl+1);
+ qCount.innerText=`Question ${q+1} / 10`;
+
+ const data=levels[lvl][q];
+ question.innerText=data.q;
+ options.innerHTML="";
+ hintText.innerText="";
+ nextBtn.style.display="none";
+
+ data.a.forEach((opt,i)=>{
+  const d=document.createElement("div");
+  d.className="option";
+  d.innerText=opt;
+  d.onclick=()=>check(i);
+  options.appendChild(d);
+ });
+}
+
+function check(i){
+ const data=levels[lvl][q];
+ document.querySelectorAll(".option").forEach((o,j)=>{
+  o.style.pointerEvents="none";
+  if(j===data.c)o.classList.add("correct");
+  if(j===i && i!==data.c)o.classList.add("wrong");
+ });
+ if(i===data.c){
+  score++;correct++;
+  progressBar.style.width=(correct/10)*100+"%";
+ }
+ scoreBox.innerText="Score: "+score;
+ nextBtn.style.display="inline";
+}
+
+nextBtn.onclick=()=>{
+ q++;
+ if(q===10){
+  stopStopwatch();
+  document.getElementById("timeTaken").innerText =
+    "⏱ Time Taken: " + stopwatchTxt.innerText.split(" ")[2];
+  correct>=5 ? pass.style.display="flex" : fail.style.display="flex";
+ } else loadQ();
+};
+
+function nextLevel(){
+ pass.style.display="none";
+ lvl++;
+ restart();
+}
+
+function restart(){
+ fail.style.display="none";
+ q=0; score=0; correct=0;
+ progressBar.style.width="0%";
+ scoreBox.innerText="Score: 0";
+ startStopwatch();
+ loadQ();
+}
+
+hintBtn.onclick=()=>{
+ hintText.innerText=levels[lvl][q].h;
+};
+
+/* START GAME */
+startStopwatch();
+loadQ();
+</script>
+
+</body>
+</html>

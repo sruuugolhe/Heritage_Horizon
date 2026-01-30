@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INDIA HERITAGE PUZZLE HUNT</title>
+
+<style>
+body {
+  font-family: Garamond, serif;
+  background: #fdf6e3;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #4b2e2e;
+}
+
+h1 {
+  margin: 20px 0 10px;
+  color: #7f4e1e;
+}
+
+#stats {
+  display: flex;
+  justify-content: space-around;
+  width: 95%;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#puzzle-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.cell {
+  width: 45px;
+  height: 45px;
+  background: #fff8dc;
+  border: 1px solid #a67c52;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.cell.selected {
+  background: #d4b87a;
+  color: white;
+}
+
+/* FOUND WORD — LIGHT CHOCOLATY BROWN */
+.cell.found {
+  background: #7a4a1d;
+  color: white;
+}
+
+/* RED LINES */
+.cell.found.h-line::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: red;
+}
+
+.cell.found.v-line::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: red;
+}
+
+/* HINT FLASH */
+.cell.hint {
+  background: #ffcc80 !important;
+}
+
+#words-to-find {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+#words-to-find span {
+  padding: 6px 12px;
+  border: 2px solid #d2b48c;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.found-word {
+  text-decoration: line-through;
+  background: #ffd966;
+}
+
+#buttons {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 18px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #7f4e1e;
+  color: white;
+}
+
+#congrats-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,240,0.95);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>INDIA HERITAGE</h1>
+<h2>WORD HUNT PUZZLE</h2>
+<div id="stats">
+  <div>Level: <span id="level-display">1</span></div>
+  <div>Time: <span id="time-display">00:00</span></div>
+  <div>Score: <span id="score-display">0</span></div>
+  <div>Found: <span id="found-count">0</span></div>
+</div>
+
+<div id="puzzle-grid"></div>
+<div id="words-to-find"></div>
+
+<div id="buttons">
+  <button id="btn-new-puzzle">New Game</button>
+  <button id="btn-hint">Hint</button>
+</div>
+
+<div id="congrats-screen">
+  🎉 Congratulations! 🎉
+  <div style="margin-top:15px">
+    <button id="btn-prev-level">Back Level</button>
+    <button id="btn-next-level">Next Level</button>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* SOUNDS */
+const sndSelect = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+const sndCorrect = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const sndWrong = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+const sndWin = new Audio("https://actions.google.com/sounds/v1/cartoon/ta_da.ogg");
+
+const ALL_WORDS = [
+  "ANDHRAPRADESH","BIHAR","KERALA","GOA","TAMILNADU",
+  "TAJMAHAL","HAMPI","QUTUBMINAR","AJANTA","ELLORA",
+  "DELHI","AGRA","JAIPUR","MYSORE","KOLKATA","LADAKH",
+  "RAJASTHAN","CHENNAI","VARANASI","HYDERABAD"
+];
+
+let level = 1, gridSize = 6;
+let grid=[], words=[], foundWords=new Set();
+let wordMap={}, selected=[], timer, time=0, score=0;
+
+const gridEl = document.getElementById("puzzle-grid");
+const wordsEl = document.getElementById("words-to-find");
+
+function setup(){
+  gridSize = Math.min(15, 5 + level);
+  grid = Array.from({length:gridSize},()=>Array(gridSize).fill(""));
+  foundWords.clear();
+  selected=[]; time=0; score=0;
+  wordMap={};
+  words=[];
+
+  const candidates = ALL_WORDS
+    .filter(w=>w.length<=gridSize)
+    .sort(()=>Math.random()-0.5);
+
+  for(const w of candidates){
+    if(words.length >= 3 + level) break;
+    if(placeWord(w)) words.push(w);
+  }
+
+  fillRandom();
+  render();
+  startTimer();
+}
+
+/* GUARANTEED PLACEMENT */
+function placeWord(word){
+  const dirs=[{r:0,c:1},{r:1,c:0}];
+  for(let i=0;i<300;i++){
+    const d=dirs[Math.floor(Math.random()*2)];
+    let r=Math.floor(Math.random()*gridSize);
+    let c=Math.floor(Math.random()*gridSize);
+    let pos=[];
+    for(let j=0;j<word.length;j++){
+      let rr=r+j*d.r, cc=c+j*d.c;
+      if(rr>=gridSize||cc>=gridSize||(grid[rr][cc] && grid[rr][cc]!==word[j])){
+        pos=null; break;
+      }
+      pos.push({r:rr,c:cc});
+    }
+    if(!pos) continue;
+    pos.forEach((p,i)=>grid[p.r][p.c]=word[i]);
+    wordMap[word]={pos,dir:d};
+    return true;
+  }
+  return false;
+}
+
+function fillRandom(){
+  for(let r=0;r<gridSize;r++)
+    for(let c=0;c<gridSize;c++)
+      if(!grid[r][c]) grid[r][c]=String.fromCharCode(65+Math.random()*26|0);
+}
+
+function render(){
+  gridEl.innerHTML="";
+  gridEl.style.gridTemplateColumns=`repeat(${gridSize},45px)`;
+
+  for(let r=0;r<gridSize;r++)
+    for(let c=0;c<gridSize;c++){
+      const d=document.createElement("div");
+      d.className="cell";
+      d.textContent=grid[r][c];
+      d.dataset.row=r;
+      d.dataset.col=c;
+
+      foundWords.forEach(w=>{
+        wordMap[w].pos.forEach(p=>{
+          if(p.r===r && p.c===c){
+            d.classList.add("found", wordMap[w].dir.r ? "v-line" : "h-line");
+          }
+        });
+      });
+
+      gridEl.appendChild(d);
+    }
+
+  wordsEl.innerHTML="";
+  words.forEach(w=>{
+    const s=document.createElement("span");
+    s.textContent=w;
+    if(foundWords.has(w)) s.classList.add("found-word");
+    wordsEl.appendChild(s);
+  });
+
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById("time-display").textContent=`00:${String(time).padStart(2,"0")}`;
+  document.getElementById("score-display").textContent=score;
+  document.getElementById("found-count").textContent=foundWords.size;
+  document.getElementById("level-display").textContent=level;
+}
+
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{time++;updateStats();},1000);
+}
+
+/* HINT */
+document.getElementById("btn-hint").onclick=()=>{
+  const remaining = words.find(w=>!foundWords.has(w));
+  if(!remaining) return;
+  const p = wordMap[remaining].pos[0];
+  const cell = document.querySelector(`.cell[data-row="${p.r}"][data-col="${p.c}"]`);
+  cell.classList.add("hint");
+  setTimeout(()=>cell.classList.remove("hint"),800);
+};
+
+let dragging=false, direction=null;
+
+gridEl.addEventListener("mousedown",e=>{
+  if(!e.target.classList.contains("cell")) return;
+  sndSelect.play();
+  dragging=true;
+  direction=null;
+  selected=[e.target];
+  e.target.classList.add("selected");
+});
+
+gridEl.addEventListener("mousemove",e=>{
+  if(!dragging) return;
+  const t=document.elementFromPoint(e.clientX,e.clientY);
+  if(!t||!t.classList.contains("cell")||selected.includes(t)) return;
+
+  const last=selected[selected.length-1];
+  const r1=+last.dataset.row, c1=+last.dataset.col;
+  const r2=+t.dataset.row, c2=+t.dataset.col;
+
+  if(!direction){
+    if(r1===r2) direction="h";
+    else if(c1===c2) direction="v";
+    else return;
+  }
+
+  if((direction==="h" && r1!==r2) || (direction==="v" && c1!==c2)) return;
+
+  selected.push(t);
+  t.classList.add("selected");
+});
+
+window.addEventListener("mouseup",()=>{
+  if(!dragging) return;
+  dragging=false;
+
+  const word=selected.map(c=>c.textContent).join("");
+  if(words.includes(word) && !foundWords.has(word)){
+    sndCorrect.play();
+    foundWords.add(word);
+    score+=word.length*10;
+    render();
+  } else {
+    sndWrong.play();
+  }
+
+  selected.forEach(c=>c.classList.remove("selected"));
+  selected=[];
+  if(foundWords.size===words.length){
+    sndWin.play();
+    document.getElementById("congrats-screen").style.display="flex";
+  }
+});
+
+document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};
+document.getElementById("btn-next-level").onclick=()=>{level++;document.getElementById("congrats-screen").style.display="none";setup();};
+document.getElementById("btn-prev-level").onclick=()=>{if(level>1){level--;document.getElementById("congrats-screen").style.display="none";setup();}};
+
+/* 🎉 CONFETTI FUNCTION */
+function celebrate(){
+  for(let i=0;i<80;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=`hsl(${Math.random()*360},100%,60%)`;
+    c.style.animationDuration=2+Math.random()*2+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+
+/* BUTTONS */
+document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};
+document.getElementById("btn-next-level").onclick=()=>{level++;document.getElementById("congrats-screen").style.display="none";setup();};
+document.getElementById("btn-prev-level").onclick=()=>{if(level>1){level--;document.getElementById("congrats-screen").style.display="none";setup();}};
+setup();
+})();
+
+</script>
+
+</body>
+</html>

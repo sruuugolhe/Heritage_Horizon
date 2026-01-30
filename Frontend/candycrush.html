@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🌌 Solar Crush – Safe Match-3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',system-ui;
+  background:radial-gradient(circle at top,#1b2735,#090a0f 70%);
+  min-height:100vh;
+  color:#fff;
+  text-align:center;
+}
+
+h1{
+  margin:15px 0 5px;
+  font-size:2.2rem;
+  text-shadow:0 0 20px #5ddcff;
+}
+
+#info{
+  display:flex;
+  justify-content:center;
+  gap:30px;
+  margin-bottom:15px;
+}
+
+#board{
+  display:grid;
+  gap:10px;
+  justify-content:center;
+  padding:20px;
+  margin:auto;
+  background:rgba(255,255,255,0.08);
+  border-radius:20px;
+}
+
+.cell{
+  width:70px;
+  height:70px;
+  font-size:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,0.12);
+  border-radius:16px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.cell:hover{ transform:scale(1.12); }
+.selected{ outline:3px solid #5ddcff; }
+
+button{
+  margin:10px;
+  padding:12px 28px;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  background:linear-gradient(135deg,#5ddcff,#c77dff);
+  font-weight:600;
+}
+
+/* Fun fact popup */
+#factPopup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+#factBox{
+  background:#0b132b;
+  padding:25px;
+  border-radius:20px;
+  max-width:320px;
+  box-shadow:0 0 30px #5ddcff;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🌌 SOLAR CRUSH</h1>
+
+<div id="info">
+  <div>🚀 Level: <span id="level">1</span></div>
+  <div>⭐ Score: <span id="score">0</span></div>
+  <div>🎯 Target: <span id="target">500</span></div>
+</div>
+
+<div id="board"></div>
+
+<!-- ONLY BUTTONS ADDED -->
+<button onclick="toggleMusic()">🔊 Music</button>
+<button onclick="nextLevel()">🚀 Next Level</button>
+<button onclick="exitGame()">❌ Exit</button>
+
+<!-- Fun Fact Popup -->
+<div id="factPopup">
+  <div id="factBox">
+    <div id="factEmoji" style="font-size:48px"></div>
+    <p id="factText"></p>
+  </div>
+</div>
+
+<!-- 🎵 MUSIC -->
+<audio id="bgMusic" src="https://assets.mixkit.co/music/preview/mixkit-deep-space-ambient-121.mp3" loop></audio>
+
+<!-- 🔊 SOUNDS -->
+<audio id="swapSound"  src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+<audio id="matchSound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+<audio id="errorSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+<audio id="factSound"  src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
+
+<script>
+/* ================= CORE DATA ================= */
+let factTimer = null;
+
+let level = 1, score = 0, size = 6;
+const symbols = ["☀️","🌍","🌕","⭐","🚀","☄️","🛰️"];
+let board = [], first = null;
+
+/* music */
+let musicStarted = false;
+
+/* fun facts */
+const funFacts = {
+  "☀️":["Sun holds 99.8% of solar mass","Sunlight takes 8 minutes","Sun is 4.6B years old"],
+  "🌍":["Earth supports life","71% surface is water","Earth has protective atmosphere"],
+  "🌕":["Moon shows one face","Moon causes tides","Moon has no air"],
+  "⭐":["Sun is a star","Stars use fusion","Stars vary in size"],
+  "🚀":["Escape speed 11.2 km/s","Rockets work in vacuum","First human flight 1961"],
+  "☄️":["Asteroids are leftovers","Asteroid belt exists","Meteors burn in air"],
+  "🛰️":["Satellites help GPS","Thousands orbit Earth","First satellite 1957"]
+};
+const factPool = {};
+
+/* ================= SETUP ================= */
+function setupLevel(){
+  score = 0;
+  document.getElementById("score").textContent = score;
+
+  size = level<=5 ? 6 : level<=10 ? 7 : level<=15 ? 8 : 9;
+
+  document.getElementById("level").textContent = level;
+  document.getElementById("target").textContent = level * 500;
+
+  const grid = document.getElementById("board");
+  grid.innerHTML = "";
+  grid.style.gridTemplateColumns = `repeat(${size},70px)`;
+
+  board = [];
+  for(let i=0;i<size*size;i++){
+    const c = document.createElement("div");
+    c.className="cell";
+    c.dataset.index=i;
+    c.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+    c.onclick=()=>select(c);
+    board.push(c);
+    grid.appendChild(c);
+  }
+}
+
+/* ================= MUSIC ================= */
+function startMusic(){
+  if(musicStarted) return;
+  const bg=document.getElementById("bgMusic");
+  bg.volume=0.35;
+  bg.play().catch(()=>{});
+  musicStarted=true;
+}
+function toggleMusic(){
+  const bg=document.getElementById("bgMusic");
+  bg.muted=!bg.muted;
+}
+
+/* ================= SAFE MATCH CHECK ================= */
+function willFormMatchSafe(a,b){
+  const temp = board.map(c=>c.textContent);
+  [temp[a],temp[b]]=[temp[b],temp[a]];
+
+  for(let r=0;r<size;r++)
+    for(let c=0;c<size-2;c++){
+      let i=r*size+c;
+      if(temp[i] && temp[i]===temp[i+1] && temp[i]===temp[i+2]) return true;
+    }
+
+  for(let c=0;c<size;c++)
+    for(let r=0;r<size-2;r++){
+      let i=r*size+c;
+      if(temp[i] && temp[i]===temp[i+size] && temp[i]===temp[i+2*size]) return true;
+    }
+
+  return false;
+}
+
+function isAdjacent(a,b){
+  const ra=Math.floor(a/size), ca=a%size;
+  const rb=Math.floor(b/size), cb=b%size;
+  return Math.abs(ra-rb)+Math.abs(ca-cb)===1;
+}
+
+/* ================= INPUT ================= */
+function select(cell){
+  startMusic();
+
+  if(!first){
+    first=cell;
+    cell.classList.add("selected");
+    return;
+  }
+
+  const a=+first.dataset.index;
+  const b=+cell.dataset.index;
+
+  if(a===b || !isAdjacent(a,b) || !willFormMatchSafe(a,b)){
+    document.getElementById("errorSound").play();
+    first.classList.remove("selected");
+    first=null;
+    return;
+  }
+
+  document.getElementById("swapSound").play();
+  swap(first,cell);
+  resolveMatches();
+
+  first.classList.remove("selected");
+  first=null;
+}
+
+function swap(a,b){
+  [a.textContent,b.textContent]=[b.textContent,a.textContent];
+}
+
+/* ================= MATCH RESOLUTION ================= */
+function resolveMatches(){
+  let hit=false;
+
+  for(let r=0;r<size;r++)
+    for(let c=0;c<size-2;c++){
+      let i=r*size+c;
+      if(board[i].textContent &&
+         board[i].textContent===board[i+1].textContent &&
+         board[i].textContent===board[i+2].textContent){
+        clearMatch([i,i+1,i+2]);
+        hit=true;
+      }
+    }
+
+  for(let c=0;c<size;c++)
+    for(let r=0;r<size-2;r++){
+      let i=r*size+c;
+      if(board[i].textContent &&
+         board[i].textContent===board[i+size].textContent &&
+         board[i].textContent===board[i+2*size].textContent){
+        clearMatch([i,i+size,i+2*size]);
+        hit=true;
+      }
+    }
+
+  if(hit){
+    document.getElementById("matchSound").play();
+    drop();
+  }
+}
+
+function clearMatch(arr){
+  const e=board[arr[0]].textContent;
+  arr.forEach(i=>board[i].textContent="");
+
+  score += 100;
+  document.getElementById("score").textContent=score;
+  showFact(e);
+  checkAutoLevelUp();
+}
+
+function drop(){
+  for(let c=0;c<size;c++){
+    let stack=[];
+    for(let r=size-1;r>=0;r--){
+      let i=r*size+c;
+      if(board[i].textContent) stack.push(board[i].textContent);
+    }
+    for(let r=size-1;r>=0;r--){
+      let i=r*size+c;
+      board[i].textContent=stack.shift()||symbols[Math.floor(Math.random()*symbols.length)];
+    }
+  }
+}
+
+/* ================= AUTO LEVEL UP ================= */
+function checkAutoLevelUp(){
+  if(score >= level * 500){
+    setTimeout(()=>{
+      level++;
+      setupLevel();
+    },800);
+  }
+}
+
+/* ================= MANUAL NEXT LEVEL (BUTTON) ================= */
+function nextLevel(){
+  level++;
+  setupLevel();
+}
+
+/* ================= FUN FACT ================= */
+function showFact(e){
+  if(!factPool[e] || factPool[e].length===0){
+    factPool[e]=[...funFacts[e]].sort(()=>Math.random()-0.5);
+  }
+
+  document.getElementById("factEmoji").textContent=e;
+  document.getElementById("factText").textContent=factPool[e].pop();
+  document.getElementById("factPopup").style.display="flex";
+  document.getElementById("factSound").play();
+
+  clearTimeout(factTimer);
+  factTimer=setTimeout(()=>{
+    document.getElementById("factPopup").style.display="none";
+  },1500);
+}
+
+/* ================= EXIT ================= */
+function exitGame(){
+  const ok = confirm("Are you sure you want to exit the game?");
+  if(!ok) return;
+
+  const bg = document.getElementById("bgMusic");
+  bg.pause();
+  bg.currentTime = 0;
+
+  window.close();
+  window.location.href = "about:blank";
+}
+
+/* INIT */
+setupLevel();
+</script>
+
+</body>
+</html>
