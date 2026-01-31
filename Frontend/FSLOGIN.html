@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heritage Horizons : Earth to Universe</title>
+
+<style>
+:root{
+  --blue:#2fd4d0;
+  --green:#7ed957;
+  --dark:#04161b;
+  --panel:#0f3a42;
+}
+
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Segoe UI, sans-serif;
+}
+
+/* BODY */
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  overflow:hidden;
+}
+
+/* ================= BACKGROUND ================= */
+.bg{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:url("18ca6630-32f8-4799-b05c-f1cc0a57e0fc.png") no-repeat center center;
+  background-size:cover;
+}
+
+/* dark overlay for readability */
+.bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:rgba(4,22,27,0.75);
+}
+
+/* ================= MAIN FRAME ================= */
+.frame{
+  width:90vw;
+  height:90vh;
+  max-width:1100px;
+  padding:50px;
+  border-radius:35px;
+  background:linear-gradient(180deg, rgba(14,58,67,0.95), rgba(6,27,32,0.95));
+  border:3px solid var(--blue);
+  box-shadow:0 0 80px rgba(47,212,208,.6);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+/* glow border */
+.frame::before{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:38px;
+  background:linear-gradient(135deg,#7ed957,#2fd4d0,#7ed957);
+  opacity:.18;
+  z-index:-1;
+}
+
+/* ================= HEADER ================= */
+.header{
+  text-align:center;
+  margin-bottom:40px;
+}
+
+.header h1{
+  letter-spacing:3px;
+  font-size:34px;
+}
+
+.header p{
+  font-size:15px;
+  color:#b9ffff;
+  margin-top:8px;
+}
+
+/* ================= CONTENT ================= */
+.content{
+  display:flex;
+  gap:40px;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ================= LOGIN PANEL ================= */
+.login-panel{
+  width:420px;
+  background:var(--panel);
+  padding:30px;
+  border-radius:25px;
+  border:2px solid var(--blue);
+}
+
+/* role switch */
+.role-select{
+  display:flex;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.role-select button{
+  flex:1;
+  padding:12px;
+  border-radius:18px;
+  border:1px solid var(--green);
+  background:#083036;
+  color:white;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.role-select button.active{
+  background:linear-gradient(135deg,var(--green),#4fd1a5);
+  color:#002;
+  font-weight:bold;
+}
+
+/* inputs */
+.field{
+  margin-bottom:16px;
+}
+
+.field input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  outline:none;
+  background:#eafffa;
+  font-size:15px;
+}
+
+/* login button */
+.login-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--green),#4fd1a5);
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.login-btn:hover{
+  box-shadow:0 0 25px rgba(126,217,87,.9);
+}
+
+/* links */
+.links{
+  margin-top:14px;
+  font-size:14px;
+  text-align:center;
+}
+
+.links span{
+  color:var(--green);
+  cursor:pointer;
+  margin:0 8px;
+}
+
+#msg{
+  margin-top:12px;
+  font-size:14px;
+}
+
+/* ================= SIDE PANEL ================= */
+.side{
+  width:300px;
+  background:var(--panel);
+  padding:25px;
+  border-radius:25px;
+  border:2px solid var(--blue);
+}
+
+.side h4{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.reward{
+  margin-top:18px;
+  background:rgba(7,39,45,0.95);
+  padding:16px;
+  border-radius:18px;
+  text-align:center;
+  font-size:15px;
+}
+
+.reward span{
+  color:var(--green);
+  font-weight:bold;
+}
+
+/* ================= RESPONSIVE ================= */
+@media(max-width:900px){
+  .content{
+    flex-direction:column;
+  }
+  .side,.login-panel{
+    width:100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg"></div>
+
+<!-- MAIN FRAME -->
+<div class="frame">
+
+  <div class="header">
+    <h1>HERITAGE HORIZONS</h1>
+    <p>EARTH TO UNIVERSE</p>
+  </div>
+
+  <div class="content">
+
+    <!-- LOGIN PANEL -->
+    <div class="login-panel">
+
+      <div class="role-select">
+        <button id="studentBtn" class="active" onclick="setRole('student')">Student</button>
+        <button id="adminBtn" onclick="setRole('admin')">Admin</button>
+      </div>
+
+      <div class="field">
+        <input type="text" id="user" placeholder="Username">
+      </div>
+
+      <div class="field">
+        <input type="password" id="pass" placeholder="Password">
+      </div>
+
+      <button class="login-btn" onclick="login()">Login</button>
+
+      <div class="links">
+        <span onclick="createAccount()">Create Account</span> |
+        <span onclick="forgotAccount()">Forgot Account?</span>
+      </div>
+
+      <div id="msg"></div>
+    </div>
+
+    <!-- SIDE PANEL -->
+    <div class="side">
+      <h4>Daily Rewards</h4>
+
+      <div class="reward">
+        🪙 Coins<br>
+        <span>2,000</span>
+      </div>
+
+      <div class="reward">
+        🌱 Green Boost<br>
+        <span>Active</span>
+      </div>
+
+      <div class="reward">
+        🎓 Mode<br>
+        <span id="modeText">Student</span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let role="student";
+
+function setRole(r){
+  role=r;
+  studentBtn.classList.remove("active");
+  adminBtn.classList.remove("active");
+
+  if(r==="student"){
+    studentBtn.classList.add("active");
+  }else{
+    adminBtn.classList.add("active");
+  }
+  modeText.textContent=r.charAt(0).toUpperCase()+r.slice(1);
+}
+
+function login(){
+  const u=user.value.trim();
+  const p=pass.value.trim();
+  const m=msg;
+
+  if(!u || !p){
+    m.style.color="salmon";
+    m.textContent="Please enter username and password";
+    return;
+  }
+
+  localStorage.setItem(role+"_user",u);
+  localStorage.setItem(role+"_pass",p);
+
+  m.style.color="#7ed957";
+  m.textContent=role.toUpperCase()+" login successful!";
+}
+
+function createAccount(){
+  alert("Create Account page coming soon");
+}
+
+function forgotAccount(){
+  alert("Forgot Account feature coming soon");
+}
+</script>
+
+</body>
+</html>
