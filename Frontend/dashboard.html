@@ -19,7 +19,7 @@ body{
     overflow:auto;
 }
 
-/* MAIN FRAME */
+
 .frame{
     width:100%;
     max-width:1150px;
@@ -37,7 +37,7 @@ body{
     to{opacity:1; transform:scale(1)}
 }
 
-/* LEVEL */
+
 .level{
     text-align:center;
     font-size:28px;
@@ -46,14 +46,14 @@ body{
     text-shadow:0 0 12px #36f5c7;
 }
 
-/* GRID */
+
 .top,.mid{
     display:grid;
     grid-template-columns:1fr 2fr 1fr;
     gap:14px;
 }
 
-/* CARD */
+
 .card{
     background:#0f2f34;
     padding:14px;
@@ -346,10 +346,8 @@ function toggleLeaderboard(){
 
 renderXP();
 
-// =====================
-// FETCH GAMES FROM BACKEND
-// =====================
-const user_id = 1; // replace with dynamic logged-in user ID
+
+const user_id = 1; 
 const backendUrl = "http://127.0.0.1:5000";
 
 async function fetchGames() {

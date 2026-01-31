@@ -4,9 +4,6 @@ import sqlite3
 conn = sqlite3.connect('game_scores.db')
 c = conn.cursor()
 
-# -----------------------------
-# Create Users Table
-# -----------------------------
 c.execute('''
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,9 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 )
 ''')
 
-# -----------------------------
-# Create Games Table
-# -----------------------------
+
 c.execute('''
 CREATE TABLE IF NOT EXISTS games (
     game_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,9 +22,7 @@ CREATE TABLE IF NOT EXISTS games (
 )
 ''')
 
-# -----------------------------
-# Create Scores Table
-# -----------------------------
+
 c.execute('''
 CREATE TABLE IF NOT EXISTS scores (
     score_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,9 +35,6 @@ CREATE TABLE IF NOT EXISTS scores (
 )
 ''')
 
-# -----------------------------
-# Insert Sample Games
-# -----------------------------
 games = [
     ('Heritage Quiz', 'heritage'),
     ('Word Puzzle', 'heritage'),

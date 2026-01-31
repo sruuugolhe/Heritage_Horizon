@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Heritage Quiz Game</title>
+
+<style>
+/* MATCHING PUZZLE THEME COLORS & FONTS */
+body {
+  font-family: Garamond, serif;
+  background: #fdf6e3;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #4b2e2e;
+  padding: 20px;
+}
+
+h1 {
+  margin: 20px 0 10px;
+  color: #7f4e1e;
+  font-size: 36px;
+  text-transform: uppercase;
+}
+
+#level {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #4b2e2e;
+}
+
+#gameBox {
+  background: #fff8dc;
+  width: 90%;
+  max-width: 500px;
+  margin: auto;
+  padding: 30px;
+  border-radius: 12px;
+  border: 2px solid #a67c52;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+#question {
+  color: #7f4e1e;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* OPTIONS STYLING */
+.option {
+  background: #fff8dc;
+  padding: 12px;
+  margin: 12px 0;
+  border: 2px solid #d2b48c;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-weight: bold;
+  font-size: 18px;
+  color: #4b2e2e;
+}
+
+.option:hover {
+  background: #f7d7c4;
+}
+
+.correct {
+  background: #7a4a1d !important;
+  color: white !important;
+  border-color: #4b2e2e;
+}
+
+.wrong {
+  background: #ff8a8a !important;
+  color: white !important;
+  border-color: red;
+}
+
+/* BUTTONS */
+#nextBtn, #hintBtn {
+  padding: 10px 20px;
+  margin: 15px 5px;
+  border: none;
+  border-radius: 8px;
+  background: #7f4e1e;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: Garamond, serif;
+  font-weight: bold;
+}
+
+/* SIMPLE HINT STYLE */
+#hintText {
+  margin-top: 10px;
+  font-family: Arial, sans-serif; /* Simplified font */
+  font-size: 14px;
+  color: #666;
+  font-style: normal; /* Removed italics */
+  font-weight: normal; /* Removed bold */
+}
+
+#scoreBox {
+  margin-top: 20px;
+  color: #4b2e2e;
+  font-size: 18px;
+  border-top: 1px solid #d2b48c;
+  padding-top: 15px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>INDIA HERITAGE</h1>
+<div id="level">Level 1</div>
+
+<div id="gameBox">
+  <h2 id="question">Loading...</h2>
+  <div id="options"></div>
+  <div style="display: flex; justify-content: center; gap: 10px;">
+    <button id="hintBtn">Show Hint</button>
+    <button id="nextBtn" style="display:none;">Next Question</button>
+  </div>
+  <div id="hintText"></div>
+  <h2 id="scoreBox">Score: 0</h2>
+</div>
+
+<script>
+const questions = [
+  // 1-20: Popular Monuments
+  {q:"Where is the Taj Mahal located?", a:["Agra","Delhi","Jaipur","Mumbai"], c:0, hint:"On Yamuna river"},
+  {q:"Which monument is Symbol of Love?", a:["India Gate","Taj Mahal","Charminar","Qutub Minar"], c:1, hint:"Built by Shah Jahan"},
+  {q:"India Gate is in?", a:["Delhi","Mumbai","Chennai","Kolkata"], c:0, hint:"Capital city"},
+  {q:"Gateway of India is in?", a:["Goa","Mumbai","Pune","Surat"], c:1, hint:"Arabian Sea"},
+  {q:"Hawa Mahal is in?", a:["Udaipur","Jaipur","Jodhpur","Ajmer"], c:1, hint:"Pink City"},
+  {q:"Qutub Minar is in?", a:["Agra","Delhi","Bhopal","Jaipur"], c:1, hint:"Tall Minaret"},
+  {q:"Charminar is in?", a:["Hyderabad","Pune","Nagpur","Indore"], c:0, hint:"Pearl City"},
+  {q:"Golden Temple is in?", a:["Amritsar","Ludhiana","Patiala","Chandigarh"], c:0, hint:"Punjab"},
+  {q:"Sun Temple is in?", a:["Modhera","Konark","Hampi","Madurai"], c:1, hint:"Odisha"},
+  {q:"Meenakshi Temple is in?", a:["Madurai","Salem","Trichy","Chennai"], c:0, hint:"Tamil Nadu"},
+  {q:"The Victoria Memorial is in?", a:["Delhi","Kolkata","Mumbai","Chennai"], c:1, hint:"West Bengal"},
+  {q:"Where are Ajanta Caves?", a:["Pune","Aurangabad","Nagpur","Mumbai"], c:1, hint:"Maharashtra"},
+  {q:"The Ellora Caves represent?", a:["Only Hindu","Only Buddhist","Hindu, Buddhist, Jain","Only Jain"], c:2, hint:"Religious harmony"},
+  {q:"Elephanta Caves are near?", a:["Chennai","Kochi","Mumbai","Goa"], c:2, hint:"Island in the sea"},
+  {q:"Bibi Ka Maqbara is in?", a:["Delhi","Agra","Aurangabad","Lucknow"], c:2, hint:"Mini Taj"},
+  {q:"Humayun's Tomb is in?", a:["Agra","Delhi","Lahore","Kabul"], c:1, hint:"Mughal architecture"},
+  {q:"Amer Fort is in?", a:["Jaipur","Udaipur","Jaisalmer","Pushkar"], c:0, hint:"Rajasthan capital"},
+  {q:"Gol Gumbaz is in?", a:["Bijapur","Hyderabad","Bangalore","Belgaum"], c:0, hint:"Largest dome"},
+  {q:"Sanchi Stupa was built by?", a:["Akbar","Ashoka","Harsha","Bindusara"], c:1, hint:"Mauryan Emperor"},
+  {q:"Khajuraho temples are in?", a:["UP","MP","Rajasthan","Gujarat"], c:1, hint:"Chandelas built them"},
+
+  // 21-40: Forts & Palaces
+  {q:"Red Fort was built by?", a:["Akbar","Shah Jahan","Jahangir","Sher Shah"], c:1, hint:"Delhi emperor"},
+  {q:"Jaisalmer Fort is known as?", a:["Golden Fort","Red Fort","Pink Fort","Iron Fort"], c:0, hint:"Sonar Quila"},
+  {q:"Gwalior Fort is in?", a:["Rajasthan","MP","Gujarat","UP"], c:1, hint:"Central India"},
+  {q:"Chittorgarh Fort is in?", a:["Rajasthan","Gujarat","Punjab","Haryana"], c:0, hint:"Largest fort in India"},
+  {q:"Kumbhalgarh Fort wall is the?", a:["Longest","2nd longest","3rd longest","4th longest"], c:1, hint:"After Great Wall of China"},
+  {q:"Mysore Palace belongs to?", a:["Wodeyars","Nizams","Peshwas","Cholas"], c:0, hint:"Karnataka royals"},
+  {q:"City Palace of Jaipur has?", a:["Hawa Mahal","Pritam Niwas Chowk","Lake","Garden"], c:1, hint:"Royal courtyard"},
+  {q:"Lake Palace is in?", a:["Jaipur","Udaipur","Jodhpur","Bikaner"], c:1, hint:"In Lake Pichola"},
+  {q:"Golconda Fort is near?", a:["Bangalore","Hyderabad","Chennai","Pune"], c:1, hint:"Diamond trade hub"},
+  {q:"Laxmi Vilas Palace is in?", a:["Jaipur","Mysore","Vadodara","Udaipur"], c:2, hint:"Gujarat"},
+  {q:"Umaid Bhawan Palace is in?", a:["Jaipur","Udaipur","Jodhpur","Bikaner"], c:2, hint:"Sandstone palace"},
+  {q:"Mehrangarh Fort is in?", a:["Jodhpur","Jaisalmer","Jaipur","Ajmer"], c:0, hint:"Blue City"},
+  {q:"Raigad Fort was capital of?", a:["Maratha","Mughal","Chola","Gupta"], c:0, hint:"Shivaji Maharaj"},
+  {q:"Kangra Fort is in?", a:["J&K","Himachal","Punjab","Uttarakhand"], c:1, hint:"Himalayan state"},
+  {q:"Murud Janjira is a?", a:["Hill fort","Sea fort","Forest fort","Desert fort"], c:1, hint:"Maharashtra coast"},
+  {q:"Junagarh Fort is in?", a:["Bikaner","Jodhpur","Jaipur","Kota"], c:0, hint:"Not built on a hill"},
+  {q:"Agra Fort was built by?", a:["Shah Jahan","Akbar","Aurangzeb","Babur"], c:1, hint:"Grandfather of Shah Jahan"},
+  {q:"Nahargarh Fort overlooks?", a:["Udaipur","Jaipur","Jodhpur","Bikaner"], c:1, hint:"Tiger Fort"},
+  {q:"Padmanabhapuram Palace is in?", a:["Tamil Nadu","Kerala","Karnataka","AP"], c:0, hint:"Near Kanyakumari"},
+  {q:"Cooch Behar Palace is in?", a:["Assam","West Bengal","Odisha","Bihar"], c:1, hint:"Italian style"},
+
+  // 41-60: Temples
+  {q:"Jagannath Temple is in?", a:["Puri","Konark","Bhubaneswar","Cuttack"], c:0, hint:"Odisha"},
+  {q:"Brihadisvara Temple is in?", a:["Thanjavur","Madurai","Mysore","Hampi"], c:0, hint:"Big Temple"},
+  {q:"Shore Temple is in?", a:["Puri","Mahabalipuram","Kochi","Vizag"], c:1, hint:"UNESCO site"},
+  {q:"Kamakhya Temple is in?", a:["Assam","Sikkim","Meghalaya","Tripura"], c:0, hint:"Guwahati"},
+  {q:"Somnath Temple is in?", a:["Gujarat","Rajasthan","Maharashtra","MP"], c:0, hint:"First Jyotirlinga"},
+  {q:"Dwarkadhish Temple is in?", a:["UP","Gujarat","MP","Odisha"], c:1, hint:"Krishna's kingdom"},
+  {q:"Rameshwaram Temple is in?", a:["Kerala","Tamil Nadu","AP","Karnataka"], c:1, hint:"Southern island"},
+  {q:"Lingaraja Temple is in?", a:["Puri","Bhubaneswar","Cuttack","Konark"], c:1, hint:"Odisha capital"},
+  {q:"Meenakshi Temple has how many towers?", a:["10","12","14","16"], c:2, hint:"Gopurams"},
+  {q:"Vittala Temple (Stone Chariot) is in?", a:["Hampi","Mysore","Puri","Konark"], c:0, hint:"Karnataka"},
+  {q:"Tirupati Balaji is on?", a:["Seven Hills","Nandi Hills","Chamundi Hills","Palani Hills"], c:0, hint:"Saptagiri"},
+  {q:"Kedarnath is dedicated to?", a:["Vishnu","Shiva","Brahma","Ganesh"], c:1, hint:"Himalayan shrine"},
+  {q:"Badrinath is dedicated to?", a:["Vishnu","Shiva","Brahma","Indra"], c:0, hint:"Uttarakhand"},
+  {q:"Dilwara Temples are made of?", a:["Sandstone","Marble","Granite","Brick"], c:1, hint:"Jain architecture"},
+  {q:"Modhera Sun Temple is in?", a:["Odisha","Gujarat","Rajasthan","Bihar"], c:1, hint:"Mehsana district"},
+  {q:"Kailasa Temple at Ellora is?", a:["Brick-built","Monolithic","Wooden","Marble"], c:1, hint:"Cut from one rock"},
+  {q:"Sabarimala Temple is in?", a:["Tamil Nadu","Kerala","Karnataka","AP"], c:1, hint:"Ayyappa shrine"},
+  {q:"Dakshineswar Kali is on river?", a:["Ganga","Hooghly","Yamuna","Narmada"], c:1, hint:"Kolkata"},
+  {q:"Bhimashankar is in?", a:["MP","Maharashtra","Gujarat","UP"], c:1, hint:"Pune district"},
+  {q:"Trimbakeshwar is near?", a:["Pune","Nashik","Nagpur","Mumbai"], c:1, hint:"Source of Godavari"},
+
+  // 61-100: Caves, Tombs, Landmarks & UNESCO
+  {q:"Bhimbetka Caves show?", a:["Mughal art","Rock paintings","Sculptures","Modern art"], c:1, hint:"Prehistoric"},
+  {q:"Mahabodhi Temple is in?", a:["Sarnath","Bodh Gaya","Kushinagar","Lumbini"], c:1, hint:"Enlightenment"},
+  {q:"Sarnath is near?", a:["Lucknow","Varanasi","Patna","Gaya"], c:1, hint:"First sermon"},
+  {q:"Victoria Terminus (CST) is in?", a:["Kolkata","Delhi","Mumbai","Chennai"], c:2, hint:"Railway station"},
+  {q:"Howrah Bridge is in?", a:["Kolkata","Dhaka","Guwahati","Patna"], c:0, hint:"West Bengal"},
+  {q:"Cellular Jail is in?", a:["Lakshadweep","Andaman","Goa","Daman"], c:1, hint:"Kala Pani"},
+  {q:"Vivekananda Rock is in?", a:["Kochi","Kanyakumari","Puri","Chennai"], c:1, hint:"Southern tip"},
+  {q:"Buland Darwaza is at?", a:["Delhi","Agra","Fatehpur Sikri","Lucknow"], c:2, hint:"Victory Gate"},
+  {q:"Akbar's Tomb is in?", a:["Agra","Sikandra","Delhi","Lahore"], c:1, hint:"Near Agra"},
+  {q:"Shantiniketan was home of?", a:["Tagore","Gandhi","Nehru","Bose"], c:0, hint:"Bengali poet"},
+  {q:"Champaner-Pavagadh is in?", a:["MP","Gujarat","Rajasthan","Bihar"], c:1, hint:"Vadodara"},
+  {q:"Rani ki Vav is a?", a:["Palace","Stepwell","Temple","Fort"], c:1, hint:"On ₹100 note"},
+  {q:"Le Corbusier designed?", a:["Delhi","Chandigarh","Pune","Mumbai"], c:1, hint:"Modern city"},
+  {q:"Hampi is on river?", a:["Krishna","Tungabhadra","Kaveri","Godavari"], c:1, hint:"Karnataka"},
+  {q:"Nalanda was a?", a:["Temple","University","Palace","Fort"], c:1, hint:"Ancient education"},
+  {q:"Jantar Mantar is an?", a:["Observatory","Armory","Kitchen","Theater"], c:0, hint:"Astronomy"},
+  {q:"Safdarjung Tomb is in?", a:["Delhi","Lucknow","Hyderabad","Agra"], c:0, hint:"Last Mughal garden tomb"},
+  {q:"Lodi Gardens has tombs of?", a:["Sayyid & Lodi","Mughals","Guptas","Cholas"], c:0, hint:"Delhi park"},
+  {q:"Gol Gumbaz has a?", a:["Mirror hall","Whispering gallery","Underwater tunnel","Golden roof"], c:1, hint:"Acoustic wonder"},
+  {q:"Adalaj Stepwell is in?", a:["Rajasthan","Gujarat","MP","Haryana"], c:1, hint:"Near Ahmedabad"},
+  {q:"Pattadakal is in?", a:["Tamil Nadu","Karnataka","Kerala","AP"], c:1, hint:"Chalukya monuments"},
+  {q:"Badami Caves are?", a:["Buddhist","Jain","Hindu & Jain","Only Hindu"], c:2, hint:"Karnataka rock-cut"},
+  {q:"St. Cathedral in Goa is?", a:["Smallest","Largest","Oldest","Newest"], c:1, hint:"Asia's largest church"},
+  {q:"Basilica of Bom Jesus has?", a:["Gold statue","St. Francis Xavier","Ancient bell","Secret cave"], c:1, hint:"Goa church"},
+  {q:"Khangchendzonga Park is in?", a:["Arunachal","Sikkim","HP","Uttarakhand"], c:1, hint:"Mixed heritage"},
+  {q:"Great Himalayan Park is in?", a:["Uttarakhand","Himachal","Ladakh","Sikkim"], c:1, hint:"Kullu"},
+  {q:"Manas Sanctuary is in?", a:["Assam","West Bengal","Bihar","Odisha"], c:0, hint:"Tiger reserve"},
+  {q:"Kaziranga is famous for?", a:["Lions","Rhinos","Tigers","Elephants"], c:1, hint:"One-horned"},
+  {q:"Sun Temple Konark looks like?", a:["Ship","Chariot","Lotus","Mountain"], c:1, hint:"Wheel carvings"},
+  {q:"Dholavira is an?", a:["Indus Valley site","Mughal garden","British fort","Temple"], c:0, hint:"Rann of Kutch"},
+  {q:"Kandariya Mahadeva is at?", a:["Khajuraho","Hampi","Puri","Agra"], c:0, hint:"Madhya Pradesh"},
+  {q:"Sravanabelagola has?", a:["Buddha","Bahubali","Shiva","Vishnu"], c:1, hint:"Jain statue"},
+  {q:"War Memorial is in?", a:["Delhi","Mumbai","Pune","Kolkata"], c:0, hint:"Near India Gate"},
+  {q:"Laxman Jhula is in?", a:["Haridwar","Rishikesh","Dehradun","Nainital"], c:1, hint:"Suspension bridge"},
+  {q:"Statue of Unity is of?", a:["Gandhi","Patel","Nehru","Ambedkar"], c:1, hint:"Iron Man"},
+  {q:"How tall is Statue of Unity?", a:["152m","182m","202m","212m"], c:1, hint:"World's tallest"},
+  {q:"Jallianwala Bagh is in?", a:["Ludhiana","Amritsar","Jalandhar","Patiala"], c:1, hint:"1919 massacre"},
+  {q:"Wagah Border is near?", a:["Delhi","Amritsar","Ferozepur","Jammu"], c:1, hint:"Indo-Pak border"},
+  {q:"Aga Khan Palace is in?", a:["Delhi","Lucknow","Pune","Ahmedabad"], c:2, hint:"Gandhi's prison"},
+  {q:"Shaniwar Wada is in?", a:["Mumbai","Pune","Nagpur","Satara"], c:1, hint:"Peshwa seat"},
+
+  // 101-200: Simplified & Additional Heritage
+  {q:"Tawang Monastery is in?", a:["Sikkim","Arunachal","Assam","Manipur"], c:1, hint:"North East"},
+  {q:"Rumtek Monastery is in?", a:["Sikkim","Ladakh","Arunachal","HP"], c:0, hint:"Gangtok"},
+  {q:"Hemis Monastery is in?", a:["Sikkim","Ladakh","HP","Uttarakhand"], c:1, hint:"Leh"},
+  {q:"Tabo Monastery is in?", a:["Ladakh","Spiti","Sikkim","Tibet"], c:1, hint:"Himachal"},
+  {q:"Ross Island is in?", a:["Lakshadweep","Andaman","Daman","Goa"], c:1, hint:"Netaji Subhash Island"},
+  {q:"Dutch Palace (Mattancherry) is in?", a:["Goa","Kochi","Chennai","Surat"], c:1, hint:"Kerala"},
+  {q:"Bekal Fort is in?", a:["Karnataka","Kerala","Tamil Nadu","Goa"], c:1, hint:"Giant keyhole shape"},
+  {q:"Palitana Temples are for?", a:["Hindus","Jains","Buddhists","Sikhs"], c:1, hint:"Bhavnagar, Gujarat"},
+  {q:"Girnar Hills are in?", a:["Rajasthan","Gujarat","MP","Maharashtra"], c:1, hint:"Junagadh"},
+  {q:"Ujjayanta Palace is in?", a:["Manipur","Tripura","Assam","Mizoram"], c:1, hint:"Agartala"},
+  {q:"Neermahal is a?", a:["Hill palace","Water palace","Forest palace","Desert palace"], c:1, hint:"Tripura"},
+  {q:"Kangla Fort is in?", a:["Imphal","Shillong","Kohima","Aizawl"], c:0, hint:"Manipur"},
+  {q:"Rang Ghar is in?", a:["Assam","Manipur","Sikkim","Nagaland"], c:0, hint:"Ahom architecture"},
+  {q:"Khaspur ruins are in?", a:["Assam","Tripura","Meghalaya","Arunachal"], c:0, hint:"Cachar district"},
+  {q:"Unakoti rock carvings are in?", a:["Assam","Tripura","Mizoram","Sikkim"], c:1, hint:"Lost hill of faces"},
+  {q:"Sundarbans is famous for?", a:["Tigers","Lions","Elephants","Rhinos"], c:0, hint:"Mangrove forest"},
+  {q:"Bishnupur temples are?", a:["Marble","Terracotta","Wood","Iron"], c:1, hint:"Bengal clay"},
+  {q:"Hazarduari Palace has?", a:["1000 doors","100 windows","10 gardens","1 tunnel"], c:0, hint:"Murshidabad"},
+  {q:"Vikramshila University was in?", a:["Bihar","UP","Bengal","Odisha"], c:0, hint:"Pala dynasty"},
+  {q:"Sher Shah Suri Tomb is in?", a:["Delhi","Agra","Sasaram","Patna"], c:2, hint:"Bihar"},
+  {q:"Golghar is in?", a:["Patna","Gaya","Ranchi","Lucknow"], c:0, hint:"Granary"},
+  {q:"Nalanda was founded by?", a:["Guptas","Mauryas","Mughals","Cholas"], c:0, hint:"Kumaragupta"},
+  {q:"Rohtasgarh Fort is in?", a:["Bihar","Jharkhand","UP","MP"], c:0, hint:"Son river"},
+  {q:"Itmad-ud-Daula tomb is called?", a:["Baby Taj","Mini Red Fort","Old Taj","Small Humayun"], c:0, hint:"Agra"},
+  {q:"Fatehpur Sikri was built by?", a:["Babur","Akbar","Shah Jahan","Jahangir"], c:1, hint:"Abandoned city"},
+  {q:"Imambara is in?", a:["Delhi","Lucknow","Hyderabad","Patna"], c:1, hint:"City of Nawabs"},
+  {q:"Rumi Darwaza is in?", a:["Agra","Delhi","Lucknow","Hyderabad"], c:2, hint:"Turkish Gate"},
+  {q:"Kusum Sarovar is at?", a:["Mathura","Varanasi","Ayodhya","Haridwar"], c:0, hint:"Govardhan"},
+  {q:"Dhamekh Stupa is at?", a:["Sanchi","Sarnath","Bodh Gaya","Kushinagar"], c:1, hint:"Where Buddha preached"},
+  {q:"Dashavatara Temple is in?", a:["Deogarh","Jhansi","Agra","Lucknow"], c:0, hint:"Gupta temple"},
+  {q:"Jhansi Fort is in?", a:["MP","UP","Rajasthan","Haryana"], c:1, hint:"Rani Lakshmibai"},
+  {q:"Amer Fort is connected to?", a:["Jaigarh Fort","Nahargarh Fort","City Palace","Hawa Mahal"], c:0, hint:"Underground tunnel"},
+  {q:"Chittorgarh Victory Tower is?", a:["Vijay Stambh","Kirti Stambh","Qutub Minar","India Gate"], c:0, hint:"Maharana Kumbha"},
+  {q:"Pushkar is famous for?", a:["Camel Fair","Horse Fair","Elephant Fair","Lion Fair"], c:0, hint:"Rajasthan lake town"},
+  {q:"Brahma Temple is at?", a:["Pushkar","Ujjain","Varanasi","Puri"], c:0, hint:"Only one in India"},
+  {q:"Ranakpur is famous for?", a:["Jain Temples","Fort","Lake","Museum"], c:0, hint:"1444 pillars"},
+  {q:"Bikaner is famous for?", a:["Rat Temple","Camel Farm","Fort","All of these"], c:3, hint:"Junagarh site"},
+  {q:"Karni Mata Temple has?", a:["Monkeys","Rats","Cows","Peacocks"], c:1, hint:"Deshnoke"},
+  {q:"Jantar Mantar Jaipur is?", a:["Smallest","Largest","Oldest","Newest"], c:1, hint:"Out of 5 sites"},
+  {q:"Mount Abu is in?", a:["Rajasthan","Gujarat","MP","Maharashtra"], c:0, hint:"Hill station"},
+  {q:"Kutch Museum is in?", a:["Bhuj","Surat","Rajkot","Ahmedabad"], c:0, hint:"Oldest in Gujarat"},
+  {q:"Lothal was a?", a:["Harappan port","Mughal fort","Temple town","Forest"], c:0, hint:"Indus Valley"},
+  {q:"Diu Fort was built by?", a:["British","Portuguese","French","Dutch"], c:1, hint:"Island territory"},
+  {q:"Prag Mahal is in?", a:["Bhuj","Surat","Junagadh","Rajkot"], c:0, hint:"Gothic style in India"},
+  {q:"Uparkot Fort is in?", a:["Junagadh","Rajkot","Surat","Bhuj"], c:0, hint:"Gujarat"},
+  {q:"Ellora Kailasa is made of?", a:["Granite","Basalt","Sandstone","Marble"], c:1, hint:"Volcanic rock"},
+  {q:"Kanheri Caves are in?", a:["Mumbai","Pune","Nagpur","Nashik"], c:0, hint:"Sanjay Gandhi Park"},
+  {q:"Karla Caves are?", a:["Hindu","Buddhist","Jain","Sikh"], c:1, hint:"Near Lonavala"},
+  {q:"Lohagad Fort is in?", a:["Pune","Mumbai","Satara","Kolhapur"], c:0, hint:"Iron Fort"},
+  {q:"Pratapgad Fort is in?", a:["Satara","Pune","Nashik","Raigad"], c:0, hint:"Afzal Khan battle"},
+  {q:"Sindhudurg Fort is a?", a:["Hill fort","Sea fort","Desert fort","Land fort"], c:1, hint:"Built by Shivaji"},
+  {q:"Gateway of India was built for?", a:["King George V","Queen Victoria","Lord Curzon","Lord Dalhousie"], c:0, hint:"1911 visit"},
+  {q:"Global Vipassana Pagoda is in?", a:["Mumbai","Pune","Nagpur","Delhi"], c:0, hint:"Large stone dome"},
+  {q:"Sevagram Ashram is in?", a:["Wardha","Nagpur","Pune","Mumbai"], c:0, hint:"Gandhi's residence"},
+  {q:"Bibi Ka Maqbara was built by?", a:["Akbar","Azam Shah","Shah Jahan","Jahangir"], c:1, hint:"Aurangzeb's son"},
+  {q:"Paliem Lake is in?", a:["Goa","Kerala","Karnataka","Tamil Nadu"], c:0, hint:"Sweet water lake"},
+  {q:"Aguada Fort is in?", a:["Goa","Daman","Diu","Mumbai"], c:0, hint:"Portuguese lighthouse"},
+  {q:"Se Cathedral bell is called?", a:["Golden Bell","Silver Bell","Iron Bell","Big Bell"], c:0, hint:"Goa"},
+  {q:"Church of St. Anne is in?", a:["Talaulim","Panaji","Margao","Vasco"], c:0, hint:"Goa"},
+  {q:"Cabo de Rama Fort is in?", a:["Goa","Karnataka","Kerala","Tamil Nadu"], c:0, hint:"South Goa"},
+  {q:"Hampi ruins are in?", a:["Karnataka","AP","Tamil Nadu","Kerala"], c:0, hint:"Vijayanagara"},
+  {q:"Belur Chennakeshava is?", a:["Hoysala style","Chola style","Mughal style","Modern"], c:0, hint:"Karnataka"},
+  {q:"Halebidu is famous for?", a:["Temples","Forts","Palaces","Gardens"], c:0, hint:"Hoysaleswara"},
+  {q:"Mysore Dasara is?", a:["10 days","5 days","3 days","1 day"], c:0, hint:"Royal festival"},
+  {q:"Bijapur is known for?", a:["Gol Gumbaz","Hampi","Mysore","Coorg"], c:0, hint:"Karnataka"},
+  {q:"Chitradurga Fort has?", a:["7 walls","3 walls","1 wall","10 walls"], c:0, hint:"Stone fort"},
+  {q:"Gommateshwara is at?", a:["Shravanabelagola","Mysore","Hampi","Hubli"], c:0, hint:"Jain statue"},
+  {q:"Aihole is called?", a:["Cradle of temples","City of lakes","Pink city","Blue city"], c:0, hint:"Chalukya"},
+  {q:"Pattadakal is on river?", a:["Malaprabha","Krishna","Kaveri","Godavari"], c:0, hint:"Karnataka"},
+  {q:"Bidar Fort is in?", a:["Karnataka","AP","Telangana","Maharashtra"], c:0, hint:"Bahmani Sultanate"},
+  {q:"Charminar is in?", a:["Hyderabad","Warangal","Nizamabad","Kurnool"], c:0, hint:"4 minarets"},
+  {q:"Warangal Fort has?", a:["Stone gateways","Wooden gates","Iron gates","No gates"], c:0, hint:"Kakatiya"},
+  {q:"Ramappa Temple is in?", a:["Telangana","AP","Karnataka","Tamil Nadu"], c:0, hint:"UNESCO 2021"},
+  {q:"Salar Jung Museum is in?", a:["Hyderabad","Delhi","Mumbai","Kolkata"], c:0, hint:"Nizam city"},
+  {q:"Falaknuma Palace is in?", a:["Hyderabad","Mysore","Jaipur","Udaipur"], c:0, hint:"Mirror of Sky"},
+  {q:"Amaravati is a?", a:["Buddhist site","Mughal fort","British town","Modern garden"], c:0, hint:"Andhra Pradesh"},
+  {q:"Lepakshi has a famous?", a:["Hanging pillar","Golden roof","Silver door","Glass wall"], c:0, hint:"Andhra heritage"},
+  {q:"Chandragiri Fort is in?", a:["AP","Tamil Nadu","Karnataka","Kerala"], c:0, hint:"Near Tirupati"},
+  {q:"Thanjavur is famous for?", a:["Brihadisvara","Meenakshi","Shore Temple","Jagannath"], c:0, hint:"Chola capital"},
+  {q:"Madurai is on river?", a:["Vaigai","Kaveri","Krishna","Palar"], c:0, hint:"Tamil Nadu"},
+  {q:"Mahabalipuram has?", a:["Five Rathas","Five Palaces","Five Forts","Five Lakes"], c:0, hint:"Monolithic"},
+  {q:"Gangaikonda Cholapuram was?", a:["Chola capital","Pallava capital","Chera capital","Pandya capital"], c:0, hint:"Built by Rajendra I"},
+  {q:"Vivekananda Rock is near?", a:["Kanyakumari","Chennai","Kochi","Vizag"], c:0, hint:"South tip"},
+  {q:"Padmanabhaswamy Temple is in?", a:["Thiruvananthapuram","Kochi","Madurai","Chennai"], c:0, hint:"Wealthy temple"},
+  {q:"Bekal Fort is in?", a:["Kerala","Karnataka","Tamil Nadu","Goa"], c:0, hint:"Kasaragod"},
+  {q:"Jewish Synagogue is in?", a:["Kochi","Mumbai","Goa","Delhi"], c:0, hint:"Mattancherry"},
+  {q:"Jallianwala Bagh is in?", a:["Amritsar","Delhi","Mumbai","Kolkata"], c:0, hint:"Punjab"},
+  {q:"Golden Temple is also called?", a:["Harmandir Sahib","Bangla Sahib","Sis Ganj","Rakab Ganj"], c:0, hint:"Sikhism"},
+  {q:"Rock Garden is in?", a:["Chandigarh","Delhi","Shimla","Jaipur"], c:0, hint:"Nek Chand"},
+  {q:"Viceregal Lodge is in?", a:["Shimla","Delhi","Kolkata","Mumbai"], c:0, hint:"Rashtrapati Niwas"},
+  {q:"Kangra Fort is in?", a:["Himachal","Uttarakhand","J&K","Punjab"], c:0, hint:"Ancient fort"},
+  {q:"Shanti Stupa is in?", a:["Leh","Delhi","Patna","Sanchi"], c:0, hint:"Ladakh"},
+  {q:"Martand Sun Temple is in?", a:["J&K","Odisha","Gujarat","Rajasthan"], c:0, hint:"Kashmir"},
+  {q:"Bahai Temple is called?", a:["Lotus Temple","Sun Temple","Moon Temple","Star Temple"], c:0, hint:"Delhi"},
+  {q:"National Museum is in?", a:["New Delhi","Kolkata","Mumbai","Chennai"], c:0, hint:"Capital"},
+  {q:"National Gallery of Modern Art?", a:["New Delhi","Mumbai","Bengaluru","All of these"], c:3, hint:"Multiple branches"},
+  {q:"Coronation Park is in?", a:["Delhi","Mumbai","Kolkata","Chennai"], c:0, hint:"Durbar site"},
+  {q:"Iron Pillar is at?", a:["Qutub Complex","Red Fort","India Gate","Taj Mahal"], c:0, hint:"Delhi wonder"},
+  {q:"Safdarjung Tomb is?", a:["Mughal garden tomb","British tomb","Hindu samadhi","Jain temple"], c:0, hint:"Delhi"},
+  {q:"National War Memorial is in?", a:["New Delhi","Pune","Mumbai","Kolkata"], c:0, hint:"India Gate"},
+  {q:"Victoria Memorial is built of?", a:["Marble","Sandstone","Brick","Wood"], c:0, hint:"White stone"}
+];
+
+let current = 0;
+let score = 0;
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const scoreEl = document.getElementById("scoreBox");
+const hintBtn = document.getElementById("hintBtn");
+const hintText = document.getElementById("hintText");
+const nextBtn = document.getElementById("nextBtn");
+const levelEl = document.getElementById("level");
+
+function loadQuestion() {
+  const q = questions[current];
+  
+  // Update Level every 10 questions
+  levelEl.innerText = "Level " + (Math.floor(current / 10) + 1);
+  
+  questionEl.innerText = (current + 1) + ". " + q.q;
+  optionsEl.innerHTML = "";
+  hintText.innerText = "";
+  nextBtn.style.display = "none";
+
+  q.a.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "option";
+    div.innerText = opt;
+    div.onclick = () => checkAnswer(i);
+    optionsEl.appendChild(div);
+  });
+}
+
+function checkAnswer(selected) {
+  const q = questions[current];
+  const options = document.querySelectorAll(".option");
+
+  options.forEach(opt => opt.style.pointerEvents = "none");
+
+  if (selected === q.c) {
+    options[selected].classList.add("correct");
+    score++;
+  } else {
+    options[selected].classList.add("wrong");
+    options[q.c].classList.add("correct");
+  }
+
+  scoreEl.innerText = "Score: " + score;
+  nextBtn.style.display = "inline-block";
+}
+
+hintBtn.onclick = () => {
+  hintText.innerText = "Hint: " + questions[current].hint;
+};
+
+nextBtn.onclick = () => {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    questionEl.innerText = "🎉 All 200 Questions Completed!";
+    optionsEl.innerHTML = `<h3>Final Heritage Score: ${score} / ${questions.length}</h3>`;
+    hintText.innerText = "You are an India Heritage Expert!";
+    nextBtn.style.display = "none";
+    hintBtn.style.display = "none";
+  }
+};
+
+loadQuestion();
+</script>
+</body>
+</html>

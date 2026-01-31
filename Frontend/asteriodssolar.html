@@ -7,7 +7,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
 
-/* 🌌 BASE SPACE */
+
 body{
     height:100vh;
     background:
@@ -20,7 +20,6 @@ body{
     overflow:hidden;
 }
 
-/* ===== BACKGROUND COMPONENTS ===== */
 .nebula{
     position:absolute;
     inset:-40%;
@@ -81,7 +80,6 @@ body{
     to{transform:translateY(100%)}
 }
 
-/* ===== GAME ===== */
 #game{
     width:440px;
     height:680px;
@@ -94,7 +92,7 @@ body{
     z-index:5;
 }
 
-/* HUD */
+
 #hud{
     position:absolute;
     top:12px;
@@ -109,7 +107,7 @@ body{
     font-weight:bold;
 }
 
-/* 🚀 PLAYER – REALISTIC SPACE ROCKET */
+
 #player{
     position:absolute;
     bottom:22px;
@@ -119,7 +117,7 @@ body{
     filter: drop-shadow(0 6px 14px rgba(0,0,0,.7));
 }
 
-/* 🔺 NOSE CONE */
+
 #player .nose{
     width:0;height:0;
     border-left:20px solid transparent;
@@ -128,7 +126,7 @@ body{
     margin:auto;
 }
 
-/* 🧱 FUSELAGE */
+
 #player .body{
     width:40px;
     height:46px;
@@ -146,7 +144,7 @@ body{
     border:1px solid #343a40;
 }
 
-/* 🪟 WINDOW */
+
 #player .body::after{
     content:"";
     position:absolute;
@@ -160,7 +158,7 @@ body{
     border:2px solid #1b263b;
 }
 
-/* 🪽 STABILIZER FINS */
+
 #player .fin{
     width:12px;
     height:22px;
@@ -178,7 +176,6 @@ body{
     transform:skewY(-18deg);
 }
 
-/* 🔥 REALISTIC EXHAUST FLAME */
 #player .flame{
     width:16px;
     height:26px;
@@ -196,32 +193,28 @@ body{
     filter: blur(.3px);
 }
 
-/* 🔥 FLAME FLICKER */
 @keyframes flame{
     to{
         transform:scaleY(1.4);
         opacity:.85;
     }
 }
-/* ☄️ ASTEROID – REALISTIC, NO BLACK DOTS */
 .rocket{
     position:absolute;
     top:-140px;
     width:72px;
     height:70px;
 
-    /* 🪨 SMOOTH ROCK SURFACE (NO BLACK PITS) */
     background:
-        /* soft surface dents */
+        
         radial-gradient(circle at 30% 35%, rgba(255,255,255,.12) 0 10%, transparent 16%),
         radial-gradient(circle at 55% 50%, rgba(255,255,255,.1) 0 9%, transparent 15%),
         radial-gradient(circle at 65% 25%, rgba(255,255,255,.08) 0 8%, transparent 14%),
 
-        /* subtle grey scars */
         linear-gradient(120deg, transparent 48%, rgba(190,190,190,.18) 51%, transparent 54%),
         linear-gradient(-40deg, transparent 58%, rgba(170,170,170,.15) 61%, transparent 64%),
 
-        /* base stone shading */
+
         radial-gradient(circle at 38% 32%,
             #9f9d98 0%,
             #7f7d78 28%,
@@ -230,12 +223,12 @@ body{
             #2f2e2c 88%
         );
 
-    /* 🪨 NATURAL SHAPE */
+
     border-radius:
         45% 55% 58% 42% /
         44% 56% 46% 54%;
 
-    /* 🌑 DEPTH WITHOUT BLACK DOTS */
+ 
     box-shadow:
         inset -18px -18px 26px rgba(0,0,0,.6),
         inset 12px 12px 18px rgba(255,255,255,.12),
@@ -244,11 +237,10 @@ body{
     animation: asteroidSpin 18s linear infinite;
 }
 
-/* 🔄 HEAVY, REALISTIC ROTATION */
 @keyframes asteroidSpin{
     to{transform:rotate(360deg)}
 }
-/* GAME OVER */
+
 #over{
     position:absolute;
     inset:0;
@@ -260,7 +252,7 @@ body{
     color:white;
 }
 
-/* BUTTON */
+
 button{
     padding:16px 38px;
     font-size:19px;
@@ -278,7 +270,7 @@ button:hover{transform:scale(1.08)}
 
 <body>
 
-<!-- 🌌 BACKGROUND -->
+
 <div class="nebula"></div>
 <div class="stars"></div>
 <div class="stars2"></div>
@@ -292,7 +284,6 @@ button:hover{transform:scale(1.08)}
 <div class="ring big"></div>
 <div class="streak"></div>
 
-<!-- 🚀 GAME -->
 <div id="game">
     <div id="hud">
         <div>Asteroid Dodge Game</div>
@@ -313,7 +304,7 @@ button:hover{transform:scale(1.08)}
 </audio>
 
 <script>
-/* 🔊 VOICE HELPER */
+
 function speak(text){
     if('speechSynthesis' in window){
         speechSynthesis.cancel();
@@ -332,12 +323,12 @@ let x=185, speed=2.2, spawnRate=1200, score=0;
 let running=true;
 let asteroidCount=1;
 
-/* 🎙 START VOICE */
+
 window.addEventListener("load",()=>{
     speak("Mission started. Dodge the asteroids and survive as long as you can.");
 });
 
-/* CONTROLS */
+
 document.addEventListener("keydown",e=>{
     if(!running)return;
     if(e.key==="ArrowLeft" && x>0)x-=26;
@@ -345,7 +336,7 @@ document.addEventListener("keydown",e=>{
     player.style.left=x+"px";
 });
 
-/* SPAWN ASTEROID */
+
 function spawn(){
     let a=document.createElement("div");
     a.className="rocket";
@@ -372,13 +363,13 @@ function spawn(){
     },20);
 }
 
-/* SPAWN LOOP */
+
 setInterval(()=>{
     if(!running)return;
     for(let i=0;i<asteroidCount;i++) spawn();
 },spawnRate);
 
-/* SCORE + DIFFICULTY */
+
 setInterval(()=>{
     if(!running)return;
     score++;
@@ -388,7 +379,7 @@ setInterval(()=>{
     if(score%15===0 && asteroidCount<6) asteroidCount++;
 },1000);
 
-/* GAME OVER */
+
 function endGame(){
     running=false;
 

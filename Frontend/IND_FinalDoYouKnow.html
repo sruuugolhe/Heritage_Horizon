@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BHARAT HERITAGE: THE COMPLETE 36 VOICE EDITION</title>
+<style>
+    :root { --primary: #7a4a1d; --accent: #ffd966; --bg: #fdf6e3; --text: #4b2e2e; }
+    body { font-family: 'Garamond', serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; color: var(--text); }
+    h1 { margin: 25px 0 5px; color: #7f4e1e; letter-spacing: 2px; text-transform: uppercase; text-align: center; padding: 0 10px; }
+    
+    #stats-header { display: flex; justify-content: space-around; width: 90%; max-width: 800px; font-weight: bold; margin: 20px 0; padding: 10px; border-bottom: 2px solid #d2b48c; }
+    
+    .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; padding: 20px; width: 95%; max-width: 1200px; }
+    
+    .card { perspective: 1000px; height: 550px; }
+    .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; cursor: pointer; }
+    .card.flipped .card-inner { transform: rotateY(180deg); }
+    
+    .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; border: 3px solid #a67c52; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    
+    .card-front { background: var(--primary); color: white; align-items: center; justify-content: center; }
+    .card-back { background: #fffdf5; transform: rotateY(180deg); color: var(--text); overflow-y: auto; }
+
+    .state-img { width: 100%; height: 230px; border-radius: 10px; object-fit: cover; border: 2px solid var(--accent); margin-bottom: 20px; }
+    .card-front span { font-size: 24px; font-weight: bold; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+
+    .fact-list { padding-left: 20px; margin: 0; }
+    .fact-list li { font-size: 1.05rem; margin-bottom: 9px; line-height: 1.3; font-weight: 500; }
+    .card-back h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 5px; font-size: 1.5rem; }
+
+    .controls { margin: 40px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    button { padding: 15px 30px; font-size: 1rem; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; background: var(--primary); color: white; transition: 0.3s; box-shadow: 0 4px #4b2e2e; }
+    button:hover { background: #5d3615; transform: translateY(-2px); }
+    button:active { transform: translateY(2px); box-shadow: 0 2px #4b2e2e; }
+    button:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+    
+    .voice-hint { font-size: 0.85em; color: var(--accent); margin-top: 15px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Bharat Heritage Expedition</h1>
+<div id="stats-header">
+    <div>Region: <span id="page-num">1</span> / 6</div>
+    <div>Unlocked: <span id="unlocked-count">0</span> / 36</div>
+</div>
+
+<div class="container" id="cards-container"></div>
+
+<div class="controls">
+    <button id="prev-btn" onclick="changePage(-1)">← Previous</button>
+    <button id="next-btn" onclick="changePage(1)">Next Region →</button>
+</div>
+
+<script>
+// SOUND SYSTEM
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playFlipSound() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function speakFacts(state, facts) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(state + ". " + facts.join(". "));
+    utterance.rate = 1.0;
+    window.speechSynthesis.speak(utterance);
+}
+
+// THE COMPLETE 36 DATASET
+const fullIndiaData = [
+    ["Andhra Pradesh", "🛕", "1022", ["Tirupati Temple attracts millions","Rice Bowl of India","Kuchipudi dance birthplace","Second longest coastline","Undavalli rock-cut caves","Kondapalli wooden toys","Spicy Guntur chilies","Naval base Visakhapatnam","Buddhist site Amaravati","Kalamkari hand-painted art"]],
+    ["Arunachal Pradesh", "🏔️", "1036", ["Land of the Rising Sun","Tawang Monastery is huge","500 species of orchids","Borders Bhutan and China","Namdapha National Park","Ziro Valley beauty","26 major tribes","Bamboo suspension bridges","Dong Valley sunrise","Losar Festival celebration"]],
+    ["Assam", "🍵", "1043", ["World famous Assam Tea","One-horned Rhinos in Kaziranga","Brahmaputra river flows here","Majuli river island","Golden Muga Silk","Kamakhya Temple Shakti Peeth","Bihu folk festival","Oldest oil refinery Digboi","Bell-metal craft Xorai","Gateway to North East"]],
+    ["Bihar", "📜", "1029", ["Birthplace of Buddhism","Nalanda ancient university","Mahabodhi Temple site","Madhubani painting art","Shahi Litchi fruit","Sonepur cattle fair","Ancient capital Pataliputra","Famous Litti Chokha food","Sher Shah Suri tomb","Ganga river heartland"]],
+    ["Chhattisgarh", "🌳", "1044", ["Chitrakote Falls (Niagara of India)","Rice Bowl of Central India","Teerathgarh Falls beauty","Rich tribal handicraft","Bastar Dussehra festival","Steel hub Bhilai","Kanger Valley park","Ancient Laxman Temple","Barnawapara sanctuary","Dhokra art tradition"]],
+    ["Goa", "🏖️", "1011", ["Smallest Indian state","Stunning tropical beaches","Basilica of Bom Jesus","Dudhsagar waterfall","Indo-Portuguese culture","Grand Goa Carnival","Cashew Feni drink","Portuguese rule for 450 years","Water sports hub","Mollem National Park"]],
+    ["Gujarat", "🦁", "1020", ["Asiatic Lions in Gir","Statue of Unity tallest","Longest coastline in India","White desert Rann of Kutch","Birthplace of Gandhi","Navratri Garba dance","Diamond city Surat","Somnath Temple glory","Dhokla and Fafda snacks","Ancient Lothal dockyard"]],
+    ["Haryana", "🥛", "1016", ["Milk capital of India","Epic Kurukshetra battleground","Sultanpur Bird Sanctuary","Rapid industrial growth","Murrah Buffalo breed","Surajkund Crafts Mela","Wrestling power house","Pinjore Mughal Gardens","Panipat historic wars","Rich Vedic culture"]],
+    ["Himachal Pradesh", "❄️", "1039", ["Apple state of India","Snowy Himalayan peaks","Rohtang Pass adventures","Dalai Lama's home","Kalka-Shimla toy train","Paragliding at Bir Billing","Spiti Valley cold desert","Great Himalayan park","Ancient wooden temples","Chamba Rumal embroidery"]],
+    ["Jharkhand", "⛏️", "1050", ["Mineral heart of India","Netarhat hill station","Tribal culture hub","Deoghar Jyotirlinga","Hundru Falls beauty","Steel City Jamshedpur","Betla National Park","Sohrai painting art","Abundant forest cover","Baidyanath Dham holy site"]],
+    ["Karnataka", "🏛️", "1060", ["Silicon Valley Bengaluru","Hampi ruins (UNESCO)","Mysore Palace grandeur","Coffee land Chikmagalur","Jog Falls (highest)","Western Ghats nature","Yakshagana folk theater","Gol Gumbaz dome","Sandalwood forests","Coorg hill station"]],
+    ["Kerala", "🚣", "1051", ["God's Own Country","Serene backwaters","Munnar Tea hills","Kathakali face dance","Ayurvedic healing hub","Highest literacy rate","Silent Valley forest","Kalaripayattu martial arts","Spice Garden of India","Snake boat races"]],
+    ["Madhya Pradesh", "🐅", "1054", ["Heart of India","Khajuraho sculptures","Tiger state (Kanha)","Sanchi Stupa","Bhopal Lake City","Ujjain Kumbh Mela","Bhedaghat Marble Rocks","Gwalior Fort","Bhimbetka rock shelters","Indore cleanest city"]],
+    ["Maharashtra", "🎭", "1067", ["Financial capital Mumbai","Ajanta-Ellora caves","Sahyadri mountain forts","Ganpati festival fever","Bollywood film industry","Lavani folk dance","Lonar crater lake","Mahabaleshwar berries","Pune cultural hub","Gateway of India"]],
+    ["Manipur", "🛶", "1070", ["Floating Loktak Lake","Keibul Lamjao park","Manipuri classical dance","Jewel of India","Ima Keithel (women market)","Birthplace of Polo","Sangai deer habitat","Bamboo crafts","Siroi Lily flower","Kangla Fort history"]],
+    ["Meghalaya", "🌧️", "1073", ["Abode of Clouds","Living Root Bridges","Wettest place Mawsynram","Shillong (Scotland of East)","Cleanest village Mawlynnong","Nohkalikai Falls","Garo & Khasi tribes","Elephant Falls","Sacred Groves","Matrilineal society"]],
+    ["Mizoram", "🎋", "1075", ["Land of Blue Mountains","Cheraw Bamboo Dance","Rolling hills and valleys","Vantawng Falls","Mizo tribal heritage","High forest cover","Palak Dil lake","Phawngpui peak","Rich handicraft culture","Peaceful vibes"]],
+    ["Nagaland", "🏹", "1080", ["Land of Festivals","Hornbill Festival","Naga warrior culture","Dzukou Valley beauty","Kohima War Cemetery","Traditional weaving","Unique tribal attire","Mountainous landscape","Rich oral traditions","Folk music hub"]],
+    ["Odisha", "🎡", "111", ["Konark Sun Temple","Jagannath Puri Rath Yatra","Chilika Lake birds","Odissi classical dance","Pattachitra art","Simlipal tiger reserve","Silver filigree work","Bhubaneswar Temple City","Olive Ridley turtles","Rasagola origin"]],
+    ["Punjab", "🥁", "117", ["Golden Temple Amritsar","Bread basket of India","Bhangra dance energy","Wagah border ceremony","Rock Garden Chandigarh","Five Rivers land","Rich farming tradition","Lassi and Makki-Roti","Ancient Indus sites","Brave warrior history"]],
+    ["Rajasthan", "🏰", "12", ["Land of the Kings","Thar Desert safari","Jaipur Pink City","Udaipur Lake Palace","Amer Fort history","Pushkar camel fair","Kalbelia folk dance","Royal Rajput heritage","Dal Baati Churma","Puppet show traditions"]],
+    ["Sikkim", "🌸", "124", ["Kanchenjunga peaks","First Organic State","Nathula Pass","Tsomgo Lake","Buddhist monasteries","Rumtek Monastery","Red Panda habitat","Rhododendron forests","Cleanest state","Himalayan trekking"]],
+    ["Tamil Nadu", "🏛️", "125", ["Dravidian architecture","Meenakshi Temple Madurai","Bharatanatyam dance","Ooty hill station","Marina Beach (longest)","Mahabalipuram stone cuts","Silk sarees Kanchipuram","Filter coffee culture","Nilgiri Mountain Railway","Ancient Tamil literature"]],
+    ["Telangana", "🕌", "133", ["Charminar landmark","Hyderabad Biryani","Golconda Fort","Ramappa Temple (UNESCO)","Pearls city","Kakatiya dynasty history","Warangal fort","Tech hub Cyberabad","Bathukamma festival","Pochampally Ikat silk"]],
+    ["Tripura", "🎋", "135", ["Ujjayanta Palace","Unakoti rock carvings","Neermahal water palace","Bamboo and Cane crafts","Tripura Sundari temple","Sepahijala sanctuary","Rubber production","Diverse tribal culture","Jampui Hills","Border parade Akhaura"]],
+    ["Uttar Pradesh", "🥙", "139", ["Taj Mahal wonder","Varanasi holy city","Ganga Aarti rituals","Lucknow Nawab culture","Kumbh Mela gathering","Ayodhya Ram Mandir","Mathura Krishna land","Kathak dance origin","Chikan embroidery art","Sugar producer state"]],
+    ["Uttarakhand", "🧘", "141", ["Land of Gods","Valley of Flowers","Rishikesh Yoga Capital","Char Dham Yatra","Nanda Devi peak","Jim Corbett park","Mussoorie Queen of Hills","Ganges river source","Tehri Dam","Aipan folk art"]],
+    ["West Bengal", "🎨", "142", ["Sundarbans (Royal Tigers)","Darjeeling Tea","Durga Puja festival","Victoria Memorial","Howrah Bridge","Shantiniketan (Tagore)","Rossogolla sweet","Bengali literature","Terracotta temples","Football craze"]],
+    ["Delhi", "🇮🇳", "145", ["Capital city India","Red Fort history","Qutub Minar","India Gate","Lotus Temple","Chandni Chowk food","Mughal architecture","Lutyens' Delhi","Political heart","Humayun's Tomb"]],
+    ["Jammu & Kashmir", "🛶", "147", ["Paradise on Earth","Dal Lake Shikara","Gulmarg skiing","Saffron fields","Pashmina shawls","Amarnath Cave shrine","Shalimar Bagh","Vaishno Devi temple","Wular Lake","Kahwa tea"]],
+    ["Ladakh", "🏔️", "149", ["Cold desert landscape","Pangong Lake","Magnetic Hill mystery","Leh Palace","Double-humped camels","Zanskar valley","Hemis festival","High altitude passes","Buddhist culture","Stunning stargazing"]],
+    ["Puducherry", "🇫🇷", "152", ["French Riviera of East","Auroville City","White Town cafes","Paradise Beach","Aurobindo Ashram","French architecture","Promenade beach","Peaceful vibes","Colonial history","Tax-free shopping"]],
+    ["Chandigarh", "🌳", "155", ["Planned city vibes","Rock Garden waste art","Sukhna Lake","Rose Garden","Cleanest city","Open Hand monument","Modern architecture","Wide boulevards","Education hub","Leisure Valley"]],
+    ["Andaman & Nicobar", "🏖️", "158", ["Cellular Jail history","Radhanagar Beach","Coral reefs diving","Barren Island volcano","Jarawa tribal land","Ross Island ruins","Elephant beach","Emerald islands","Water sports","Mangrove forests"]],
+    ["Dadra & Daman", "⛪", "161", ["Diu Fort","Jampore beach","Portuguese heritage","Silvassa greenery","Devka beach","Vanganga lake","Naida caves","Coastal seafood","Tribal Museum","Vibrant markets"]],
+    ["Lakshadweep", "🏝️", "164", ["Coral atolls","Agatti island","Crystal lagoons","Scuba diving","Coconut groves","Minicoy lighthouse","Traditional fishing","Unspoiled beaches","Oceanic beauty","Tuna canning factory"]]
+];
+
+let currentPage = 0;
+const cardsPerPage = 6;
+let unlockedStates = new Set();
+
+function renderCards() {
+    const container = document.getElementById("cards-container");
+    container.innerHTML = "";
+    const start = currentPage * cardsPerPage;
+    const pageData = fullIndiaData.slice(start, start + cardsPerPage);
+
+    pageData.forEach((item, idx) => {
+        const globalIdx = start + idx;
+        const card = document.createElement("div");
+        card.className = `card ${unlockedStates.has(globalIdx) ? 'flipped' : ''}`;
+        
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-face card-front">
+                    <img class="state-img" src="https://picsum.photos/id/${item[2]}/500/350" alt="${item[0]}">
+                    <span>${item[1]} ${item[0]}</span>
+                    <div class="voice-hint">Click to Flip & Listen 🔊</div>
+                </div>
+                <div class="card-face card-back">
+                    <h3>${item[1]} ${item[0]}</h3>
+                    <ul class="fact-list">${item[3].map(f => `<li>${f}</li>`).join('')}</ul>
+                </div>
+            </div>`;
+            
+        card.onclick = () => {
+            const isFlippingToBack = !card.classList.contains('flipped');
+            playFlipSound();
+            card.classList.toggle('flipped');
+            if(isFlippingToBack) {
+                speakFacts(item[0], item[3]);
+                if(!unlockedStates.has(globalIdx)) {
+                    unlockedStates.add(globalIdx);
+                    document.getElementById("unlocked-count").innerText = unlockedStates.size;
+                }
+            } else {
+                window.speechSynthesis.cancel();
+            }
+        };
+        container.appendChild(card);
+    });
+    
+    document.getElementById("page-num").innerText = currentPage + 1;
+    document.getElementById("prev-btn").disabled = currentPage === 0;
+    document.getElementById("next-btn").disabled = (start + cardsPerPage) >= fullIndiaData.length;
+}
+
+function changePage(step) {
+    window.speechSynthesis.cancel();
+    currentPage += step;
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    renderCards();
+}
+
+renderCards();
+</script>
+</body>
+</html>
