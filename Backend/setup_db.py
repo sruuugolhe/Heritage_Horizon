@@ -1,9 +1,9 @@
 import sqlite3
 
-# Connect to (or create) the database file
 conn = sqlite3.connect('game_scores.db')
 c = conn.cursor()
 
+# Users
 c.execute('''
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,16 +13,16 @@ CREATE TABLE IF NOT EXISTS users (
 )
 ''')
 
-
+# Games
 c.execute('''
 CREATE TABLE IF NOT EXISTS games (
     game_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    game_name TEXT NOT NULL,
+    game_name TEXT UNIQUE NOT NULL,
     section TEXT NOT NULL
 )
 ''')
 
-
+# Scores
 c.execute('''
 CREATE TABLE IF NOT EXISTS scores (
     score_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,16 +41,17 @@ games = [
     ('Memory Game', 'heritage'),
     ('Maze Puzzle', 'heritage'),
     ('Universe Quiz', 'universe'),
-    ('Word Puzzle', 'universe'),
+    ('Word Puzzle 2', 'universe'),
     ('Asteroids Dodge', 'universe'),
     ('Solar Crush', 'universe')
 ]
 
-# Insert games if not already present
-c.executemany('INSERT OR IGNORE INTO games (game_name, section) VALUES (?, ?)', games)
+c.executemany(
+    'INSERT OR IGNORE INTO games (game_name, section) VALUES (?, ?)',
+    games
+)
 
-# Commit changes and close connection
 conn.commit()
 conn.close()
 
-print("Database setup complete! 'game_scores.db' created with tables and sample games.")
+print("Database setup complete!")

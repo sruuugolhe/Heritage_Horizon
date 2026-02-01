@@ -1,128 +1,190 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Flask, render_template, request, redirect, url_for, session, abort
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+import os
 
-app = Flask(__name__)
-CORS(app)  # Allow frontend to talk to backend
+# ---------------- CONFIG ----------------
+app = Flask(
+    __name__,
+    template_folder="FRONTEND",
+    static_folder="FRONTEND"
+)
 
-DB = "game_scores.db"  # Path to your database file (adjust if needed)
+app.secret_key = "super_secret_key_change_later"
+DB_NAME = "app.db"
 
+# ---------------- DATABASE ----------------
+def get_db():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# -----------------------------
-# TEST ROUTE
-# -----------------------------
-@app.route("/", methods=["GET"])
-def home():
-    return "Backend is running"
+def init_db():
+    conn = get_db()
+    cur = conn.cursor()
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
 
-# -----------------------------
-# LOGIN API
-# -----------------------------
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")  # For now, just placeholder
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS quiz_scores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            quiz_name TEXT,
+            score INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
 
-    if not email or not password:
-        return jsonify({"success": False, "message": "Please enter email and password"})
-
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("SELECT user_id, name, role FROM users WHERE email=?", (email,))
-    user = c.fetchone()
-    conn.close()
-
-    if user:
-        user_id, name, role = user
-        return jsonify({"success": True, "user_id": user_id, "name": name, "role": role})
-    else:
-        return jsonify({"success": False, "message": "User not found"})
-
-
-# -----------------------------
-# REGISTER API (Optional)
-# -----------------------------
-@app.route("/register", methods=["POST"])
-def register():
-    data = request.json
-    name = data.get("name")
-    email = data.get("email")
-    role = data.get("role", "student")  # default role
-
-    if not name or not email:
-        return jsonify({"success": False, "message": "Name and email required"})
-
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    try:
-        c.execute("INSERT INTO users (name, email, role) VALUES (?, ?, ?)", (name, email, role))
-        conn.commit()
-        user_id = c.lastrowid
-    except sqlite3.IntegrityError:
-        conn.close()
-        return jsonify({"success": False, "message": "Email already exists"})
-    conn.close()
-
-    return jsonify({"success": True, "message": "Registration successful", "user_id": user_id})
-
-
-# -----------------------------
-# DASHBOARD API
-# Returns all games and user's highest score for each
-# -----------------------------
-@app.route("/dashboard/<int:user_id>", methods=["GET"])
-def dashboard(user_id):
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-
-    # Get all games
-    c.execute("SELECT game_id, game_name, section FROM games")
-    games = c.fetchall()
-
-    result = []
-    for g in games:
-        game_id, game_name, section = g
-        c.execute("SELECT MAX(score) FROM scores WHERE user_id=? AND game_id=?", (user_id, game_id))
-        high_score = c.fetchone()[0]
-        played = True if high_score else False
-        result.append({
-            "game_id": game_id,
-            "game_name": game_name,
-            "section": section,
-            "played": played,
-            "high_score": high_score if high_score else 0
-        })
-
-    conn.close()
-    return jsonify(result)
-
-
-# -----------------------------
-# UPDATE SCORE API
-# -----------------------------
-@app.route("/update-score", methods=["POST"])
-def update_score():
-    data = request.json
-    user_id = data.get("user_id")
-    game_id = data.get("game_id")
-    score = data.get("score")
-
-    if not user_id or not game_id or score is None:
-        return jsonify({"success": False, "message": "Missing data"})
-
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("INSERT INTO scores (user_id, game_id, score) VALUES (?, ?, ?)", (user_id, game_id, score))
     conn.commit()
     conn.close()
 
-    return jsonify({"success": True, "message": "Score updated"})
+# ---------------- AUTH DECORATOR ----------------
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
 
+# ---------------- ROUTES ----------------
 
-# -----------------------------
-# RUN SERVER
-# -----------------------------
+@app.route("/")
+def title():
+    return render_template("titlepage.html")
+
+@app.route("/slide")
+def slide():
+    return render_template("slide2.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        conn = get_db()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ?",
+            (username,)
+        ).fetchone()
+        conn.close()
+
+        if user and check_password_hash(user["password"], password):
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            return redirect(url_for("dashboard"))
+
+        return render_template("FSLOGIN.html", error="Invalid credentials")
+
+    return render_template("FSLOGIN.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html")
+
+# ---------------- GAME / CONTENT ROUTES ----------------
+
+@app.route("/optionsspace")
+@login_required
+def optionsspace():
+    return render_template("optionsspace.html")
+
+@app.route("/maze")
+@login_required
+def maze():
+    return render_template("IND_FinalMaze1.html")
+
+@app.route("/option")
+@login_required
+def option():
+    return render_template("IND_FinalOption.html")
+
+@app.route("/finalcard")
+@login_required
+def finalcard():
+    return render_template("INFINALCARD.html")
+
+@app.route("/solarquiz", methods=["GET", "POST"])
+@login_required
+def solarquiz():
+    if request.method == "POST":
+        score = request.form.get("score", 0)
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO quiz_scores (user_id, quiz_name, score) VALUES (?, ?, ?)",
+            (session["user_id"], "solarquiz", score)
+        )
+        conn.commit()
+        conn.close()
+    return render_template("solarquiz.html")
+
+@app.route("/finalquiz", methods=["GET", "POST"])
+@login_required
+def finalquiz():
+    if request.method == "POST":
+        score = request.form.get("score", 0)
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO quiz_scores (user_id, quiz_name, score) VALUES (?, ?, ?)",
+            (session["user_id"], "finalquiz", score)
+        )
+        conn.commit()
+        conn.close()
+    return render_template("IND_finalQuiz.html")
+
+@app.route("/solarasteroid")
+@login_required
+def solarasteroid():
+    return render_template("solaraseroid.html")
+
+@app.route("/solarcrush")
+@login_required
+def solarcrush():
+    return render_template("solarcrush.html")
+
+@app.route("/solardoyouknow")
+@login_required
+def solardoyouknow():
+    return render_template("solardoyouknow.html")
+
+@app.route("/solarpuzzle")
+@login_required
+def solarpuzzle():
+    return render_template("solarpuzzle.html")
+
+@app.route("/solarwordpuzzle")
+@login_required
+def solarwordpuzzle():
+    return render_template("solarwordpuzzle.html")
+
+@app.route("/wordpuzzle")
+@login_required
+def wordpuzzle():
+    return render_template("wordpuzzle.html")
+
+# ---------------- ERROR HANDLING ----------------
+@app.errorhandler(404)
+def page_not_found(e):
+    return "<h1>404 - Page Not Found</h1>", 404
+
+# ---------------- MAIN ----------------
 if __name__ == "__main__":
+    if not os.path.exists(DB_NAME):
+        init_db()
+        print("Database created")
+
     app.run(debug=True)

@@ -7,8 +7,6 @@ def init_db():
     """Initialize the database with required tables"""
     
     # Remove existing database for fresh setup (optional)
-    if os.path.exists(DB):
-        os.remove(DB)
     
     conn = sqlite3.connect(DB)
     c = conn.cursor()
