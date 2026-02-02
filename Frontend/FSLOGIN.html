@@ -253,7 +253,10 @@ body{
         <input type="password" id="pass" placeholder="Password">
       </div>
 
-      <button class="login-btn" onclick="login()">Login</button>
+      <a href="slide2.html">
+    <button class="login-btn">Login</button>
+</a>
+
 
       <div class="links">
         <span onclick="createAccount()">Create Account</span> |
@@ -322,7 +325,8 @@ function login(){
 }
 
 function createAccount(){
-  alert("Create Account page coming soon");
+  window.location.href = "createaccount.html";
+
 }
 
 function forgotAccount(){

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create Account | Heritage Horizons</title>
+
+<style>
+:root{
+  --blue:#2fd4d0;
+  --green:#7ed957;
+  --dark:#04161b;
+  --panel:#0f3a42;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Segoe UI, sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(180deg,#04161b,#0f3a42);
+  color:white;
+}
+
+.container{
+  width:420px;
+  padding:35px;
+  border-radius:30px;
+  background:var(--panel);
+  border:2px solid var(--blue);
+  box-shadow:0 0 60px rgba(47,212,208,.5);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:25px;
+  letter-spacing:2px;
+}
+
+.field{
+  margin-bottom:15px;
+}
+
+.field input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  outline:none;
+  font-size:15px;
+  background:#eafffa;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--green),#4fd1a5);
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{
+  box-shadow:0 0 20px rgba(126,217,87,.9);
+}
+
+.back{
+  margin-top:16px;
+  text-align:center;
+  font-size:14px;
+}
+
+.back span{
+  color:var(--green);
+  cursor:pointer;
+}
+
+#msg{
+  margin-top:12px;
+  font-size:14px;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>CREATE ACCOUNT</h2>
+
+  <div class="field">
+    <input type="text" id="username" placeholder="Username">
+  </div>
+
+  <div class="field">
+    <input type="email" id="email" placeholder="Email">
+  </div>
+
+  <div class="field">
+    <input type="password" id="password" placeholder="Password">
+  </div>
+
+  <div class="field">
+    <input type="number" id="age" placeholder="Age">
+  </div>
+
+  <button onclick="register()">Create Account</button>
+
+  <div id="msg"></div>
+
+  <div class="back">
+    <span onclick="goBack()">← Back to Login</span>
+  </div>
+</div>
+
+<script>
+function register(){
+  const u = username.value.trim();
+  const e = email.value.trim();
+  const p = password.value.trim();
+  const a = age.value.trim();
+  const m = msg;
+
+  if(!u || !e || !p || !a){
+    m.style.color="salmon";
+    m.textContent="Please fill all fields";
+    return;
+  }
+
+  // Store temporarily (later connect to Flask + DB)
+  localStorage.setItem("new_user", JSON.stringify({
+    username:u,
+    email:e,
+    password:p,
+    age:a
+  }));
+
+  m.style.color="#7ed957";
+  m.textContent="Account created successfully!";
+
+  setTimeout(()=>{
+    window.location.href = "FSLOGIN.html"; // your login page
+  },1500);
+}
+
+function goBack(){
+  window.location.href = "FSLOGIN.html";
+}
+</script>
+
+</body>
+</html>

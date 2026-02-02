@@ -156,10 +156,10 @@ def solarasteroid():
 def solarcrush():
     return render_template("solarcrush.html")
 
-@app.route("/solardoyouknow")
+@app.route("/DoYouKnowSpace")
 @login_required
-def solardoyouknow():
-    return render_template("solardoyouknow.html")
+def DoYouKnowSpace():
+    return render_template("DoYouKnowSpace.html")
 
 @app.route("/solarpuzzle")
 @login_required
