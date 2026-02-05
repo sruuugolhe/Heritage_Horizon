@@ -144,7 +144,7 @@ def finalquiz():
         )
         conn.commit()
         conn.close()
-    return render_template("IND_finalQuiz.html")
+    return render_template("IND_FinalQuiz.html")
 
 @app.route("/solarasteroid")
 @login_required

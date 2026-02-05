@@ -38,6 +38,7 @@
 </style>
 </head>
 <body>
+ <button class="back-btn" style="background: #7f4e1e; color: #fff; border-color: #7f4e1e; position: fixed; left: 15px; top: 15px;" onclick="goBackSlide()">&#8592;</button>
 
 <h1>Bharat Heritage Expedition</h1>
 <div id="stats-header">
@@ -179,6 +180,10 @@ function changePage(step) {
 }
 
 renderCards();
+function goBackSlide(){
+    window.location.href = "IND_FinalOption.html"; // change if needed
+}
+
 </script>
 </body>
 </html>

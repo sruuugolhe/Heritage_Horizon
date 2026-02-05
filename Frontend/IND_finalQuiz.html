@@ -6,9 +6,9 @@
 <title>India Heritage Quiz Game</title>
 
 <style>
-/* MATCHING PUZZLE THEME COLORS & FONTS */
+/* THEME COLORS: Heritage Brown & Parchment */
 body {
-  font-family: Garamond, serif;
+  font-family: 'Segoe UI', Garamond, serif;
   background: #fdf6e3;
   margin: 0;
   display: flex;
@@ -16,104 +16,150 @@ body {
   align-items: center;
   color: #4b2e2e;
   padding: 20px;
+  user-select: none;
 }
 
 h1 {
-  margin: 20px 0 10px;
+  margin: 65px 0 10px;
   color: #7f4e1e;
   font-size: 36px;
   text-transform: uppercase;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
 #level {
   font-size: 22px;
   font-weight: bold;
   margin-bottom: 15px;
-  color: #4b2e2e;
+  color: #a67c52;
+  background: #fff;
+  padding: 5px 20px;
+  border-radius: 20px;
+  border: 1px solid #d2b48c;
 }
 
 #gameBox {
   background: #fff8dc;
-  width: 90%;
+  width: 95%;
   max-width: 500px;
   margin: auto;
-  padding: 30px;
-  border-radius: 12px;
+  padding: 25px;
+  border-radius: 20px;
+  border: 4px solid #a67c52;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  position: relative;
+  min-height: 350px;
+}
+
+.back-btn, .exit-btn {
+  position: fixed;
+  top: 15px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
   border: 2px solid #a67c52;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  background: #7f4e1e;
+  color: #fdf6e3;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.back-btn { left: 15px; }
+.exit-btn { right: 15px; }
+
+.back-btn:hover, .exit-btn:hover {
+  transform: scale(1.1);
+  background: #4b2e2e;
 }
 
 #question {
   color: #7f4e1e;
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 20px;
+  text-align: center;
+  line-height: 1.4;
 }
 
-/* OPTIONS STYLING */
 .option {
-  background: #fff8dc;
-  padding: 12px;
+  background: #fff;
+  padding: 15px;
   margin: 12px 0;
   border: 2px solid #d2b48c;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: 0.2s;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 19px;
   color: #4b2e2e;
+  text-align: center;
 }
 
 .option:hover {
-  background: #f7d7c4;
+  background: #fdf6e3;
+  border-color: #7f4e1e;
+  transform: translateY(-2px);
 }
 
-.correct {
-  background: #7a4a1d !important;
-  color: white !important;
-  border-color: #4b2e2e;
+.option:active { transform: translateY(0); }
+
+/* OVERLAY */
+#messageOverlay {
+  display: none;
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255, 248, 220, 0.98);
+  border-radius: 16px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  z-index: 20;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.wrong {
-  background: #ff8a8a !important;
-  color: white !important;
-  border-color: red;
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* BUTTONS */
-#nextBtn, #hintBtn {
-  padding: 10px 20px;
-  margin: 15px 5px;
+.action-btn {
+  padding: 12px 25px;
+  margin: 10px 5px;
   border: none;
-  border-radius: 8px;
+  border-radius: 30px;
   background: #7f4e1e;
   color: white;
   cursor: pointer;
   font-size: 16px;
-  font-family: Garamond, serif;
   font-weight: bold;
+  transition: 0.2s;
 }
 
-/* SIMPLE HINT STYLE */
-#hintText {
-  margin-top: 10px;
-  font-family: Arial, sans-serif; /* Simplified font */
-  font-size: 14px;
-  color: #666;
-  font-style: normal; /* Removed italics */
-  font-weight: normal; /* Removed bold */
-}
+.action-btn:hover { background: #4b2e2e; transform: scale(1.05); }
+.secondary-btn { background: #a67c52; }
 
-#scoreBox {
-  margin-top: 20px;
+#hintBtn {
+  background: #d2b48c;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: bold;
   color: #4b2e2e;
-  font-size: 18px;
-  border-top: 1px solid #d2b48c;
-  padding-top: 15px;
 }
+
+#hintText { margin-top: 15px; font-style: italic; color: #8a6d4d; min-height: 20px; }
+#scoreBox { margin-top: 20px; font-size: 20px; font-weight: bold; color: #7f4e1e; text-align: center; }
 </style>
 </head>
 
 <body>
+
+<button class="back-btn" onclick="goHome()" title="Go Home">&#8592;</button>
+
+<button class="exit-btn" onclick="resetGame()" title="Restart Quiz">&#10006;</button>
 
 <h1>INDIA HERITAGE</h1>
 <div id="level">Level 1</div>
@@ -121,15 +167,55 @@ h1 {
 <div id="gameBox">
   <h2 id="question">Loading...</h2>
   <div id="options"></div>
-  <div style="display: flex; justify-content: center; gap: 10px;">
-    <button id="hintBtn">Show Hint</button>
-    <button id="nextBtn" style="display:none;">Next Question</button>
+  
+  <div style="display: flex; justify-content: center; margin-top: 10px;">
+    <button id="hintBtn" onclick="showHint()">💡 Show Hint</button>
   </div>
+  
   <div id="hintText"></div>
-  <h2 id="scoreBox">Score: 0</h2>
+  <div id="scoreBox">Score: 0</div>
+
+  <div id="messageOverlay">
+    <h2 id="msgHeader">Congratulations!</h2>
+    <p id="msgSubtext">Correct Answer!</p>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <button class="action-btn secondary-btn" onclick="closeOverlay()">Go Back</button>
+        <button class="action-btn" id="overlayNextBtn">Next Question ➔</button>
+    </div>
+  </div>
 </div>
 
 <script>
+// --- SOUND ENGINE (Ear Friendly) ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playSound(type) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if (type === 'correct') {
+        // Soft major chord chime
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+    } else {
+        // Gentle "thud" for wrong
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+    }
+}
+
 const questions = [
   // 1-20: Popular Monuments
   {q:"Where is the Taj Mahal located?", a:["Agra","Delhi","Jaipur","Mumbai"], c:0, hint:"On Yamuna river"},
@@ -342,28 +428,26 @@ const questions = [
   {q:"National War Memorial is in?", a:["New Delhi","Pune","Mumbai","Kolkata"], c:0, hint:"India Gate"},
   {q:"Victoria Memorial is built of?", a:["Marble","Sandstone","Brick","Wood"], c:0, hint:"White stone"}
 ];
-
 let current = 0;
 let score = 0;
+let answeredQuestions = new Set(); // To prevent double scoring
 
 const questionEl = document.getElementById("question");
 const optionsEl = document.getElementById("options");
 const scoreEl = document.getElementById("scoreBox");
-const hintBtn = document.getElementById("hintBtn");
 const hintText = document.getElementById("hintText");
-const nextBtn = document.getElementById("nextBtn");
-const levelEl = document.getElementById("level");
+const overlay = document.getElementById("messageOverlay");
+const overlayNextBtn = document.getElementById("overlayNextBtn");
+const msgHeader = document.getElementById("msgHeader");
+const msgSubtext = document.getElementById("msgSubtext");
 
 function loadQuestion() {
+  overlay.style.display = "none";
   const q = questions[current];
-  
-  // Update Level every 10 questions
-  levelEl.innerText = "Level " + (Math.floor(current / 10) + 1);
-  
+  document.getElementById("level").innerText = "Level " + (Math.floor(current / 10) + 1);
   questionEl.innerText = (current + 1) + ". " + q.q;
   optionsEl.innerHTML = "";
   hintText.innerText = "";
-  nextBtn.style.display = "none";
 
   q.a.forEach((opt, i) => {
     const div = document.createElement("div");
@@ -376,39 +460,70 @@ function loadQuestion() {
 
 function checkAnswer(selected) {
   const q = questions[current];
-  const options = document.querySelectorAll(".option");
-
-  options.forEach(opt => opt.style.pointerEvents = "none");
-
-  if (selected === q.c) {
-    options[selected].classList.add("correct");
-    score++;
+  const isCorrect = selected === q.c;
+  
+  if (isCorrect) {
+    playSound('correct');
+    if(!answeredQuestions.has(current)) {
+        score++;
+        answeredQuestions.add(current);
+    }
+    msgHeader.innerText = "Great Job! 🌟";
+    msgSubtext.innerText = "That is exactly right!";
   } else {
-    options[selected].classList.add("wrong");
-    options[q.c].classList.add("correct");
+    playSound('wrong');
+    msgHeader.innerText = "Wrong answer,Try again! 🏛️";
+    msgSubtext.innerText = "The answer is: " + q.a[q.c];
   }
 
   scoreEl.innerText = "Score: " + score;
-  nextBtn.style.display = "inline-block";
+  
+  setTimeout(() => {
+    overlay.style.display = "flex";
+  }, 400);
 }
 
-hintBtn.onclick = () => {
-  hintText.innerText = "Hint: " + questions[current].hint;
-};
+function closeOverlay() {
+    overlay.style.display = "none";
+}
 
-nextBtn.onclick = () => {
+function prevQuestion() {
+    if (current > 0) {
+        current--;
+        loadQuestion();
+    }
+}
+
+function resetGame() {
+  if(confirm("Start from the beginning?")) {
+      current = 0;
+      score = 0;
+      answeredQuestions.clear();
+      scoreEl.innerText = "Score: 0";
+      loadQuestion();
+  }
+}
+
+function showHint() {
+  hintText.innerText = "💡 " + questions[current].hint;
+}
+
+overlayNextBtn.onclick = () => {
   current++;
   if (current < questions.length) {
     loadQuestion();
   } else {
-    questionEl.innerText = "🎉 All 200 Questions Completed!";
-    optionsEl.innerHTML = `<h3>Final Heritage Score: ${score} / ${questions.length}</h3>`;
-    hintText.innerText = "You are an India Heritage Expert!";
-    nextBtn.style.display = "none";
-    hintBtn.style.display = "none";
+    msgHeader.innerText = "Champion! 🏆";
+    msgSubtext.innerText = `Final Score: ${score} / ${questions.length}`;
+    overlayNextBtn.style.display = "none";
   }
 };
 
+function goHome() {
+    window.location.href = "IND_FinalOption.html"; // change to your page name
+}
+
+// Start the game
 loadQuestion();
 </script>
 </body>

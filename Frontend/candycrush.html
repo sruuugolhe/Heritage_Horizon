@@ -80,10 +80,36 @@ button{
   max-width:320px;
   box-shadow:0 0 30px #5ddcff;
 }
+/* ⬅ BACK ARROW BUTTON */
+.back-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid #ffffff;
+  background:rgb(67, 194, 244);
+  color:#ffffff;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.back-btn:hover{
+  transform:scale(1.1);
+}
+
 </style>
 </head>
 
 <body>
+<button class="back-btn" onclick="goBackSlide()">&#8592;</button>
+
 
 <h1> SOLAR CRUSH</h1>
 
@@ -333,6 +359,10 @@ function exitGame(){
 
 
 setupLevel();
+function goBackSlide(){
+  window.location.href = "optionsspace.html"; // change if needed
+}
+
 </script>
 
 </body>

@@ -265,10 +265,47 @@ button{
     box-shadow:0 0 18px rgba(76,201,240,.8);
 }
 button:hover{transform:scale(1.08)}
+/* ⬅ BACK ARROW – PERFECT CIRCLE */
+.back-btn{
+    position:fixed;
+    top:15px;
+    left:15px;
+
+    width:48px;
+    height:48px;              /* ✅ width === height */
+    aspect-ratio: 1 / 1;      /* ✅ forces perfect circle */
+
+    border-radius:50%;
+    border:2px solid #ffffff;
+
+    background:rgba(0,0,0,0.75);
+    color:#ffffff;
+
+    font-size:26px;
+    line-height:1;            /* ✅ prevents vertical stretch */
+    font-weight:600;
+
+    cursor:pointer;
+    z-index:9999;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    box-shadow:
+        0 0 12px rgba(255,255,255,0.35),
+        inset 0 0 6px rgba(255,255,255,0.25);
+}
+
+.back-btn:hover{
+    transform:scale(1.12);
+}
 </style>
 </head>
 
 <body>
+<button class="back-btn" onclick="goBackSlide()">&#8592;</button>
+
 
 
 <div class="nebula"></div>
@@ -396,7 +433,12 @@ function endGame(){
         ">❌ Exit Game</button>
     </div>`;
 }
+function goBackSlide(){
+    window.location.href = "optionsspace.html"; // change if needed
+}
+
 </script>
+
 
 </body>
 </html>

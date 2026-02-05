@@ -95,10 +95,36 @@ button{
     border-radius:20px;
     text-align:center;
 }
+/* ⬅ BACK ARROW BUTTON */
+.back-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid #ffffff;
+  background:rgb(1, 30, 90);
+  color:#ffffff;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.back-btn:hover{
+  transform:scale(1.1);
+}
+
 </style>
 </head>
 
 <body>
+<button class="back-btn" onclick="goBackSlide()">&#8592;</button>
+
 
 <div class="main">
     <h1> Solar System Quiz</h1>
@@ -517,6 +543,10 @@ hintBtn.onclick=()=>{
 /* START GAME */
 startStopwatch();
 loadQ();
+function goBackSlide(){
+  window.location.href = "optionsspace.html"; // change if needed
+}
+
 </script>
 
 </body>

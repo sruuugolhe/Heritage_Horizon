@@ -123,10 +123,36 @@ color: transparent;
         font-size:2rem;
     }
 }
+/* ⬅ BACK ARROW BUTTON */
+.back-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid #ffffff;
+  background:rgba(1, 233, 254, 0.975);
+  color:#0f0000;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.back-btn:hover{
+  transform:scale(1.1);
+}
+
 </style>
 </head>
 
 <body>
+<button class="back-btn" onclick="goBackSlide()">&#8592;</button>
+
 
 <div class="background">
     <div class="card">
@@ -155,6 +181,11 @@ color: transparent;
 
     </div>
 </div>
+<script>
+function goBackSlide(){
+  window.location.href = "slide2.html"; // change if needed
+}
+</script>
 
 </body>
 </html>

@@ -8,6 +8,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
+/* ⬅ BACK ARROW BUTTON – FIXED */
+.back-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid #ffffff;
+  background:rgba(1, 89, 160, 0.6);
+  color:#ffffff;
+  font-size:24px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;   /* VERY IMPORTANT */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.back-btn:hover{
+  transform:scale(1.1);
+}
+.back-btn:hover{
+  transform:scale(1.05);
+}
+
 *{ box-sizing:border-box; margin:0; padding:0; }
 
 body{
@@ -143,6 +170,10 @@ h1{
 </head>
 
 <body>
+<button class="back-btn" onclick="goBackSlide()">&#8592;</button>
+
+
+
 
 <div class="container">
 <h1>Do You Know? – The 8 Planets</h1>
@@ -283,6 +314,22 @@ function handleCardClick(card,planet){
   const speech = new SpeechSynthesisUtterance(planet);
   speech.rate = 0.9;
   window.speechSynthesis.speak(speech);
+}
+let backVisible = true;
+
+function toggleBack(){
+  const btn = document.querySelector(".back-btn");
+
+  if(backVisible){
+    btn.classList.add("hide");
+  }else{
+    btn.classList.remove("hide");
+  }
+
+  backVisible = !backVisible;
+}
+function goBackSlide(){
+  window.location.href = "optionsspace.html"; // change if needed
 }
 </script>
 

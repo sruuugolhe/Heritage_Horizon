@@ -6,219 +6,235 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins, sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI', Garamond, serif;}
 
 body{
-    background:linear-gradient(#fff3e0,#ffe0b2);
-    text-align:center;
-    padding:10px;
-    color:#4e2600;
+  background:#fdf6e3;
+  text-align:center;
+  padding:20px;
+  color:#4b2e2e;
+  user-select:none;
 }
 
-h1{font-size:1.6rem;margin-bottom:5px}
-small{opacity:.8}
+/* ===== TOP CORNER BUTTONS ===== */
+.back-btn,.exit-btn{
+  position:fixed;
+  top:15px;
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  border:2px solid #a67c52;
+  background:#7f4e1e;
+  color:#fdf6e3;
+  font-size:26px;
+  cursor:pointer;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.2s;
+}
+.back-btn{left:15px;}
+.exit-btn{right:15px;}
+.back-btn:hover,.exit-btn:hover{
+  background:#4b2e2e;
+  transform:scale(1.1);
+}
 
+/* ===== TITLE ===== */
+h1{
+  margin-top:70px;
+  color:#7f4e1e;
+  font-size:1.9rem;
+  letter-spacing:1px;
+}
+small{
+  display:block;
+  color:#a67c52;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.level{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:15px;
+  color:#a67c52;
+  background:#fff;
+  display:inline-block;
+  padding:5px 25px;
+  border-radius:20px;
+  border:1px solid #d2b48c;
+}
+
+/* ===== STATS ===== */
 .top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
-    margin:10px auto;
-    max-width:600px;
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
 }
-
 .stat{
-    background:#fff;
-    padding:6px 10px;
-    border-radius:6px;
-    font-weight:600;
-    margin:3px;
+  background:#fff8dc;
+  padding:8px 15px;
+  border-radius:12px;
+  border:2px solid #d2b48c;
+  font-weight:700;
+  color:#7f4e1e;
+  min-width:90px;
 }
 
-.game-wrapper{
-    position:relative;
-    max-width:600px;
-    margin:auto;
-}
-
+/* ===== GAME ===== */
+.game-wrapper{max-width:600px;margin:auto;}
 .game{
-    display:grid;
-    gap:28px;
-    margin:15px auto;
+  display:grid;
+  gap:12px;
+  padding:10px;
 }
 
 .card{
-    aspect-ratio:3 / 4;
-    perspective:1200px;
+  aspect-ratio:3/4;
+  perspective:1200px;
+  cursor:pointer;
 }
 
 .inner{
-    width:100%;
-    height:100%;
-    position:relative;
-    transform-style:preserve-3d;
-    transition:transform .55s cubic-bezier(.4,.2,.2,1);
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .55s cubic-bezier(.4,.2,.2,1);
 }
 
-.card.flip .inner{transform:rotateY(180deg)}
+.card.flip .inner{transform:rotateY(180deg);}
 
 .front,.back{
-    position:absolute;
-    inset:0;
-    border-radius:18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    backface-visibility:hidden;
-    border:6px solid #fff;
-    box-shadow:0 18px 30px rgba(0,0,0,.25);
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  backface-visibility:hidden;
+  border:3px solid #a67c52;
+  box-shadow:0 4px 10px rgba(0,0,0,0.15);
 }
 
 .front{
-    background:linear-gradient(145deg,#ffa726,#fb8c00);
-    font-size:3.2rem;
-    color:#fff;
-    font-weight:700;
+  background:#7f4e1e;
+  font-size:2.6rem;
+  color:#fdf6e3;
+  font-weight:700;
 }
 
 .back{
-    background:#fff9c4;
-    transform:rotateY(180deg);
-    font-size:5rem;
+  background:#fff;
+  transform:rotateY(180deg);
+  font-size:4.6rem;
 }
 
-/* Fun fact */
+/* ===== FUN FACT ===== */
 .funfact{
-    position:absolute;
-    bottom:10px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#fff;
-    color:#4e2600;
-    padding:6px 12px;
-    border-radius:8px;
-    font-size:0.85rem;
-    font-weight:600;
-    display:none;
-    max-width:90%;
-    box-shadow:0 4px 12px rgba(0,0,0,0.2);
-    z-index:5;
-    text-align:center;
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#7f4e1e;
+  color:#fdf6e3;
+  padding:12px 22px;
+  border-radius:30px;
+  font-weight:600;
+  display:none;
+  z-index:100;
 }
 
-/* Popup */
+/* ===== POPUP ===== */
 .popup{
-    position:absolute;
-    inset:0;
-    background:rgba(0,0,0,.55);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:10;
+  position:fixed;
+  inset:0;
+  background:rgba(75,46,46,.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
 }
-
 .popup-box{
-    background:#fff;
-    padding:25px;
-    border-radius:16px;
-    width:85%;
-    max-width:320px;
-    animation:pop .4s ease;
+  background:#fff8dc;
+  padding:30px;
+  border-radius:20px;
+  border:4px solid #a67c52;
+  max-width:400px;
 }
-
-.popup-box button{
-    width:48%;
-    display:inline-block;
-    margin:6px 1%;
-}
-
-.party{
-    font-size:2.5rem;
-    animation:blast .6s infinite alternate;
-}
-
-@keyframes blast{from{transform:scale(1)}to{transform:scale(1.2)}}
-@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+.party{font-size:3.5rem;}
 
 button{
-    border:none;
-    padding:8px 14px;
-    border-radius:6px;
-    background:#ff9800;
-    color:#fff;
-    font-weight:600;
-    cursor:pointer;
+  border:none;
+  padding:12px 22px;
+  border-radius:30px;
+  background:#7f4e1e;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+  margin:10px 6px;
 }
-button:hover{background:#e65100}
-
-.level{margin-top:10px;font-weight:700}
+.secondary-btn{background:#a67c52;}
 </style>
 </head>
 
 <body>
 
-<h1>🇮🇳 India Heritage Memory Game</h1>
-<small>Play • Learn • Remember</small>
+<!-- CORNER BUTTONS -->
+<button class="back-btn" onclick="exitGame()">←</button>
+<button class="exit-btn" onclick="restart()">✖</button>
+
+<h1>INDIA HERITAGE</h1>
+<small>MEMORY MATCHING GAME</small>
 
 <div class="level">Level <span id="level">1</span></div>
 
 <div class="top">
-    <div class="stat">⏱ <span id="time">0</span>s</div>
-    <div class="stat">🎯 <span id="moves">0</span></div>
-    <div class="stat">⭐ <span id="score">0</span></div>
+  <div class="stat">⏱ <span id="time">0</span>s</div>
+  <div class="stat">🎯 <span id="moves">0</span></div>
+  <div class="stat">⭐ <span id="score">0</span></div>
 </div>
 
 <div class="game-wrapper">
-    <div class="funfact" id="funfact"></div>
-    <div class="game" id="game"></div>
+  <div class="funfact" id="funfact"></div>
+  <div class="game" id="game"></div>
 
-    <div class="popup" id="popup">
-        <div class="popup-box">
-            <div class="party">🎉🎉🎉</div>
-            <h2>Congratulations!</h2>
-            <p>Level <span id="doneLevel"></span> Completed</p>
-            <button onclick="restart()" style="float:left">Back</button>
-            <button onclick="nextLevel()" style="float:right">Next</button>
-        </div>
+  <div class="popup" id="popup">
+    <div class="popup-box">
+      <div class="party">🏆</div>
+      <h2>Great Job!</h2>
+      <p>Level <span id="doneLevel"></span> Complete</p>
+      <button class="secondary-btn" onclick="restart()">Reset</button>
+      <button onclick="nextLevel()">Next Level ➔</button>
     </div>
+  </div>
 </div>
 
 <script>
-/* YOUR ORIGINAL EMOJIS — UNCHANGED */
+/* ===== DATA ===== */
 const emojis=[
-"🪔","🛕","🕌","🕍","🏰","🏛️","🐘","👑","📿","🔔","🥁",
-"🎭","💃","🧘","🌳","🌲","🌴","🌵","🌿","🍃","🍀","☘️","🌱",
-"🌾","🌸","🌺","🌼","🌻","🌹","🌷","🪷","💐","🥭","🍌","🍉",
-"🍍","🍎","🍏","🍊","🍋","🍐","🍇","🍓","🫐","🍒","🍑","🥥",
-"🌰","🫘","🌞","🌄","🌅","🌈","🌤️","💧","🦚","🛶",
-"🧿","🪕","🛖","🪷","🎶","🪔","🛕","🌺","🌿","🏞️"
+"🪔","🛕","🕌","🏰","🐘","👑","📿","🔔","🥁","🎭",
+"💃","🧘","🌳","🌴","🌿","🌸","🦚","🌈","🥭","🍉","🏞️"
 ];
 
-/* YOUR ORIGINAL FUN FACTS — UNCHANGED */
-const funFacts = { /* exactly as you wrote */ 
-"🏞️":"India has stunning landscapes from Himalayas to beaches.",
-"🪔":"Diyas (lamps) are lit during Diwali to signify light over darkness.",
-"🛕":"India has over 2,000 temples dedicated to various deities.",
-"🕌":"The Taj Mahal is a famous Islamic mausoleum in India.",
-"🕍":"Jewish synagogues in India date back centuries.",
-"🏰":"India has many forts, like Mehrangarh Fort in Rajasthan.",
-"🏛️":"Indian architecture blends Hindu, Mughal, and colonial styles.",
-"🐘":"Elephants are a symbol of wisdom and are revered in India.",
-"👑":"Royal crowns represent India's rich history of kingdoms.",
-"📿":"Mala beads are used in meditation and prayer.",
-"🔔":"Temple bells are rung to awaken the mind and soul.",
-"🥁":"Indian drums like Tabla and Dhol are central to music.",
-"🎭":"Indian classical dance tells stories of mythology.",
-"💃":"Folk dances celebrate harvests and festivals.",
-"🧘":"Yoga originated in ancient India for mind-body harmony.",
-"🌳":"Sacred groves preserve biodiversity and culture.",
-"🌲":"Forests cover around 21% of India’s land area.",
-"🌴":"Coconut palms are abundant in coastal India.",
-"🌵":"Thar Desert hosts resilient flora and fauna.",
-"🌿":"Herbs like Tulsi are sacred and medicinal.",
-"🍃":"Leaves are often used in traditional Indian cooking.",
-"☘️":"Tulsi leaves are used in religious rituals.",
-"🌾":"Rice is a staple food in many Indian states.",
+const funFacts={
+"🪔":"Diyas symbolize victory of light over darkness.",
+"🛕":"India has thousands of ancient temples.",
+"🕌":"The Taj Mahal is one of the Seven Wonders.",
+"🏰":"India has majestic forts like Mehrangarh.",
+"🐘":"Elephants represent wisdom and strength.",
+"👑":"India had powerful royal dynasties.",
+"📿":"Prayer beads are used in meditation.",
+"🔔":"Temple bells purify the surroundings.",
+"🥁":"Indian drums drive traditional music.",
+"🎭":"Indian dances narrate mythology.",
+"💃":"Folk dances celebrate culture.",
+"🧘":"Yoga originated in India.",
+"🌳":"Trees are considered sacred.",
 "🌸":"Lotus is India’s national flower.",
 "🦚":"Peacock is India’s national bird."
 };
@@ -227,86 +243,85 @@ const TOTAL_LEVELS=10;
 let level=1,moves=0,time=0,score=0;
 let first=null,lock=false,timer;
 
-/* SOFT flip sound */
 const flipSound=new Audio("https://assets.mixkit.co/active_storage/sfx/1112/1112-preview.mp3");
-flipSound.volume=0.25;
-
+flipSound.volume=.25;
 const winSound=new Audio("https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3");
 
+/* ===== GAME LOGIC ===== */
 function start(){
-    levelEl.textContent=level;
-    popup.style.display="none";
-    moves=0;time=0;first=null;lock=false;
-    movesEl.textContent=0;timeEl.textContent=0;
-    clearInterval(timer);
-    timer=setInterval(()=>timeEl.textContent=++time,1000);
+  levelEl.textContent=level;
+  popup.style.display="none";
+  moves=time=0;first=null;lock=false;
+  movesEl.textContent=timeEl.textContent=0;
+  clearInterval(timer);
+  timer=setInterval(()=>timeEl.textContent=++time,1000);
 
-    const totalCards=6+(level-1)*2;
-    const pairs=totalCards/2;
+  const total=6+(level-1)*2;
+  const pairs=total/2;
+  let pool=[];
+  for(let i=0;i<pairs;i++) pool.push(emojis[i%emojis.length]);
+  const deck=[...pool,...pool].sort(()=>Math.random()-.5);
 
-    /* FIX: wrap emoji selection, NO CHANGES */
-    let pool=[];
-    let i=0;
-    while(pool.length<pairs){
-        pool.push(emojis[i % emojis.length]);
-        i++;
-    }
+  game.style.gridTemplateColumns=`repeat(${Math.ceil(Math.sqrt(total))},1fr)`;
+  game.innerHTML="";
 
-    const deck=[...pool,...pool].sort(()=>Math.random()-.5);
-
-    const cols=Math.ceil(Math.sqrt(totalCards));
-    game.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-    game.innerHTML="";
-
-    deck.forEach(sym=>{
-        const c=document.createElement("div");
-        c.className="card";
-        c.style.transform=`rotate(${(Math.random()*6-3).toFixed(1)}deg)`;
-        c.innerHTML=`
-        <div class="inner">
-            <div class="front">?</div>
-            <div class="back">${sym}</div>
-        </div>`;
-        c.onclick=()=>flip(c,sym);
-        game.appendChild(c);
-    });
+  deck.forEach(sym=>{
+    const c=document.createElement("div");
+    c.className="card";
+    c.innerHTML=`
+      <div class="inner">
+        <div class="front">?</div>
+        <div class="back">${sym}</div>
+      </div>`;
+    c.onclick=()=>flip(c,sym);
+    game.appendChild(c);
+  });
 }
 
 function flip(card,val){
-    if(lock||card.classList.contains("flip"))return;
-    flipSound.currentTime=0;
-    flipSound.play();
-    card.classList.add("flip");
+  if(lock||card.classList.contains("flip"))return;
+  flipSound.currentTime=0;flipSound.play();
+  card.classList.add("flip");
 
-    if(!first) first={card,val};
-    else{
-        moves++;movesEl.textContent=moves;
-        if(first.val===val){
-            score+=10;scoreEl.textContent=score;
-            funfactEl.textContent=funFacts[val]||"India is amazing!";
-            funfactEl.style.display="block";
-            setTimeout(()=>funfactEl.style.display="none",2000);
-            first=null;
-            if(document.querySelectorAll(".card.flip").length===document.querySelectorAll(".card").length){
-                clearInterval(timer);
-                winSound.play();
-                doneLevel.textContent=level;
-                popup.style.display="flex";
-            }
-        }else{
-            lock=true;
-            setTimeout(()=>{
-                first.card.classList.remove("flip");
-                card.classList.remove("flip");
-                first=null;lock=false;
-            },800);
-        }
+  if(!first) first={card,val};
+  else{
+    moves++;movesEl.textContent=moves;
+    if(first.val===val){
+      score+=10;scoreEl.textContent=score;
+      funfactEl.textContent=funFacts[val]||"India is incredible!";
+      funfactEl.style.display="block";
+      setTimeout(()=>funfactEl.style.display="none",2200);
+      first=null;
+
+      if(document.querySelectorAll(".card.flip").length===document.querySelectorAll(".card").length){
+        clearInterval(timer);
+        winSound.play();
+        doneLevel.textContent=level;
+        popup.style.display="flex";
+      }
+    }else{
+      lock=true;
+      setTimeout(()=>{
+        first.card.classList.remove("flip");
+        card.classList.remove("flip");
+        first=null;lock=false;
+      },800);
     }
+  }
 }
 
 function nextLevel(){ if(level<TOTAL_LEVELS){ level++; start(); } }
-function restart(){ level=1; start(); }
+function restart(){ level=1;score=0;scoreEl.textContent=0;start(); }
 
+/* ===== EXIT GAME COMPLETELY ===== */
+function exitGame(){
+  clearInterval(timer); // stop timer
+  window.location.href = "IND_FinalOption.html"; // change this file name
+}
+
+
+
+/* ===== DOM ===== */
 const game=document.getElementById("game");
 const popup=document.getElementById("popup");
 const doneLevel=document.getElementById("doneLevel");
