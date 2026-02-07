@@ -7,12 +7,13 @@ import os
 # ---------------- CONFIG ----------------
 app = Flask(
     __name__,
-    template_folder="FRONTEND",
-    static_folder="FRONTEND"
+    template_folder="../frontend",
+    static_folder="../frontend"
 )
 
+
 app.secret_key = "super_secret_key_change_later"
-DB_NAME = "app.db"
+DB_NAME = "games_scores.db"
 
 # ---------------- DATABASE ----------------
 def get_db():
@@ -55,7 +56,15 @@ def login_required(f):
     return decorated_function
 
 # ---------------- ROUTES ----------------
+@app.route("/signup")
+def signup():
+    return render_template("createaccount.html")
 
+
+@app.route("/forgot")
+def forgot():
+    return render_template("forgotaccount.html")
+ 
 @app.route("/")
 def title():
     return render_template("titlepage.html")
@@ -67,6 +76,7 @@ def slide():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        print("LOGIN REQUEST RECEIVED") 
         username = request.form.get("username")
         password = request.form.get("password")
 
@@ -80,7 +90,7 @@ def login():
         if user and check_password_hash(user["password"], password):
             session["user_id"] = user["id"]
             session["username"] = user["username"]
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("slide"))
 
         return render_template("FSLOGIN.html", error="Invalid credentials")
 
@@ -116,7 +126,7 @@ def option():
 @app.route("/finalcard")
 @login_required
 def finalcard():
-    return render_template("INFINALCARD.html")
+    return render_template("InFINALCARD.html")
 
 @app.route("/solarquiz", methods=["GET", "POST"])
 @login_required

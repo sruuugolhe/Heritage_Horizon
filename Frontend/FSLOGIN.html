@@ -39,7 +39,7 @@ body{
   background-size:cover;
 }
 
-/* dark overlay for readability */
+/* dark overlay */
 .bg::after{
   content:"";
   position:absolute;
@@ -55,7 +55,7 @@ body{
   padding:50px;
   border-radius:35px;
   background:linear-gradient(180deg, rgba(14,58,67,0.95), rgba(6,27,32,0.95));
-  border:3px solid var(--blue);
+  border:3px solid #2fd4d0;
   box-shadow:0 0 80px rgba(47,212,208,.6);
   position:relative;
   display:flex;
@@ -63,7 +63,7 @@ body{
   justify-content:center;
 }
 
-/* glow border */
+/* glow */
 .frame::before{
   content:"";
   position:absolute;
@@ -102,10 +102,10 @@ body{
 /* ================= LOGIN PANEL ================= */
 .login-panel{
   width:420px;
-  background:var(--panel);
+  background:#0f3a42;
   padding:30px;
   border-radius:25px;
-  border:2px solid var(--blue);
+  border:2px solid #2fd4d0;
 }
 
 /* role switch */
@@ -119,7 +119,7 @@ body{
   flex:1;
   padding:12px;
   border-radius:18px;
-  border:1px solid var(--green);
+  border:1px solid #7ed957;
   background:#083036;
   color:white;
   cursor:pointer;
@@ -127,7 +127,7 @@ body{
 }
 
 .role-select button.active{
-  background:linear-gradient(135deg,var(--green),#4fd1a5);
+  background:linear-gradient(135deg,#7ed957,#4fd1a5);
   color:#002;
   font-weight:bold;
 }
@@ -153,11 +153,10 @@ body{
   padding:14px;
   border:none;
   border-radius:18px;
-  background:linear-gradient(135deg,var(--green),#4fd1a5);
+  background:linear-gradient(135deg,#7ed957,#4fd1a5);
   font-weight:bold;
   font-size:16px;
   cursor:pointer;
-  transition:.3s;
 }
 
 .login-btn:hover{
@@ -171,24 +170,25 @@ body{
   text-align:center;
 }
 
-.links span{
-  color:var(--green);
-  cursor:pointer;
+.links a{
+  color:#7ed957;
+  text-decoration:none;
   margin:0 8px;
 }
 
 #msg{
   margin-top:12px;
   font-size:14px;
+  color:salmon;
 }
 
 /* ================= SIDE PANEL ================= */
 .side{
   width:300px;
-  background:var(--panel);
+  background:#0f3a42;
   padding:25px;
   border-radius:25px;
-  border:2px solid var(--blue);
+  border:2px solid #2fd4d0;
 }
 
 .side h4{
@@ -206,7 +206,7 @@ body{
 }
 
 .reward span{
-  color:var(--green);
+  color:#7ed957;
   font-weight:bold;
 }
 
@@ -245,25 +245,31 @@ body{
         <button id="adminBtn" onclick="setRole('admin')">Admin</button>
       </div>
 
-      <div class="field">
-        <input type="text" id="user" placeholder="Username">
-      </div>
+      <!-- FLASK LOGIN FORM -->
+      <form method="POST" action="/login">
 
-      <div class="field">
-        <input type="password" id="pass" placeholder="Password">
-      </div>
+        <div class="field">
+          <input type="text" name="username" placeholder="Username" required>
+        </div>
 
-      <a href="slide2.html">
-    <button class="login-btn">Login</button>
-</a>
+        <div class="field">
+          <input type="password" name="password" placeholder="Password" required>
+        </div>
 
+        <!-- hidden role -->
+        <input type="hidden" name="role" id="roleInput" value="student">
+
+        <button type="submit" class="login-btn">Login</button>
+
+      </form>
 
       <div class="links">
-        <span onclick="createAccount()">Create Account</span> |
-        <span onclick="forgotAccount()">Forgot Account?</span>
+        <a href="/signup">Create Account</a> |
+        <a href="/forgot">Forgot Account?</a>
       </div>
 
       <div id="msg"></div>
+
     </div>
 
     <!-- SIDE PANEL -->
@@ -291,46 +297,25 @@ body{
 </div>
 
 <script>
-let role="student";
+let role = "student";
 
 function setRole(r){
-  role=r;
-  studentBtn.classList.remove("active");
-  adminBtn.classList.remove("active");
 
-  if(r==="student"){
-    studentBtn.classList.add("active");
-  }else{
-    adminBtn.classList.add("active");
-  }
-  modeText.textContent=r.charAt(0).toUpperCase()+r.slice(1);
-}
+  role = r;
 
-function login(){
-  const u=user.value.trim();
-  const p=pass.value.trim();
-  const m=msg;
+  document.getElementById("studentBtn").classList.remove("active");
+  document.getElementById("adminBtn").classList.remove("active");
 
-  if(!u || !p){
-    m.style.color="salmon";
-    m.textContent="Please enter username and password";
-    return;
+  if(r === "student"){
+    document.getElementById("studentBtn").classList.add("active");
+  } else {
+    document.getElementById("adminBtn").classList.add("active");
   }
 
-  localStorage.setItem(role+"_user",u);
-  localStorage.setItem(role+"_pass",p);
+  document.getElementById("modeText").textContent =
+    r.charAt(0).toUpperCase() + r.slice(1);
 
-  m.style.color="#7ed957";
-  m.textContent=role.toUpperCase()+" login successful!";
-}
-
-function createAccount(){
-  window.location.href = "createaccount.html";
-
-}
-
-function forgotAccount(){
-  window.location.href = "forgotaccount.html";
+  document.getElementById("roleInput").value = r;
 }
 </script>
 
