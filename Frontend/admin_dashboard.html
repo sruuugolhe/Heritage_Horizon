@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+
+<style>
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+th,td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+}
+th{
+    background:#222;
+    color:white;
+}
+</style>
+
+</head>
+<body>
+
+<h2>👩‍💻 Admin Dashboard</h2>
+
+<h3>Registered Users</h3>
+
+<table>
+<tr>
+<th>ID</th>
+<th>Username</th>
+<th>Role</th>
+<th>Last Login</th>
+</tr>
+
+{% for u in users %}
+<tr>
+<td>{{u.id}}</td>
+<td>{{u.username}}</td>
+<td>{{u.role}}</td>
+<td>{{u.last_login}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<br><hr><br>
+
+<h3>Game Scores</h3>
+
+<table>
+<tr>
+<th>User</th>
+<th>Game</th>
+<th>Score</th>
+<th>Date</th>
+</tr>
+
+{% for s in scores %}
+<tr>
+<td>{{s.username}}</td>
+<td>{{s.quiz_name}}</td>
+<td>{{s.score}}</td>
+<td>{{s.created_at}}</td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>
