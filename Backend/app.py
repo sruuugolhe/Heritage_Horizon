@@ -13,7 +13,7 @@ app = Flask(
 
 
 app.secret_key = "super_secret_key_change_later"
-DB_NAME = "games_scores.db"
+DB_NAME = "game_scores.db"
 
 # ---------------- DATABASE ----------------
 def get_db():
@@ -75,26 +75,34 @@ def slide():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
     if request.method == "POST":
-        print("LOGIN REQUEST RECEIVED") 
+
+        print("LOGIN REQUEST RECEIVED")
+
         username = request.form.get("username")
         password = request.form.get("password")
 
         conn = get_db()
+
         user = conn.execute(
             "SELECT * FROM users WHERE username = ?",
             (username,)
         ).fetchone()
+
         conn.close()
 
         if user and check_password_hash(user["password"], password):
+
             session["user_id"] = user["id"]
             session["username"] = user["username"]
+
             return redirect(url_for("slide"))
 
         return render_template("FSLOGIN.html", error="Invalid credentials")
 
     return render_template("FSLOGIN.html")
+
 
 @app.route("/logout")
 def logout():
