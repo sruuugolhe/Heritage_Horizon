@@ -79,9 +79,10 @@ button:hover{
   font-size:14px;
 }
 
-.back span{
+.back a{
   color:var(--green);
-  cursor:pointer;
+  text-decoration:none;
+  font-size:14px;
 }
 
 #msg{
@@ -95,72 +96,49 @@ button:hover{
 <body>
 
 <div class="container">
+
   <h2>RESET PASSWORD</h2>
 
-  <div class="field">
-    <input type="email" id="email" placeholder="Registered Email">
-  </div>
+  <!-- FORM -->
+  <form method="POST" action="/forgot">
 
-  <div class="field">
-    <input type="password" id="newpass" placeholder="New Password">
-  </div>
+    <div class="field">
+      <input 
+        type="text" 
+        name="username" 
+        placeholder="Enter Username"
+        required
+      >
+    </div>
 
-  <div class="field">
-    <input type="password" id="confirmpass" placeholder="Confirm Password">
-  </div>
+    <div class="field">
+      <input 
+        type="password" 
+        name="password" 
+        placeholder="New Password"
+        required
+      >
+    </div>
 
-  <button onclick="updatePassword()">Update Password</button>
+    <button type="submit">Update Password</button>
 
-  <div id="msg"></div>
+  </form>
 
+
+  <!-- Error Message -->
+  {% if error %}
+    <div id="msg" style="color:salmon;">
+      {{ error }}
+    </div>
+  {% endif %}
+
+
+  <!-- Back -->
   <div class="back">
-    <span onclick="goBack()">← Back to Login</span>
+    <a href="/login">← Back to Login</a>
   </div>
+
 </div>
-
-<script>
-
-function updatePassword(){
-
-  let email = document.getElementById("email").value.trim();
-  let newPass = document.getElementById("newpass").value.trim();
-  let confirmPass = document.getElementById("confirmpass").value.trim();
-  let msg = document.getElementById("msg");
-
-  // Validation
-  if(email === "" || newPass === "" || confirmPass === ""){
-    msg.style.color="salmon";
-    msg.textContent="All fields are required!";
-    return;
-  }
-
-  if(newPass.length < 6){
-    msg.style.color="salmon";
-    msg.textContent="Password must be at least 6 characters!";
-    return;
-  }
-
-  if(newPass !== confirmPass){
-    msg.style.color="salmon";
-    msg.textContent="Passwords do not match!";
-    return;
-  }
-
-  // Demo success (Connect Flask later)
-  msg.style.color="#7ed957";
-  msg.textContent="Password updated successfully!";
-
-  // Redirect after 2 sec
-  setTimeout(()=>{
-    window.location.href="FSLOGIN.html";
-  },2000);
-}
-
-function goBack(){
-  window.location.href = "FSLOGIN.html";
-}
-
-</script>
 
 </body>
 </html>

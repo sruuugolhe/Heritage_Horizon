@@ -262,6 +262,9 @@ body{
         <button type="submit" class="login-btn">Login</button>
 
       </form>
+{% if error %}
+<p style="color:salmon;text-align:center">{{error}}</p>
+{% endif %}
 
       <div class="links">
         <a href="/signup">Create Account</a> |
