@@ -3,9 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>INDIA HERITAGE PUZZLE HUNT</title>
 
 <style>
+
+/* ========== BACK BUTTON ========== */
+.back-btn{
+  position:fixed;
+  top:15px;
+  left:15px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  border:2px solid #7f4e1e;
+  background:#ffd966;
+  color:#4b2e2e;
+  font-size:22px;
+  font-weight:bold;
+  cursor:pointer;
+  z-index:9999;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.back-btn:hover{
+  transform:scale(1.1);
+}
+
+
+/* ========== BODY ========== */
+
 body {
   font-family: Garamond, serif;
   background: #fdf6e3;
@@ -21,6 +51,8 @@ h1 {
   color: #7f4e1e;
 }
 
+/* ========== STATS ========== */
+
 #stats {
   display: flex;
   justify-content: space-around;
@@ -28,6 +60,8 @@ h1 {
   font-weight: bold;
   margin-bottom: 10px;
 }
+
+/* ========== GRID ========== */
 
 #puzzle-grid {
   display: grid;
@@ -54,13 +88,11 @@ h1 {
   color: white;
 }
 
-/* FOUND WORD — LIGHT CHOCOLATY BROWN */
 .cell.found {
   background: #7a4a1d;
   color: white;
 }
 
-/* RED LINES */
 .cell.found.h-line::after {
   content: "";
   position: absolute;
@@ -81,10 +113,11 @@ h1 {
   background: red;
 }
 
-/* HINT FLASH */
 .cell.hint {
   background: #ffcc80 !important;
 }
+
+/* ========== WORDS ========== */
 
 #words-to-find {
   display: flex;
@@ -105,6 +138,8 @@ h1 {
   background: #ffd966;
 }
 
+/* ========== BUTTONS ========== */
+
 #buttons {
   display: flex;
   gap: 10px;
@@ -120,6 +155,8 @@ button {
   color: white;
 }
 
+/* ========== CONGRATS ========== */
+
 #congrats-screen {
   position: fixed;
   inset: 0;
@@ -131,13 +168,19 @@ button {
   font-size: 26px;
   font-weight: bold;
 }
+
 </style>
 </head>
 
 <body>
 
+<!-- BACK BUTTON -->
+<button class="back-btn" onclick="goBack()">&#8592;</button>
+
 <h1>INDIA HERITAGE</h1>
 <h2>WORD HUNT PUZZLE</h2>
+
+
 <div id="stats">
   <div>Level: <span id="level-display">1</span></div>
   <div>Time: <span id="time-display">00:00</span></div>
@@ -145,13 +188,17 @@ button {
   <div>Found: <span id="found-count">0</span></div>
 </div>
 
+
 <div id="puzzle-grid"></div>
+
 <div id="words-to-find"></div>
+
 
 <div id="buttons">
   <button id="btn-new-puzzle">New Game</button>
   <button id="btn-hint">Hint</button>
 </div>
+
 
 <div id="congrats-screen">
   🎉 Congratulations! 🎉
@@ -161,7 +208,14 @@ button {
   </div>
 </div>
 
+
 <script>
+
+/* BACK FUNCTION */
+function goBack(){
+  window.location.href = "/heritage";
+}
+
 (() => {
 "use strict";
 
@@ -207,44 +261,61 @@ function setup(){
   startTimer();
 }
 
-/* GUARANTEED PLACEMENT */
 function placeWord(word){
   const dirs=[{r:0,c:1},{r:1,c:0}];
+
   for(let i=0;i<300;i++){
     const d=dirs[Math.floor(Math.random()*2)];
+
     let r=Math.floor(Math.random()*gridSize);
     let c=Math.floor(Math.random()*gridSize);
+
     let pos=[];
+
     for(let j=0;j<word.length;j++){
       let rr=r+j*d.r, cc=c+j*d.c;
+
       if(rr>=gridSize||cc>=gridSize||(grid[rr][cc] && grid[rr][cc]!==word[j])){
         pos=null; break;
       }
+
       pos.push({r:rr,c:cc});
     }
+
     if(!pos) continue;
+
     pos.forEach((p,i)=>grid[p.r][p.c]=word[i]);
+
     wordMap[word]={pos,dir:d};
+
     return true;
   }
+
   return false;
 }
 
 function fillRandom(){
   for(let r=0;r<gridSize;r++)
     for(let c=0;c<gridSize;c++)
-      if(!grid[r][c]) grid[r][c]=String.fromCharCode(65+Math.random()*26|0);
+      if(!grid[r][c])
+        grid[r][c]=String.fromCharCode(65+Math.random()*26|0);
 }
 
 function render(){
+
   gridEl.innerHTML="";
+
   gridEl.style.gridTemplateColumns=`repeat(${gridSize},45px)`;
 
   for(let r=0;r<gridSize;r++)
     for(let c=0;c<gridSize;c++){
+
       const d=document.createElement("div");
+
       d.className="cell";
+
       d.textContent=grid[r][c];
+
       d.dataset.row=r;
       d.dataset.col=c;
 
@@ -260,10 +331,14 @@ function render(){
     }
 
   wordsEl.innerHTML="";
+
   words.forEach(w=>{
     const s=document.createElement("span");
+
     s.textContent=w;
+
     if(foundWords.has(w)) s.classList.add("found-word");
+
     wordsEl.appendChild(s);
   });
 
@@ -271,45 +346,75 @@ function render(){
 }
 
 function updateStats(){
+
   document.getElementById("time-display").textContent=`00:${String(time).padStart(2,"0")}`;
+
   document.getElementById("score-display").textContent=score;
+
   document.getElementById("found-count").textContent=foundWords.size;
+
   document.getElementById("level-display").textContent=level;
 }
 
 function startTimer(){
+
   clearInterval(timer);
-  timer=setInterval(()=>{time++;updateStats();},1000);
+
+  timer=setInterval(()=>{
+    time++;
+    updateStats();
+  },1000);
 }
 
+
 /* HINT */
+
 document.getElementById("btn-hint").onclick=()=>{
+
   const remaining = words.find(w=>!foundWords.has(w));
+
   if(!remaining) return;
+
   const p = wordMap[remaining].pos[0];
+
   const cell = document.querySelector(`.cell[data-row="${p.r}"][data-col="${p.c}"]`);
+
   cell.classList.add("hint");
+
   setTimeout(()=>cell.classList.remove("hint"),800);
 };
+
 
 let dragging=false, direction=null;
 
 gridEl.addEventListener("mousedown",e=>{
+
   if(!e.target.classList.contains("cell")) return;
+
   sndSelect.play();
+
   dragging=true;
+
   direction=null;
+
   selected=[e.target];
+
   e.target.classList.add("selected");
 });
 
+
 gridEl.addEventListener("mousemove",e=>{
+
   if(!dragging) return;
+
   const t=document.elementFromPoint(e.clientX,e.clientY);
+
   if(!t||!t.classList.contains("cell")||selected.includes(t)) return;
 
   const last=selected[selected.length-1];
+
   const r1=+last.dataset.row, c1=+last.dataset.col;
+
   const r2=+t.dataset.row, c2=+t.dataset.col;
 
   if(!direction){
@@ -321,53 +426,61 @@ gridEl.addEventListener("mousemove",e=>{
   if((direction==="h" && r1!==r2) || (direction==="v" && c1!==c2)) return;
 
   selected.push(t);
+
   t.classList.add("selected");
 });
 
+
 window.addEventListener("mouseup",()=>{
+
   if(!dragging) return;
+
   dragging=false;
 
   const word=selected.map(c=>c.textContent).join("");
+
   if(words.includes(word) && !foundWords.has(word)){
     sndCorrect.play();
     foundWords.add(word);
     score+=word.length*10;
     render();
-  } else {
+  }
+  else{
     sndWrong.play();
   }
 
   selected.forEach(c=>c.classList.remove("selected"));
+
   selected=[];
+
   if(foundWords.size===words.length){
+
     sndWin.play();
+
     document.getElementById("congrats-screen").style.display="flex";
   }
+
 });
 
-document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};
-document.getElementById("btn-next-level").onclick=()=>{level++;document.getElementById("congrats-screen").style.display="none";setup();};
-document.getElementById("btn-prev-level").onclick=()=>{if(level>1){level--;document.getElementById("congrats-screen").style.display="none";setup();}};
 
-/* 🎉 CONFETTI FUNCTION */
-function celebrate(){
-  for(let i=0;i<80;i++){
-    const c=document.createElement("div");
-    c.className="confetti";
-    c.style.left=Math.random()*100+"vw";
-    c.style.background=`hsl(${Math.random()*360},100%,60%)`;
-    c.style.animationDuration=2+Math.random()*2+"s";
-    document.body.appendChild(c);
-    setTimeout(()=>c.remove(),4000);
+document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};
+
+document.getElementById("btn-next-level").onclick=()=>{
+  level++;
+  document.getElementById("congrats-screen").style.display="none";
+  setup();
+};
+
+document.getElementById("btn-prev-level").onclick=()=>{
+  if(level>1){
+    level--;
+    document.getElementById("congrats-screen").style.display="none";
+    setup();
   }
-}
+};
 
-/* BUTTONS */
-document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};
-document.getElementById("btn-next-level").onclick=()=>{level++;document.getElementById("congrats-screen").style.display="none";setup();};
-document.getElementById("btn-prev-level").onclick=()=>{if(level>1){level--;document.getElementById("congrats-screen").style.display="none";setup();}};
 setup();
+
 })();
 
 </script>

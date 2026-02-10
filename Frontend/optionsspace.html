@@ -1,18 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
 <meta charset="UTF-8">
 <title>Choose Your Space Activity</title>
 
 <style>
+
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-font-family: 'Orbitron', 'Audiowide', 'Exo 2', sans-serif;
-
+    font-family: 'Orbitron', sans-serif;
 }
 
 body{
@@ -22,94 +23,92 @@ body{
 }
 
 /* ===== SPACE BACKGROUND ===== */
+
 @keyframes starMove{
     from{background-position:0 0;}
-    to{background-position:0 -1000px;}
+    to{background-position:0 -1600px;}
 }
 
 .background{
     height:100vh;
     background:black;
+
     background-image:
-        /* Extra Large Stars */
         radial-gradient(8px 8px at 120px 180px, white, transparent),
         radial-gradient(7px 7px at 420px 260px, white, transparent),
         radial-gradient(9px 9px at 720px 140px, white, transparent),
         radial-gradient(8px 8px at 980px 380px, white, transparent),
-        radial-gradient(7.5px 7.5px at 1150px 220px, white, transparent),
+        radial-gradient(7px 7px at 1150px 220px, white, transparent),
 
-        /* Medium Stars */
         radial-gradient(5px 5px at 220px 520px, white, transparent),
-        radial-gradient(5.5px 5.5px at 480px 460px, white, transparent),
         radial-gradient(6px 6px at 760px 520px, white, transparent),
         radial-gradient(5px 5px at 980px 580px, white, transparent),
-        radial-gradient(5.5px 5.5px at 1100px 650px, white, transparent),
 
-        /* Small Stars */
         radial-gradient(3px 3px at 150px 750px, white, transparent),
-        radial-gradient(3.5px 3.5px at 350px 820px, white, transparent),
         radial-gradient(3px 3px at 550px 900px, white, transparent),
-        radial-gradient(3.5px 3.5px at 750px 980px, white, transparent),
-        radial-gradient(3px 3px at 950px 860px, white, transparent),
-        radial-gradient(3.5px 3.5px at 1150px 950px, white, transparent),
 
-        /* Tiny Stars */
         radial-gradient(2px 2px at 80px 420px, white, transparent),
-        radial-gradient(2px 2px at 300px 320px, white, transparent),
-        radial-gradient(2px 2px at 600px 280px, white, transparent),
-        radial-gradient(2px 2px at 900px 200px, white, transparent),
-        radial-gradient(2px 2px at 1100px 120px, white, transparent);
+        radial-gradient(2px 2px at 600px 280px, white, transparent);
 
     background-size:1600px 1600px;
     animation: starMove 100s linear infinite;
+
     display:flex;
     align-items:center;
     justify-content:center; 
 }
 
-/* STAR MOVEMENT */
-@keyframes starMove{
-    from{
-        background-position:0 0;
-    }
-    to{
-        background-position:0 -1600px;
-    }
+/* ===== CARD ===== */
+
+.card{
+    background:rgba(0,0,0,0.7);
+    padding:40px;
+    border-radius:20px;
+    border:2px solid #00d4ff;
+    box-shadow:0 0 25px rgba(0,212,255,0.6);
 }
 
+/* ===== TITLE ===== */
 
-/* TITLE */
 .card h1{
     text-align:center;
     font-size:2.5rem;
     margin-bottom:30px;
     letter-spacing:3px;
+
     background:linear-gradient(90deg,#00d4ff,#ffffff,#00d4ff);
-    background-clip: text;            /* standard */
--webkit-background-clip: text;    /* chrome / safari */
+    background-clip: text;          /* Standard */
+-webkit-background-clip: text; /* Chrome/Safari */
 color: transparent;
+
 
     text-shadow:0 0 20px rgba(0,212,255,0.6);
 }
 
-/* OPTIONS */
+/* ===== OPTIONS ===== */
+
 .option{
     margin-bottom:18px;
 }
 
 .option a{
     display:block;
-    padding:14px 20px;
+    padding:14px 22px;
+
     border-radius:18px;
     text-decoration:none;
     color:white;
+
     border:2px solid rgba(255,255,255,0.25);
+
     font-size:1.1rem;
     letter-spacing:1px;
+
     transition:0.4s;
 }
 
 /* Hover Effect */
+
 .option a:hover{
     background:#00d4ff;
     color:black;
@@ -117,27 +116,28 @@ color: transparent;
     box-shadow:0 0 25px rgba(0,212,255,0.8);
 }
 
-/* Responsive */
-@media(max-width:600px){
-    .card h1{
-        font-size:2rem;
-    }
-}
-/* ⬅ BACK ARROW BUTTON */
+/* ===== BACK BUTTON ===== */
+
 .back-btn{
   position:fixed;
   top:15px;
   left:15px;
+
   width:44px;
   height:44px;
+
   border-radius:50%;
-  border:2px solid #ffffff;
-  background:rgba(1, 233, 254, 0.975);
-  color:#0f0000;
+  border:2px solid white;
+
+  background:#00d4ff;
+  color:black;
+
   font-size:24px;
   font-weight:bold;
+
   cursor:pointer;
   z-index:9999;
+
   display:flex;
   align-items:center;
   justify-content:center;
@@ -150,40 +150,47 @@ color: transparent;
 </style>
 </head>
 
+
 <body>
-<button class="back-btn" onclick="goBackSlide()">&#8592;</button>
+
+<!-- Back Button -->
+<button class="back-btn" onclick="goBack()">&#8592;</button>
 
 
 <div class="background">
+
     <div class="card">
 
         <h1>Choose Your Space Activity</h1>
 
         <div class="option">
-            <a href="solarquiz.html">🚀 Solar System Quiz</a>
+            <a href="/solar/quiz">🚀 Solar System Quiz</a>
         </div>
 
         <div class="option">
-            <a href="asteriodssolar.html">☄️ Asteroid Dodge Mini-Game</a>
+            <a href="/solar/asteroid">☄️ Asteroid Dodge</a>
         </div>
 
         <div class="option">
-            <a href="wordpuzzlesolar.html">✨ Space Puzzle</a>
+            <a href="/solar/puzzle">✨ Space Puzzle</a>
         </div>
 
         <div class="option">
-            <a href="candycrush.html">🪐 Solar Crush Game</a>
+            <a href="/solar/crush">🪐 Solar Crush</a>
         </div>
 
         <div class="option">
-            <a href="DoYouKnowSpace.html">🚀 Do You Know</a>
+            <a href="/solar/facts">📘 Do You Know</a>
         </div>
 
     </div>
+
 </div>
+
+
 <script>
-function goBackSlide(){
-  window.location.href = "slide2.html"; // change if needed
+function goBack(){
+    window.location.href = "/slide";
 }
 </script>
 

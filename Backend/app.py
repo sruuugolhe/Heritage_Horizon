@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, session, abort
+from flask import Flask, render_template, request, redirect, session, abort, url_for
+
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -81,11 +82,7 @@ def admin_required(f):
     return wrap
 
 
-# ---------------- HOME ----------------
 
-@app.route("/")
-def home():
-    return redirect("/login")
 
 
 # ---------------- SIGNUP ----------------
@@ -123,6 +120,102 @@ def signup():
 
     return render_template("createaccount.html")
 
+
+
+    # Dashboard page
+# ---------------- HOME ----------------
+@app.route("/")
+def titlepage():
+    return render_template("titlepage.html")
+
+
+# ---------------- DASHBOARD ----------------
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html")
+
+
+# ---------------- LOGOUT ----------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("titlepage"))
+
+
+
+@app.route("/heritage")
+def heritage():
+    return render_template("IND_FinalOption.html")
+
+
+@app.route("/solar")
+@login_required
+def solar():
+    return render_template("optionsspace.html")
+
+# ---------------- SOLAR GAMES ----------------
+
+@app.route("/solar/quiz")
+@login_required
+def solar_quiz():
+    return render_template("solarquiz.html")
+
+
+@app.route("/solar/asteroid")
+@login_required
+def solar_asteroid():
+    return render_template("asteriodssolar.html")
+
+
+@app.route("/solar/puzzle")
+@login_required
+def solar_puzzle():
+    return render_template("wordpuzzlesolar.html")
+
+
+@app.route("/solar/crush")
+@login_required
+def solar_crush():
+    return render_template("candycrush.html")
+
+
+@app.route("/solar/facts")
+@login_required
+def solar_facts():
+    return render_template("DoYouKnowSpace.html")
+
+
+# ---------------- HERITAGE GAMES ----------------
+
+@app.route("/heritage/wordpuzzle")
+@login_required
+def heritage_wordpuzzle():
+    return render_template("wordpuzzleH.html")
+
+
+@app.route("/heritage/maze")
+@login_required
+def heritage_maze():
+    return render_template("IND_FinalMaze1.html")
+
+
+@app.route("/heritage/quiz")
+@login_required
+def heritage_quiz():
+    return render_template("IND_finalQuiz.html")
+
+
+@app.route("/heritage/cards")
+@login_required
+def heritage_cards():
+    return render_template("InFINALCARD.html")
+
+
+@app.route("/heritage/facts")
+@login_required
+def heritage_facts():
+    return render_template("IND_FinalDoYouKnow.html")
 
 # ---------------- LOGIN ----------------
 
@@ -249,14 +342,7 @@ def admin():
     )
 
 
-# ---------------- LOGOUT ----------------
 
-@app.route("/logout")
-def logout():
-
-    session.clear()
-
-    return redirect("/login")
 
 
 # ---------------- MAIN ----------------

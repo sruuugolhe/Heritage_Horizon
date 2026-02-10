@@ -186,7 +186,8 @@ button{
 
 <!-- CORNER BUTTONS -->
 <button class="back-btn" onclick="exitGame()">←</button>
-<button class="exit-btn" onclick="restart()">✖</button>
+<button class="exit-btn" onclick="exitGame()">✖</button>
+
 
 <h1>INDIA HERITAGE</h1>
 <small>MEMORY MATCHING GAME</small>
@@ -315,9 +316,10 @@ function restart(){ level=1;score=0;scoreEl.textContent=0;start(); }
 
 /* ===== EXIT GAME COMPLETELY ===== */
 function exitGame(){
-  clearInterval(timer); // stop timer
-  window.location.href = "IND_FinalOption.html"; // change this file name
+  clearInterval(timer);
+  window.location.href = "/heritage";
 }
+
 
 
 
