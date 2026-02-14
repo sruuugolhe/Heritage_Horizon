@@ -1,399 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Gamified Dashboard</title>
+<title>Student Dashboard</title>
 
 <style>
-*{box-sizing:border-box}
-
 body{
     margin:0;
-    font-family:Segoe UI, sans-serif;
+    font-family:Segoe UI;
     background:#071a1e;
     color:#eafff7;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    overflow:auto;
 }
 
-
-.frame{
-    width:100%;
-    max-width:1150px;
-    padding:18px;
+.container{
+    max-width:1100px;
+    margin:40px auto;
+    padding:20px;
     border:3px solid #36f5c7;
-    border-radius:22px;
+    border-radius:20px;
     box-shadow:0 0 25px #36f5c7;
-    background:radial-gradient(circle at top,#12343b,#07151a);
-    animation:fadeIn 0.8s ease;
-    margin-bottom:50px;
 }
 
-@keyframes fadeIn{
-    from{opacity:0; transform:scale(0.96)}
-    to{opacity:1; transform:scale(1)}
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
-
-
-.level{
-    text-align:center;
-    font-size:28px;
-    color:#7dffb3;
-    margin-bottom:14px;
-    text-shadow:0 0 12px #36f5c7;
-}
-
-
-.top,.mid{
-    display:grid;
-    grid-template-columns:1fr 2fr 1fr;
-    gap:14px;
-}
-
 
 .card{
     background:#0f2f34;
-    padding:14px;
-    border-radius:14px;
-    border:1px solid #36f5c7;
-    transition:0.3s;
-}
-.card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 0 18px #36f5c7;
-}
-.played{
-    background:#1a3f35; /* Slightly green for played games */
-}
-
-/* PROFILE */
-.profile img{
-    width:64px;
-    border-radius:50%;
-    border:2px solid #36f5c7;
-}
-
-/* XP BAR */
-.xpbar{
-    display:flex;
-    gap:4px;
-    margin-top:8px;
-}
-.xpbar span{
-    flex:1;
-    height:14px;
-    background:#1c4449;
-    border-radius:4px;
-}
-.xpbar span.active{
-    background:linear-gradient(90deg,#00ffcc,#00ffaa);
-    box-shadow:0 0 8px #00ffcc;
-}
-
-/* COINS */
-.coins h2{
-    margin:6px 0 0;
-    font-size:20px;
-    color:#ffd966;
-    animation:coinGlow 2s infinite;
-}
-@keyframes coinGlow{
-    0%{text-shadow:0 0 4px gold}
-    50%{text-shadow:0 0 12px gold}
-    100%{text-shadow:0 0 4px gold}
-}
-
-/* QUESTS */
-.quests p{
-    background:#133d42;
-    padding:7px;
-    border-radius:8px;
-    margin:6px 0;
-}
-
-/* ACHIEVEMENTS */
-.ach{
-    margin-top:14px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-/* BUTTON */
-button{
-    padding:7px 14px;
-    border:none;
-    border-radius:8px;
-    background:#36f5c7;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
-button:hover{
-    transform:scale(1.08);
-    box-shadow:0 0 12px #36f5c7;
-}
-
-/* LEADERBOARD PANEL */
-.leaderboard{
-    position:fixed;
-    top:0;
-    right:-320px;
-    width:300px;
-    height:100%;
-    background:#0f2f34;
-    border-left:3px solid #36f5c7;
-    padding:20px;
-    transition:right 0.5s ease;
-    z-index:1000;
-}
-.leaderboard.active{
-    right:0;
-}
-
-.lb-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-}
-
-.close-btn{
-    background:none;
-    border:none;
-    color:#36f5c7;
-    font-size:22px;
-    cursor:pointer;
-}
-
-/* RECENT */
-.recent{
-    margin-top:14px;
-}
-
-/* GAME SECTIONS */
-.game-section{
-    margin-top:30px;
-}
-.game-section h3{
-    margin-bottom:10px;
-}
-.game-container{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-}
-.game-card{
-    background:#0f2f34;
-    padding:14px;
+    padding:15px;
     border-radius:12px;
     border:1px solid #36f5c7;
-    width:180px;
+    margin-top:20px;
+}
+
+button{
+    padding:8px 15px;
+    background:#36f5c7;
+    border:none;
+    border-radius:8px;
     cursor:pointer;
-    text-align:center;
-    transition:0.3s;
 }
-.game-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 0 12px #36f5c7;
+button:hover{
+    transform:scale(1.05);
 }
-.game-card.played{
-    background:#1a3f35;
+
+.progress-bar{
+    width:100%;
+    background:#1c4449;
+    border-radius:10px;
+    height:20px;
+    margin-top:10px;
 }
-.game-score{
-    margin-top:8px;
-    font-weight:bold;
+
+.progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,#00ffcc,#00ffaa);
+    border-radius:10px;
 }
 </style>
 </head>
+<script>
+    const bar = document.querySelector('.progress-bar');
+    const progress = bar.getAttribute('data-progress');
+
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= progress) {
+            clearInterval(interval);
+        } else {
+            width++;
+            bar.style.width = width + "%";
+        }
+    }, 10);
+</script>
+<script>
+function spin() {
+    fetch("/spin")
+    .then(response => response.json())
+    .then(data => {
+        const result = document.getElementById("spin-result");
+
+        if (data.reward > 0) {
+            result.innerHTML = "🎉 You won " + data.reward + " coins!";
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            result.innerHTML = "⚠ " + data.message;
+        }
+    });
+}
+</script>
 
 <body>
 
-<!-- SOUND EFFECTS -->
-<audio id="xpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-mystery-alert-234.wav"></audio>
-<audio id="levelSound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.wav"></audio>
-
-<div class="frame">
-
-<div class="level" id="level">LEVEL 7</div>
+<div class="container">
 
 <div class="top">
-    <div class="card profile">
-        <img src="https://via.placeholder.com/64">
-        <h3>Captain Planet</h3>
-    </div>
-
-    <div class="card">
-        <div id="xpText">XP: 12450 / 15000</div>
-        <div class="xpbar" id="xpBar"></div>
-    </div>
-
-    <div class="card coins">
-        Coin Balance
-        <h2 id="coins">2500</h2>
-    </div>
+    <h2>Welcome, {{ user['username'] }}</h2>
+    <h3>Level {{ user['level'] }}</h3>
 </div>
 
-<div class="mid">
-    <div class="card">
-        <h3>Missions</h3>
-        🏆 📜 🎁 🌱
-    </div>
-
-    <div class="card quests">
-        <h3>Daily Quests</h3>
-        <p>✔ Recycle 5 Plastic Bottles</p>
-        <p>✔ Walk to Work</p>
-    </div>
-
-    <div class="card">
-        <h3>Power-Ups</h3>
-        ⚡ Double XP<br>🤝 Friendly Boost
-    </div>
+<div class="card">
+    <h3>Coins: {{ user['coins'] }} 🪙</h3>
 </div>
 
-<div class="ach card">
-    <div>
-        <h3>Achievements</h3>
-        🌳 Tree Hugger<br>🏖 Beach Cleanup
-    </div>
-    <button onclick="completeQuest()">Complete Quest</button>
-    <button onclick="toggleLeaderboard()">Leaderboard</button>
-</div>
+<div class="card">
+    <h3>Overall Progress</h3>
 
-<div class="recent card" id="recent">
-    <h3>Recent</h3>
-    No recent activity
-</div>
+<p>{{ completed_games }} / {{ total_games }} Games Completed</p>
 
-<!-- NEW GAME SECTIONS -->
-<div class="game-section">
-    <h3>Heritage Games</h3>
-    <div class="game-container" id="heritage-games"></div>
-</div>
-
-<div class="game-section">
-    <h3>Universe Games</h3>
-    <div class="game-container" id="universe-games"></div>
+<div class="progress-bar-container">
+    <div class="progress-bar" data-progress="{{ progress_percent }}">
+    {{ progress_percent }}%
 </div>
 
 </div>
 
-<!-- LEADERBOARD -->
-<div class="leaderboard" id="leaderboard">
-    <div class="lb-header">
-        <h3>Leaderboard</h3>
-        <button class="close-btn" onclick="toggleLeaderboard()">✖</button>
-    </div>
-    <p>🥇 EcoWarrior – 18,500 XP</p>
-    <p>🥈 GreenHero – 16,900 XP</p>
-    <p>🥉 Captain Planet – 12,450 XP</p>
+</div>
+
+<div class="card">
+    <h3>🎡 Spin The Wheel</h3>
+    <button onclick="spin()">Spin Now</button>
+    <p id="spin-result"></p>
+</div>
+
+
+<div class="card">
+    <h3>Achievements 🏆</h3>
+
+    {% for badge in achievements %}
+        <p>{{ badge['badge_name'] }}</p>
+    {% endfor %}
+</div>
+
 </div>
 
 <script>
-let xp=12450, maxXP=15000, level=7, coins=2500;
-const xpSound=document.getElementById("xpSound");
-const levelSound=document.getElementById("levelSound");
-
-function renderXP(){
-    document.getElementById("level").innerText="LEVEL "+level;
-    document.getElementById("xpText").innerText=`XP: ${xp} / ${maxXP}`;
-    document.getElementById("coins").innerText=coins;
-
-    let bar=document.getElementById("xpBar");
-    bar.innerHTML="";
-    let target=Math.floor((xp/maxXP)*10);
-    let i=0;
-
-    let interval=setInterval(()=> {
-        if(i<target){
-            let s=document.createElement("span");
-            s.classList.add("active");
-            bar.appendChild(s);
-            xpSound.currentTime=0;
-            xpSound.play();
-            i++;
-        }else{
-            clearInterval(interval);
-            while(bar.children.length<10){
-                bar.appendChild(document.createElement("span"));
-            }
-        }
-    },80);
+function spin(){
+    fetch("/spin")
+    .then(res=>res.json())
+    .then(data=>{
+        alert("You won " + data.reward + " coins!");
+        location.reload();
+    });
 }
-
-function completeQuest(){
-    xp+=600;
-    coins+=150;
-
-    if(xp>=maxXP){
-        xp-=maxXP;
-        level++;
-        levelSound.play();
-    }
-    document.getElementById("recent").innerHTML=
-        "<h3>Recent</h3>✔ Quest completed! +600 XP, +150 Coins";
-
-    renderXP();
-}
-
-function toggleLeaderboard(){
-    document.getElementById("leaderboard").classList.toggle("active");
-}
-
-renderXP();
-
-
-const user_id = 1; 
-const backendUrl = "http://127.0.0.1:5000";
-
-async function fetchGames() {
-    try{
-        const res = await fetch(`${backendUrl}/dashboard/${user_id}`);
-        const games = await res.json();
-
-        const heritageContainer = document.getElementById("heritage-games");
-        const universeContainer = document.getElementById("universe-games");
-
-        heritageContainer.innerHTML = '';
-        universeContainer.innerHTML = '';
-
-        games.forEach(game => {
-            const card = document.createElement("div");
-            card.classList.add("game-card");
-            if(game.played) card.classList.add("played");
-
-            card.innerHTML = `<h4>${game.game_name}</h4>
-                              <div class="game-score">${game.played ? "Score: " + game.high_score : "Not Played"}</div>`;
-
-            card.onclick = () => {
-                const gameMap = {
-                    "Heritage Quiz": "quizfinalist.html",
-                    "Word Puzzle": "wordpuzzzleH.html",
-                    "Memory Game": "mcgfinal.html",
-                    "Maze Puzzle": "final maze.html",
-                    "Universe Quiz": "DoYouKnowSpace.html",
-                    "Asteroids Dodge": "optionsspace.html",
-                    "Solar Crush": "slide2.html"
-                };
-                const page = gameMap[game.game_name];
-                if(page) window.location.href = page;
-                else alert("Game page not mapped yet!");
-            };
-
-            if(game.section === "heritage") heritageContainer.appendChild(card);
-            else if(game.section === "universe") universeContainer.appendChild(card);
-        });
-
-    }catch(err){
-        console.error("Error fetching games:", err);
-    }
-}
-
-fetchGames();
 </script>
 
 </body>

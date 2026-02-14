@@ -11,14 +11,17 @@ def init_db():
 
     # ================= USERS =================
     c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT DEFAULT 'student',
-        last_login TIMESTAMP
-    )
-    """)
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT DEFAULT 'student',
+    coins INTEGER DEFAULT 0,
+    level INTEGER DEFAULT 1,
+    last_login TEXT,
+    last_spin TEXT
+)
+""")
 
     # ================= ADMIN USER =================
     admin_pass = generate_password_hash("admin123")
