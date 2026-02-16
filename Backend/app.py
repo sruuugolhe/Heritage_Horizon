@@ -148,6 +148,8 @@ def dashboard():
 
 # ---------------- DAILY SPIN ----------------
 
+# ---------------- DAILY SPIN ----------------
+
 @app.route('/spin')
 @login_required
 def spin():
@@ -161,13 +163,21 @@ def spin():
 
     today = datetime.now().strftime("%Y-%m-%d")
 
+    # 🔒 Daily limit check
     if user["last_spin"] == today:
         conn.close()
-        return jsonify({"message": "You already spun today!", "reward": 0})
+        return jsonify({
+            "message": "You already spun today!",
+            "reward": 0
+        })
 
-    rewards = [10, 20, 30, 50, 100]
-    reward = random.choice(rewards)
+    # 🎯 Get reward from frontend
+    reward = request.args.get("reward", type=int)
 
+    if reward is None:
+        reward = 0
+
+    # 💰 Update coins + last_spin
     conn.execute(
         "UPDATE users SET coins = coins + ?, last_spin=? WHERE id=?",
         (reward, today, session['user_id'])
@@ -176,7 +186,10 @@ def spin():
     conn.commit()
     conn.close()
 
-    return jsonify({"message": "You won!", "reward": reward})
+    return jsonify({
+        "message": "You won!",
+        "reward": reward
+    })
 
 # ---------------- LOGIN ----------------
 

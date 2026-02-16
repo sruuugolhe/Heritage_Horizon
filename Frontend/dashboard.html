@@ -59,6 +59,122 @@ button:hover{
     background:linear-gradient(90deg,#00ffcc,#00ffaa);
     border-radius:10px;
 }
+.popup{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    justify-content:center;
+    align-items:center;
+}
+
+.popup-content{
+    background:#0f2f34;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+}
+
+.wheel{
+    width:250px;
+    height:250px;
+    border-radius:50%;
+    margin:20px auto;
+    border:8px solid #36f5c7;
+    background:conic-gradient(
+        #00ffcc 0% 25%,
+        #00ffaa 25% 50%,
+        #00ffcc 50% 75%,
+        #00ffaa 75% 100%
+    );
+    transition: transform 4s ease-out;
+}
+.popup{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    justify-content:center;
+    align-items:center;
+}
+
+.popup-content{
+    background:#0f2f34;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    position:relative;
+}
+
+.wheel{
+    position:relative;
+    width:320px;
+    height:320px;
+    border-radius:50%;
+    margin:20px auto;
+    border:8px solid #36f5c7;
+    transition: transform 4s ease-out;
+
+    background: conic-gradient(
+        #00ffaa 0deg 45deg,
+        #00ffcc 45deg 90deg,
+        #00ffaa 90deg 135deg,
+        #00ffcc 135deg 180deg,
+        #00ffaa 180deg 225deg,
+        #00ffcc 225deg 270deg,
+        #00ffaa 270deg 315deg,
+        #00ffcc 315deg 360deg
+    );
+}
+
+/* Labels */
+.label{
+    position:absolute;
+    width:100%;
+    height:100%;
+    text-align:center;
+    transform: rotate(calc(var(--i) * 45deg));
+}
+
+.label::after{
+    content: attr(style);
+}
+
+.label{
+    font-weight:bold;
+    font-size:18px;
+    color:#000;
+}
+
+.label span{
+    position:absolute;
+}
+
+/* Position reward text */
+.label{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding-top:20px;
+}
+
+/* Proper Arrow */
+.arrow{
+    width:0;
+    height:0;
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-bottom:35px solid #ffcc00;
+    margin:0 auto;
+}
+
+
 </style>
 </head>
 <script>
@@ -76,22 +192,7 @@ button:hover{
     }, 10);
 </script>
 <script>
-function spin() {
-    fetch("/spin")
-    .then(response => response.json())
-    .then(data => {
-        const result = document.getElementById("spin-result");
 
-        if (data.reward > 0) {
-            result.innerHTML = "🎉 You won " + data.reward + " coins!";
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        } else {
-            result.innerHTML = "⚠ " + data.message;
-        }
-    });
-}
 </script>
 
 <body>
@@ -123,30 +224,77 @@ function spin() {
 
 <div class="card">
     <h3>🎡 Spin The Wheel</h3>
-    <button onclick="spin()">Spin Now</button>
-    <p id="spin-result"></p>
+    <button onclick="openWheel()">Spin Now</button>
+</div>
+
+<!-- WHEEL POPUP -->
+<div id="wheel-popup" class="popup">
+    <div class="popup-content">
+
+        <!-- Arrow Pointer -->
+        <div class="arrow"></div>
+
+        <!-- Wheel -->
+        <div class="wheel" id="wheel">
+            <div class="label" style="--i:0">10</div>
+            <div class="label" style="--i:1">20</div>
+            <div class="label" style="--i:2">0</div>
+            <div class="label" style="--i:3">50</div>
+            <div class="label" style="--i:4">100</div>
+            <div class="label" style="--i:5">0</div>
+            <div class="label" style="--i:6">30</div>
+            <div class="label" style="--i:7">70</div>
+        </div>
+
+        <button onclick="startSpin()">Spin</button>
+        <button onclick="closeWheel()">Close</button>
+
+        <p id="result-text"></p>
+    </div>
 </div>
 
 
-<div class="card">
-    <h3>Achievements 🏆</h3>
+<audio id="spin-sound" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 
-    {% for badge in achievements %}
-        <p>{{ badge['badge_name'] }}</p>
-    {% endfor %}
-</div>
+
 
 </div>
 
 <script>
-function spin(){
-    fetch("/spin")
-    .then(res=>res.json())
-    .then(data=>{
-        alert("You won " + data.reward + " coins!");
-        location.reload();
-    });
+
+const rewards = [10,20,0,50,100,0,30,70];
+
+function startSpin(){
+
+    const wheel = document.getElementById("wheel");
+    const resultText = document.getElementById("result-text");
+    const sound = document.getElementById("spin-sound");
+
+    let reward = rewards[Math.floor(Math.random() * rewards.length)];
+
+    let index = rewards.indexOf(reward);
+
+    let degreePerSection = 360 / rewards.length;
+    let stopDegree = (index * degreePerSection) + (degreePerSection / 2);
+
+    let totalRotation = 1440 + (360 - stopDegree);
+
+    wheel.style.transform = "rotate(" + totalRotation + "deg)";
+
+    sound.play();
+
+    setTimeout(() => {
+
+        fetch("/spin?reward=" + reward)
+        .then(res => res.json())
+        .then(data => {
+            resultText.innerHTML = "🎉 You won " + reward + " coins!";
+            setTimeout(() => location.reload(), 2000);
+        });
+
+    }, 4000);
 }
+
 </script>
 
 </body>
