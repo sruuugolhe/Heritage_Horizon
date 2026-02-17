@@ -46,16 +46,6 @@ button:hover{
     transform:scale(1.05);
 }
 
-/* ---------------- PROGRESS ---------------- */
-
-.progress-bar{
-    width:100%;
-    background:#1c4449;
-    border-radius:10px;
-    height:20px;
-    margin-top:10px;
-}
-
 /* ---------------- POPUP ---------------- */
 
 .popup{
@@ -65,7 +55,7 @@ button:hover{
     left:0;
     width:100%;
     height:100%;
-    background:rgba(0,0,0,0.8);
+    background:rgba(0,0,0,0.85);
     justify-content:center;
     align-items:center;
     z-index:9999;
@@ -81,14 +71,19 @@ button:hover{
 
 /* ---------------- WHEEL ---------------- */
 
-.wheel{
+.wheel-wrapper{
     position:relative;
+    width:350px;
+    margin:20px auto;
+}
+
+.wheel{
     width:320px;
     height:320px;
     border-radius:50%;
-    margin:20px auto;
     border:8px solid #36f5c7;
     transition: transform 4s ease-out;
+    margin:auto;
 
     background: conic-gradient(
         #00ffaa 0deg 45deg,
@@ -102,6 +97,33 @@ button:hover{
     );
 }
 
+/* Arrow */
+.arrow{
+    position:absolute;
+    top:-10px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:0;
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-bottom:35px solid #ffcc00;
+    z-index:10;
+}
+
+/* Center circle */
+.center-circle{
+    position:absolute;
+    width:70px;
+    height:70px;
+    background:#071a1e;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    border:5px solid #36f5c7;
+}
+
 /* Labels */
 .label{
     position:absolute;
@@ -110,26 +132,21 @@ button:hover{
     display:flex;
     justify-content:center;
     align-items:flex-start;
-    padding-top:20px;
     font-weight:bold;
     font-size:18px;
     color:#000;
-    transform: rotate(calc(var(--i) * 45deg));
+    transform-origin:center;
 }
-
-/* Arrow */
-.arrow{
-    width:0;
-    height:0;
-    border-left:20px solid transparent;
-    border-right:20px solid transparent;
-    border-bottom:35px solid #ffcc00;
-    margin:0 auto;
+.label span{
+    transform:rotate(22.5deg);
+    margin-top:20px;
 }
 </style>
 </head>
 
 <body>
+
+<h1 style="text-align:center;">TEST DASHBOARD VERSION 2</h1>
 
 <div class="container">
 
@@ -143,12 +160,6 @@ button:hover{
 </div>
 
 <div class="card">
-    <h3>Overall Progress</h3>
-    <p>{{ completed_games }} / {{ total_games }} Games Completed</p>
-    <div class="progress-bar"></div>
-</div>
-
-<div class="card">
     <h3>🎡 Spin The Wheel</h3>
     <button onclick="openWheel()">Spin Now</button>
 </div>
@@ -157,19 +168,28 @@ button:hover{
 <div id="wheel-popup" class="popup">
     <div class="popup-content">
 
-        <div class="arrow"></div>
+        <div class="wheel-wrapper">
 
-        <div class="wheel" id="wheel">
-            <div class="label" style="--i:0">10</div>
-            <div class="label" style="--i:1">20</div>
-            <div class="label" style="--i:2">0</div>
-            <div class="label" style="--i:3">50</div>
-            <div class="label" style="--i:4">100</div>
-            <div class="label" style="--i:5">0</div>
-            <div class="label" style="--i:6">30</div>
-            <div class="label" style="--i:7">70</div>
+            <div class="arrow"></div>
+
+            <div class="wheel" id="wheel">
+
+                <div class="label" style="transform:rotate(0deg);"><span>10</span></div>
+                <div class="label" style="transform:rotate(45deg);"><span>20</span></div>
+                <div class="label" style="transform:rotate(90deg);"><span>0</span></div>
+                <div class="label" style="transform:rotate(135deg);"><span>50</span></div>
+                <div class="label" style="transform:rotate(180deg);"><span>100</span></div>
+                <div class="label" style="transform:rotate(225deg);"><span>0</span></div>
+                <div class="label" style="transform:rotate(270deg);"><span>30</span></div>
+                <div class="label" style="transform:rotate(315deg);"><span>70</span></div>
+
+            </div>
+
+            <div class="center-circle"></div>
+
         </div>
 
+        <br>
         <button onclick="startSpin()">Spin</button>
         <button onclick="closeWheel()">Close</button>
 
@@ -184,8 +204,12 @@ button:hover{
 <script>
 
 const rewards = [10,20,0,50,100,0,30,70];
+let spinning = false;
 
 function startSpin(){
+
+    if(spinning) return;
+    spinning = true;
 
     const wheel = document.getElementById("wheel");
     const resultText = document.getElementById("result-text");
@@ -195,17 +219,10 @@ function startSpin(){
     let reward = rewards[randomIndex];
 
     let degreePerSection = 360 / rewards.length;
-    let stopDegree = (randomIndex * degreePerSection) + (degreePerSection / 2);
-    let totalRotation = 1440 + (360 - stopDegree);
+    let stopDegree = 360 - (randomIndex * degreePerSection) - (degreePerSection/2);
+    let totalRotation = 360 * 5 + stopDegree;
 
-    /* RESET BEFORE SPIN */
-    wheel.style.transition = "none";
-    wheel.style.transform = "rotate(0deg)";
-    wheel.offsetHeight;
-
-    wheel.style.transition = "transform 4s ease-out";
     wheel.style.transform = "rotate(" + totalRotation + "deg)";
-
     sound.play();
 
     setTimeout(() => {
@@ -213,14 +230,8 @@ function startSpin(){
         fetch("/spin?reward=" + reward)
         .then(res => res.json())
         .then(data => {
-
-            if(data.reward === 0 && data.message.includes("already")){
-                resultText.innerHTML = "⚠ " + data.message;
-            } else {
-                resultText.innerHTML = "🎉 You won " + data.reward + " coins!";
-            }
-
-            setTimeout(() => location.reload(), 2000);
+            resultText.innerHTML = "🎉 You won " + data.reward + " coins!";
+            spinning = false;
         });
 
     }, 4000);
