@@ -516,8 +516,18 @@ overlayNextBtn.onclick = () => {
     msgHeader.innerText = "Champion! 🏆";
     msgSubtext.innerText = `Final Score: ${score} / ${questions.length}`;
     overlayNextBtn.style.display = "none";
+
+    // 🔥 SEND SCORE TO BACKEND
+    fetch("/complete_game", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `game_name=Heritage Quiz&score=${score}`
+    });
   }
 };
+
 
 function goHome() {
     window.location.href = "/heritage";

@@ -30,6 +30,7 @@ def get_db():
 def init_db():
     conn = get_db()
 
+    # USERS TABLE
     conn.execute("""
     CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,8 +45,32 @@ def init_db():
     )
     """)
 
+    # GAME SCORES TABLE (for admin dashboard)
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS scores(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        username TEXT,
+        quiz_name TEXT,
+        score INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # PROGRESS TABLE (you were using it but never created it)
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS progress(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        game_name TEXT,
+        score INTEGER,
+        completed INTEGER
+    )
+    """)
+
     conn.commit()
     conn.close()
+
 
 # ---------------- AUTH ----------------
 
@@ -163,7 +188,7 @@ def spin():
 
     today = datetime.now().strftime("%Y-%m-%d")
 
-    # 🔒 Daily limit check
+    # Daily limit check
     if user["last_spin"] == today:
         conn.close()
         return jsonify({
@@ -171,17 +196,18 @@ def spin():
             "reward": 0
         })
 
-    # 🎯 Get reward from frontend
     reward = request.args.get("reward", type=int)
-
     if reward is None:
         reward = 0
 
-    # 💰 Update coins + last_spin
+    # Update coins
     conn.execute(
         "UPDATE users SET coins = coins + ?, last_spin=? WHERE id=?",
         (reward, today, session['user_id'])
     )
+
+    # Insert into scores table
+    
 
     conn.commit()
     conn.close()
@@ -190,6 +216,7 @@ def spin():
         "message": "You won!",
         "reward": reward
     })
+
 
 # ---------------- LOGIN ----------------
 
@@ -237,41 +264,28 @@ def logout():
 
 # ---------------- COMPLETE GAME ----------------
 
-@app.route('/complete_game', methods=['POST'])
-@login_required
+@app.route("/complete_game", methods=["POST"])
 def complete_game():
 
-    user_id = session['user_id']
-    game_name = request.form['game_name']
-    score = int(request.form['score'])
+    if "user_id" not in session:
+        return "Not logged in", 403
 
-    conn = get_db()
+    game_name = request.form.get("game_name")
+    score = request.form.get("score")
 
-    conn.execute(
-        "INSERT INTO progress (user_id, game_name, score, completed) VALUES (?, ?, ?, 1)",
-        (user_id, game_name, score)
-    )
+    conn = sqlite3.connect("database.db")
+    c = conn.cursor()
 
-    conn.execute(
-        "UPDATE users SET coins = coins + 50 WHERE id=?",
-        (user_id,)
-    )
-
-    coins = conn.execute(
-        "SELECT coins FROM users WHERE id=?",
-        (user_id,)
-    ).fetchone()[0]
-
-    if coins >= 500:
-        conn.execute(
-            "UPDATE users SET level=2 WHERE id=?",
-            (user_id,)
-        )
+    c.execute("""
+        INSERT INTO scores (user_id, quiz_name, score)
+        VALUES (?, ?, ?)
+    """, (session["user_id"], game_name, score))
 
     conn.commit()
     conn.close()
 
-    return redirect('/student_dashboard')
+    return "Saved"
+
 
 # ---------------- SLIDE ----------------
 
@@ -347,13 +361,34 @@ def solar_facts():
 def admin():
 
     conn = get_db()
+
     users = conn.execute("SELECT * FROM users").fetchall()
+
+    scores = conn.execute("""
+    SELECT username, quiz_name, score, created_at
+    FROM scores
+    WHERE quiz_name IN (
+        'Heritage Quiz',
+        'Heritage Maze',
+        'Heritage Word Puzzle',
+        'Heritage Cards',
+        'Solar Quiz',
+        'Solar Puzzle',
+        'Solar Crush',
+        'Solar Facts'
+    )
+    ORDER BY created_at DESC
+""").fetchall()
+
+
     conn.close()
 
     return render_template(
         "admin_dashboard.html",
-        users=users
+        users=users,
+        scores=scores
     )
+
 
 # ---------------- CREATE ADMIN ----------------
 

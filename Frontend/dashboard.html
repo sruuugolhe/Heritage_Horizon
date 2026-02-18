@@ -97,17 +97,17 @@ button:hover{
     );
 }
 
-/* Arrow */
+/* Arrow - fixed */
 .arrow{
     position:absolute;
-    top:-10px;
+    top:-28px;
     left:50%;
     transform:translateX(-50%);
     width:0;
     height:0;
-    border-left:20px solid transparent;
-    border-right:20px solid transparent;
-    border-bottom:35px solid #ffcc00;
+    border-left:18px solid transparent;
+    border-right:18px solid transparent;
+    border-top:35px solid #ffcc00; /* downward arrow */
     z-index:10;
 }
 
@@ -124,7 +124,7 @@ button:hover{
     border:5px solid #36f5c7;
 }
 
-/* Labels */
+/* Labels - perfectly centered in each slice */
 .label{
     position:absolute;
     width:100%;
@@ -132,14 +132,18 @@ button:hover{
     display:flex;
     justify-content:center;
     align-items:flex-start;
+    transform-origin:50% 50%;
     font-weight:bold;
     font-size:18px;
     color:#000;
-    transform-origin:center;
+    pointer-events:none;
 }
+
 .label span{
-    transform:rotate(22.5deg);
-    margin-top:20px;
+    position:absolute;
+    top:18%;
+    left:50%;
+    transform:translateX(-50%);
 }
 </style>
 </head>
@@ -174,14 +178,15 @@ button:hover{
 
             <div class="wheel" id="wheel">
 
-                <div class="label" style="transform:rotate(0deg);"><span>10</span></div>
-                <div class="label" style="transform:rotate(45deg);"><span>20</span></div>
-                <div class="label" style="transform:rotate(90deg);"><span>0</span></div>
-                <div class="label" style="transform:rotate(135deg);"><span>50</span></div>
-                <div class="label" style="transform:rotate(180deg);"><span>100</span></div>
-                <div class="label" style="transform:rotate(225deg);"><span>0</span></div>
-                <div class="label" style="transform:rotate(270deg);"><span>30</span></div>
-                <div class="label" style="transform:rotate(315deg);"><span>70</span></div>
+                <!-- Rotated by +22.5deg to center inside slices -->
+                <div class="label" style="transform:rotate(22.5deg);"><span>10</span></div>
+                <div class="label" style="transform:rotate(67.5deg);"><span>20</span></div>
+                <div class="label" style="transform:rotate(112.5deg);"><span>0</span></div>
+                <div class="label" style="transform:rotate(157.5deg);"><span>50</span></div>
+                <div class="label" style="transform:rotate(202.5deg);"><span>100</span></div>
+                <div class="label" style="transform:rotate(247.5deg);"><span>0</span></div>
+                <div class="label" style="transform:rotate(292.5deg);"><span>30</span></div>
+                <div class="label" style="transform:rotate(337.5deg);"><span>70</span></div>
 
             </div>
 
@@ -219,7 +224,10 @@ function startSpin(){
     let reward = rewards[randomIndex];
 
     let degreePerSection = 360 / rewards.length;
-    let stopDegree = 360 - (randomIndex * degreePerSection) - (degreePerSection/2);
+
+    // 🔥 corrected alignment
+    let stopDegree = 360 - (randomIndex * degreePerSection);
+
     let totalRotation = 360 * 5 + stopDegree;
 
     wheel.style.transform = "rotate(" + totalRotation + "deg)";
@@ -236,6 +244,7 @@ function startSpin(){
 
     }, 4000);
 }
+
 
 function openWheel(){
     document.getElementById("wheel-popup").style.display = "flex";
