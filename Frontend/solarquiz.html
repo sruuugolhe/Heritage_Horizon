@@ -506,19 +506,40 @@ function check(i){
  if(i===data.c){
   score++;correct++;
   progressBar.style.width=(correct/10)*100+"%";
- }
+
+  // 🔥 UPDATE SCORE IN DATABASE
+  fetch("/update_score", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ score: score })
+  });
+}
  scoreBox.innerText="Score: "+score;
  nextBtn.style.display="inline";
 }
 
-nextBtn.onclick=()=>{
- q++;
- if(q===10){
-  stopStopwatch();
-  document.getElementById("timeTaken").innerText =
-    "⏱ Time Taken: " + stopwatchTxt.innerText.split(" ")[2];
-  correct>=5 ? pass.style.display="flex" : fail.style.display="flex";
- } else loadQ();
+nextBtn.onclick = () => {
+  q++;
+
+  if(q === 10){
+
+    // 🔥 FINISH GAME ENTRY
+    fetch("/finish_game", {
+      method: "POST"
+    });
+
+    stopStopwatch();
+
+    document.getElementById("timeTaken").innerText =
+      "⏱ Time Taken: " + stopwatchTxt.innerText.split(" ")[2];
+
+    correct >= 5
+      ? pass.style.display = "flex"
+      : fail.style.display = "flex";
+
+  } else {
+    loadQ();
+  }
 };
 
 function nextLevel(){
@@ -541,6 +562,13 @@ hintBtn.onclick=()=>{
 };
 
 /* START GAME */
+/* 🔥 START GAME ENTRY */
+fetch("/start_game", {
+  method: "POST",
+  headers: {"Content-Type":"application/x-www-form-urlencoded"},
+  body: "game_name=Solar Quiz"
+});
+
 startStopwatch();
 loadQ();
 function goBackSlide(){

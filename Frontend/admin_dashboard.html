@@ -1,31 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Admin Dashboard</title>
 
 <style>
-table{
-    width:100%;
-    border-collapse:collapse;
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0b0c1a; /* dark space vibe */
+    color: #fff;
+    margin: 0;
+    padding: 20px;
 }
-th,td{
-    border:1px solid #ccc;
-    padding:8px;
-    text-align:center;
-}
-th{
-    background:#222;
-    color:white;
-}
-</style>
 
+h2, h3 {
+    text-align: center;
+    color: #ffd60a; /* subtle neon yellow */
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+}
+
+th, td {
+    padding: 10px 12px;
+    text-align: center;
+    border: 1px solid #333;
+}
+
+th {
+    background-color: #1a1a2e; /* slightly lighter dark for header */
+    color: #ffd60a;
+}
+
+tr:nth-child(even) td {
+    background-color: #111129; /* alternating row color */
+}
+
+tr:hover td {
+    background-color: #222244; /* subtle hover effect */
+}
+
+</style>
 </head>
 <body>
 
-<h2>👩‍💻 Admin Dashboard</h2>
+<h2>Admin Dashboard</h2>
 
 <h3>Registered Users</h3>
-
 <table>
 <tr>
 <th>ID</th>
@@ -33,7 +58,6 @@ th{
 <th>Role</th>
 <th>Last Login</th>
 </tr>
-
 {% for u in users %}
 <tr>
 <td>{{u.id}}</td>
@@ -44,24 +68,22 @@ th{
 {% endfor %}
 </table>
 
-<br><hr><br>
-
 <h3>Game Scores</h3>
-
 <table>
 <tr>
 <th>User</th>
 <th>Game</th>
+<th>Section</th>
 <th>Score</th>
 <th>Date</th>
 </tr>
-
 {% for s in scores %}
 <tr>
 <td>{{s.username}}</td>
-<td>{{s.quiz_name}}</td>
+<td>{{s.game_name}}</td>
+<td>{{s.section}}</td>
 <td>{{s.score}}</td>
-<td>{{s.created_at}}</td>
+<td>{{s.played_at}}</td>
 </tr>
 {% endfor %}
 </table>

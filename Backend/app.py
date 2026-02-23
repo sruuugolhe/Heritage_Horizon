@@ -4,7 +4,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
+
+# ---------------- Helper ----------------
+def get_ist_time():
+    """Return current India Standard Time as datetime object"""
+    return datetime.utcnow() + timedelta(hours=5, minutes=30)
 
 # ---------------- APP ----------------
 
@@ -27,49 +32,6 @@ def get_db():
     return conn
 
 
-def init_db():
-    conn = get_db()
-
-    # USERS TABLE
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS users(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        email TEXT UNIQUE,
-        password TEXT,
-        role TEXT DEFAULT 'user',
-        coins INTEGER DEFAULT 0,
-        level INTEGER DEFAULT 1,
-        last_spin TEXT,
-        last_login TEXT
-    )
-    """)
-
-    # GAME SCORES TABLE (for admin dashboard)
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS scores(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        username TEXT,
-        quiz_name TEXT,
-        score INTEGER,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # PROGRESS TABLE (you were using it but never created it)
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS progress(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        game_name TEXT,
-        score INTEGER,
-        completed INTEGER
-    )
-    """)
-
-    conn.commit()
-    conn.close()
 
 
 # ---------------- AUTH ----------------
@@ -229,12 +191,10 @@ def login():
         p = request.form["password"]
 
         conn = get_db()
-
         user = conn.execute(
             "SELECT * FROM users WHERE username=?",
             (u,)
         ).fetchone()
-
         conn.close()
 
         if user and check_password_hash(user["password"], p):
@@ -242,6 +202,16 @@ def login():
             session.clear()
             session["user_id"] = user["id"]
             session["role"] = user["role"]
+            session["username"] = user["username"]
+
+            # 🔥 Update last login
+            conn = get_db()
+            conn.execute(
+                "UPDATE users SET last_login=? WHERE id=?",
+                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), user["id"])
+            )
+            conn.commit()
+            conn.close()
 
             if user["role"] == "admin":
                 return redirect("/admin")
@@ -255,6 +225,7 @@ def login():
 
     return render_template("FSLOGIN.html")
 
+
 # ---------------- LOGOUT ----------------
 
 @app.route("/logout")
@@ -264,29 +235,80 @@ def logout():
 
 # ---------------- COMPLETE GAME ----------------
 
-@app.route("/complete_game", methods=["POST"])
-def complete_game():
+@app.route("/update_score", methods=["POST"])
+@login_required
+def update_score():
+    data = request.get_json()
+    score = int(data.get("score", 0))
+    attempt_id = data.get("attempt_id") or session.get("attempt_id")
 
-    if "user_id" not in session:
-        return "Not logged in", 403
+    if not attempt_id:
+        return jsonify({"error": "No active game"}), 400
 
-    game_name = request.form.get("game_name")
-    score = request.form.get("score")
+    ist_time = get_ist_time().strftime("%Y-%m-%d %H:%M:%S")
 
-    conn = sqlite3.connect("database.db")
-    c = conn.cursor()
-
-    c.execute("""
-        INSERT INTO scores (user_id, quiz_name, score)
-        VALUES (?, ?, ?)
-    """, (session["user_id"], game_name, score))
-
+    conn = get_db()
+    conn.execute("""
+        UPDATE scores
+        SET score=?, played_at=?
+        WHERE id=?
+    """, (score, ist_time, attempt_id))
     conn.commit()
     conn.close()
 
-    return "Saved"
+    return jsonify({"message": "Score updated", "score": score})
 
+ #      start game
+@app.route("/start_game", methods=["POST"])
+@login_required
+def start_game():
+    game_name = request.form.get("game_name")
+    conn = get_db()
 
+    # Get game_id
+    game = conn.execute("SELECT id FROM games WHERE game_name=?", (game_name,)).fetchone()
+    if not game:
+        conn.close()
+        return "Game not found", 404
+
+    # IST timestamp
+    ist_time = get_ist_time().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Insert score
+    cursor = conn.execute("""
+        INSERT INTO scores (user_id, game_id, score, status, played_at)
+        VALUES (?, ?, 0, 'incomplete', ?)
+    """, (session["user_id"], game["id"], ist_time))
+
+    conn.commit()
+    attempt_id = cursor.lastrowid
+    session["attempt_id"] = attempt_id
+    conn.close()
+
+    # Return attempt_id to JS
+    return str(attempt_id)
+
+# finish game
+@app.route("/finish_game", methods=["POST"])
+@login_required
+def finish_game():
+    attempt_id = session.get("attempt_id")
+    if not attempt_id:
+        return jsonify({"error": "No active game"}), 400
+
+    ist_time = get_ist_time().strftime("%Y-%m-%d %H:%M:%S")
+
+    conn = get_db()
+    conn.execute("""
+        UPDATE scores
+        SET status='completed', played_at=?
+        WHERE id=?
+    """, (ist_time, attempt_id))
+    conn.commit()
+    conn.close()
+
+    session.pop("attempt_id", None)  # clear session
+    return jsonify({"message": "Game finished"})
 # ---------------- SLIDE ----------------
 
 @app.route("/slide")
@@ -362,22 +384,18 @@ def admin():
 
     conn = get_db()
 
-    users = conn.execute("SELECT * FROM users").fetchall()
+    users = conn.execute("""
+        SELECT id, username, role, last_login
+        FROM users
+        ORDER BY id DESC
+    """).fetchall()
 
     scores = conn.execute("""
-    SELECT username, quiz_name, score, created_at
-    FROM scores
-    WHERE quiz_name IN (
-        'Heritage Quiz',
-        'Heritage Maze',
-        'Heritage Word Puzzle',
-        'Heritage Cards',
-        'Solar Quiz',
-        'Solar Puzzle',
-        'Solar Crush',
-        'Solar Facts'
-    )
-    ORDER BY created_at DESC
+    SELECT u.username, g.game_name, g.section, s.score, s.played_at
+    FROM scores s
+    JOIN users u ON s.user_id = u.id
+    JOIN games g ON s.game_id = g.id
+    ORDER BY s.played_at DESC
 """).fetchall()
 
 
@@ -389,6 +407,40 @@ def admin():
         scores=scores
     )
 
+
+# ---------------- FORGOT / RESET PASSWORD ----------------
+
+@app.route("/forgot", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        username = request.form.get("username")
+        new_password = request.form.get("password")
+
+        conn = get_db()
+        user = conn.execute(
+            "SELECT id FROM users WHERE username=?",
+            (username,)
+        ).fetchone()
+
+        if user:
+            # Hash the new password
+            hashed = generate_password_hash(new_password)
+
+            # Update password in database
+            conn.execute(
+                "UPDATE users SET password=? WHERE id=?",
+                (hashed, user["id"])
+            )
+            conn.commit()
+            conn.close()
+
+            # Success message via query param or redirect to login
+            return redirect("/login")
+        else:
+            conn.close()
+            return render_template("forgotaccount.html", error="Username not found")
+
+    return render_template("forgotaccount.html")
 
 # ---------------- CREATE ADMIN ----------------
 
@@ -414,6 +466,6 @@ def create_admin():
 # ---------------- MAIN ----------------
 
 if __name__ == "__main__":
-    init_db()
+   
     create_admin()
     app.run(debug=True)

@@ -288,18 +288,30 @@ function flip(card,val){
   else{
     moves++;movesEl.textContent=moves;
     if(first.val===val){
-      score+=10;scoreEl.textContent=score;
+  score+=10;
+  scoreEl.textContent=score;
+
+  fetch("/update_score", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ score: score })
+  });
       funfactEl.textContent=funFacts[val]||"India is incredible!";
       funfactEl.style.display="block";
       setTimeout(()=>funfactEl.style.display="none",2200);
       first=null;
 
       if(document.querySelectorAll(".card.flip").length===document.querySelectorAll(".card").length){
-        clearInterval(timer);
-        winSound.play();
-        doneLevel.textContent=level;
-        popup.style.display="flex";
-      }
+
+  fetch("/finish_game", {
+    method: "POST"
+  });
+
+  clearInterval(timer);
+  winSound.play();
+  doneLevel.textContent=level;
+  popup.style.display="flex";
+}
     }else{
       lock=true;
       setTimeout(()=>{
@@ -333,7 +345,15 @@ const movesEl=document.getElementById("moves");
 const scoreEl=document.getElementById("score");
 const funfactEl=document.getElementById("funfact");
 
+// 🔥 START GAME ENTRY
+fetch("/start_game", {
+  method: "POST",
+  headers: {"Content-Type": "application/x-www-form-urlencoded"},
+  body: "game_name=Heritage Cards"
+});
+
 start();
+
 </script>
 
 </body>

@@ -477,7 +477,14 @@ function checkAnswer(selected) {
   }
 
   scoreEl.innerText = "Score: " + score;
-  
+  // 🔥 UPDATE SCORE IN DATABASE
+fetch("/update_score", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  body: "score=" + score
+});
   setTimeout(() => {
     overlay.style.display = "flex";
   }, 400);
@@ -518,13 +525,11 @@ overlayNextBtn.onclick = () => {
     overlayNextBtn.style.display = "none";
 
     // 🔥 SEND SCORE TO BACKEND
-    fetch("/complete_game", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: `game_name=Heritage Quiz&score=${score}`
-    });
+    // 🔥 START GAME WHEN PAGE LOADS
+// 🔥 FINISH GAME
+fetch("/finish_game", {
+  method: "POST"
+});
   }
 };
 
@@ -535,6 +540,14 @@ function goHome() {
 
 // Start the game
 loadQuestion();
+// 🔥 START GAME WHEN PAGE LOADS
+fetch("/start_game", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  body: "game_name=Heritage Quiz"
+});
 </script>
 </body>
 </html>

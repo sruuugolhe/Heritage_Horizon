@@ -208,6 +208,12 @@ button:hover {
 <script>
 (() => {
 "use strict";
+/* 🔥 START GAME ENTRY */
+fetch("/start_game", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: "game_name=Solar Puzzle"
+});
 
 /* SOUNDS */
 const sndSelect = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
@@ -384,10 +390,17 @@ window.addEventListener("mouseup",()=>{
 
   selected.forEach(c=>c.classList.remove("selected"));
   selected=[];
-  if(foundWords.size===words.length){
+  if(foundWords.size === words.length){
+
     sndWin.play();
+
+    /* 🔥 FINISH GAME ENTRY */
+    fetch("/finish_game", {
+        method: "POST"
+    });
+
     document.getElementById("congrats-screen").style.display="flex";
-  }
+}
 });
 
 document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};

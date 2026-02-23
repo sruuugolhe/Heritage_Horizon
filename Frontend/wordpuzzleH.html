@@ -218,6 +218,12 @@ function goBack(){
 
 (() => {
 "use strict";
+/* 🔥 START GAME ENTRY */
+fetch("/start_game", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: "game_name=Heritage Word Hunt"
+});
 
 /* SOUNDS */
 const sndSelect = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
@@ -453,12 +459,17 @@ window.addEventListener("mouseup",()=>{
 
   selected=[];
 
-  if(foundWords.size===words.length){
+  if(foundWords.size === words.length){
 
-    sndWin.play();
+  sndWin.play();
 
-    document.getElementById("congrats-screen").style.display="flex";
-  }
+  /* 🔥 FINISH GAME ENTRY */
+  fetch("/finish_game", {
+    method: "POST"
+  });
+
+  document.getElementById("congrats-screen").style.display="flex";
+}
 
 });
 

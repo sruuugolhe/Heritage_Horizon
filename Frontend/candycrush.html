@@ -295,7 +295,14 @@ function clearMatch(arr){
   arr.forEach(i=>board[i].textContent="");
 
   score += 100;
-  document.getElementById("score").textContent=score;
+document.getElementById("score").textContent = score;
+
+// 🔥 UPDATE SCORE IN DATABASE
+fetch("/update_score", {
+  method: "POST",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({ score: score })
+});
   showFact(e);
   checkAutoLevelUp();
 }
@@ -349,12 +356,16 @@ function exitGame(){
   const ok = confirm("Are you sure you want to exit the game?");
   if(!ok) return;
 
+  // 🔥 FINISH GAME IN DATABASE
+  fetch("/finish_game", {
+    method: "POST"
+  });
+
   const bg = document.getElementById("bgMusic");
   bg.pause();
   bg.currentTime = 0;
 
-  window.close();
-  window.location.href = "about:blank";
+  window.location.href = "/solar";
 }
 
 
@@ -362,7 +373,12 @@ setupLevel();
 function goBackSlide(){
   window.location.href = "/solar"; // change if needed
 }
-
+// 🔥 START GAME ENTRY IN DATABASE
+fetch("/start_game", {
+  method: "POST",
+  headers: {"Content-Type": "application/x-www-form-urlencoded"},
+  body: "game_name=Solar Crush"
+});
 </script>
 
 </body>

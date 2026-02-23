@@ -341,7 +341,6 @@ button:hover{transform:scale(1.08)}
 </audio>
 
 <script>
-
 function speak(text){
     if('speechSynthesis' in window){
         speechSynthesis.cancel();
@@ -351,93 +350,121 @@ function speak(text){
     }
 }
 
-const game=document.getElementById("game"),
-player=document.getElementById("player"),
-scoreText=document.getElementById("score"),
-sound=document.getElementById("collisionSound");
+const game = document.getElementById("game"),
+      player = document.getElementById("player"),
+      scoreText = document.getElementById("score"),
+      sound = document.getElementById("collisionSound");
 
-let x=185, speed=2.2, spawnRate=1200, score=0;
-let running=true;
-let asteroidCount=1;
+let x = 185,
+    speed = 2.2,
+    spawnRate = 1200,
+    score = 0,
+    running = true,
+    asteroidCount = 1;
 
+// 🔥 START GAME: create attempt in backend
+let attemptId;  // store attempt_id for this game
 
-window.addEventListener("load",()=>{
+window.addEventListener("load", async () => {
     speak("Mission started. Dodge the asteroids and survive as long as you can.");
+
+    // Start game on backend
+    let res = await fetch("/start_game", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "game_name=Solar Asteroids"
+    });
+
+    attemptId = await res.text();
+    console.log("Game started, attempt ID:", attemptId);
 });
 
-
-document.addEventListener("keydown",e=>{
-    if(!running)return;
-    if(e.key==="ArrowLeft" && x>0)x-=26;
-    if(e.key==="ArrowRight" && x<390)x+=26;
-    player.style.left=x+"px";
+// PLAYER MOVEMENT
+document.addEventListener("keydown", e => {
+    if(!running) return;
+    if(e.key === "ArrowLeft" && x > 0) x -= 26;
+    if(e.key === "ArrowRight" && x < 390) x += 26;
+    player.style.left = x + "px";
 });
 
-
+// SPAWN ASTEROIDS
 function spawn(){
-    let a=document.createElement("div");
-    a.className="rocket";
-    a.style.left=Math.random()*380+"px";
+    let a = document.createElement("div");
+    a.className = "rocket";
+    a.style.left = Math.random() * 380 + "px";
     game.appendChild(a);
 
-    let y=-100;
-    let fall=setInterval(()=>{
-        if(!running){clearInterval(fall);a.remove();return;}
-        y+=speed;
-        a.style.top=y+"px";
+    let y = -100;
+    let fall = setInterval(() => {
+        if(!running){ clearInterval(fall); a.remove(); return; }
+        y += speed;
+        a.style.top = y + "px";
 
-        let ar=a.getBoundingClientRect();
-        let pr=player.getBoundingClientRect();
+        let ar = a.getBoundingClientRect();
+        let pr = player.getBoundingClientRect();
 
-        if(ar.bottom>pr.top && ar.top<pr.bottom &&
-           ar.left<pr.right && ar.right>pr.left){
+        if(ar.bottom > pr.top && ar.top < pr.bottom &&
+           ar.left < pr.right && ar.right > pr.left){
             sound.play();
             endGame();
             clearInterval(fall);
         }
 
-        if(y>700){clearInterval(fall);a.remove();}
-    },20);
+        if(y > 700){ clearInterval(fall); a.remove(); }
+    }, 20);
 }
 
+// ASTEROID INTERVAL
+setInterval(() => {
+    if(!running) return;
+    for(let i=0; i<asteroidCount; i++) spawn();
+}, spawnRate);
 
-setInterval(()=>{
-    if(!running)return;
-    for(let i=0;i<asteroidCount;i++) spawn();
-},spawnRate);
-
-
-setInterval(()=>{
-    if(!running)return;
+// SCORE COUNTER
+setInterval(() => {
+    if(!running) return;
     score++;
-    scoreText.innerText="Score: "+score;
+    scoreText.innerText = "Score: " + score;
 
-    if(score%5===0) speed+=0.3;
-    if(score%15===0 && asteroidCount<6) asteroidCount++;
-},1000);
+    if(score % 5 === 0) speed += 0.3;
+    if(score % 15 === 0 && asteroidCount < 6) asteroidCount++;
+}, 1000);
 
-
+// 🔥 END GAME FUNCTION
 function endGame(){
-    running=false;
+    if(!running) return;
+    running = false;
+
+    // ✅ SEND FINAL SCORE TO BACKEND
+    fetch("/update_score", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ score: score, attempt_id: attemptId })
+})
+.then(res => res.json())
+.then(data => console.log("Score saved:", data))
+.finally(() => {
+    fetch("/finish_game", { method: "POST" });
+});
 
     speak("Mission failed. Game over. Your final score is " + score);
 
-    game.innerHTML+=`
+    game.innerHTML += `
     <div id="over">
         <h1>💥 GAME OVER</h1>
         <h2>Final Score: ${score}</h2>
         <button onclick="location.reload()">🚀 Restart Mission</button>
         <button onclick="
             speak('Exiting the game. See you next time.');
-            setTimeout(()=>location.href='about:blank',1200);
+            setTimeout(()=>location.href='/solar',1200);
         ">❌ Exit Game</button>
     </div>`;
 }
+
+// 🔹 BACK BUTTON
 function goBackSlide(){
     window.location.href = "/solar";
- // change if needed
 }
-
 </script>
 
 

@@ -383,6 +383,12 @@
           allCollected.push(n);
           playSound(523, 'sine', 0.2);
           document.getElementById('collected').textContent = allCollected.length;
+          // 🔥 UPDATE SCORE IN DATABASE
+fetch("/update_score", {
+  method: "POST",
+  headers: {"Content-Type": "application/json"},
+  body: JSON.stringify({ score: allCollected.length })
+});
           updateMindmap();
           
           if(currentNodes.every(node => node.found)) levelComplete();
@@ -409,6 +415,10 @@
     }
 
     function levelComplete(){
+      // 🔥 FINISH GAME ENTRY
+fetch("/finish_game", {
+  method: "POST"
+});
       clearInterval(timerInterval);
       playSound(659, 'sine', 0.1);
       setTimeout(() => playSound(880, 'sine', 0.3), 150);
@@ -465,7 +475,15 @@
     }
 
     // Initial start
-    startNew();
+    // 🔥 START GAME ENTRY
+fetch("/start_game", {
+  method: "POST",
+  headers: {"Content-Type": "application/x-www-form-urlencoded"},
+  body: "game_name=Heritage Maze"
+});
+
+// Initial start
+startNew();
 function goBackSlide(){
     window.location.href = "/heritage";
 }
