@@ -101,6 +101,28 @@ def signup():
 def titlepage():
     return render_template("titlepage.html")
 
+
+
+
+
+@app.route("/mystery_reward")
+@login_required
+def mystery_reward():
+
+    import random
+
+    rewards = [10, 20, 50, 0, 100, 30]
+    reward = random.choice(rewards)
+
+    conn = get_db()
+    conn.execute(
+        "UPDATE users SET coins = coins + ? WHERE id = ?",
+        (reward, session['user_id'])
+    )
+    conn.commit()
+    conn.close()
+
+    return {"reward": reward}
 # ---------------- DASHBOARD ----------------
 
 @app.route('/dashboard')
@@ -109,76 +131,35 @@ def dashboard():
 
     conn = get_db()
 
+    # Get user basic info
     user = conn.execute(
         "SELECT username, coins, level FROM users WHERE id=?",
         (session['user_id'],)
     ).fetchone()
 
-    total_games = 8
-
-    completed_games = conn.execute(
-        "SELECT COUNT(DISTINCT game_name) FROM progress WHERE user_id=? AND completed=1",
+    # Total games played
+    total_games_played = conn.execute(
+        "SELECT COUNT(*) FROM scores WHERE user_id=?",
         (session['user_id'],)
     ).fetchone()[0]
 
-    progress_percent = int((completed_games / total_games) * 100) if total_games > 0 else 0
+    # Total score
+    total_score = conn.execute(
+        "SELECT SUM(score) FROM scores WHERE user_id=?",
+        (session['user_id'],)
+    ).fetchone()[0]
+
+    if total_score is None:
+        total_score = 0
 
     conn.close()
 
     return render_template(
         "dashboard.html",
         user=user,
-        progress_percent=progress_percent,
-        completed_games=completed_games,
-        total_games=total_games
+        total_score=total_score,
+        total_games_played=total_games_played
     )
-
-# ---------------- DAILY SPIN ----------------
-
-# ---------------- DAILY SPIN ----------------
-
-@app.route('/spin')
-@login_required
-def spin():
-
-    conn = get_db()
-
-    user = conn.execute(
-        "SELECT last_spin FROM users WHERE id=?",
-        (session['user_id'],)
-    ).fetchone()
-
-    today = datetime.now().strftime("%Y-%m-%d")
-
-    # Daily limit check
-    if user["last_spin"] == today:
-        conn.close()
-        return jsonify({
-            "message": "You already spun today!",
-            "reward": 0
-        })
-
-    reward = request.args.get("reward", type=int)
-    if reward is None:
-        reward = 0
-
-    # Update coins
-    conn.execute(
-        "UPDATE users SET coins = coins + ?, last_spin=? WHERE id=?",
-        (reward, today, session['user_id'])
-    )
-
-    # Insert into scores table
-    
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({
-        "message": "You won!",
-        "reward": reward
-    })
-
 
 # ---------------- LOGIN ----------------
 
