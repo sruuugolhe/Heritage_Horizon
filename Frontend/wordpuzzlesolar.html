@@ -208,11 +208,17 @@ button:hover {
 <script>
 (() => {
 "use strict";
+let attemptId;
 /* 🔥 START GAME ENTRY */
 fetch("/start_game", {
   method: "POST",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
   body: "game_name=Solar Puzzle"
+})
+.then(res => res.text())
+.then(data => {
+    attemptId = parseInt(data);
+    console.log("Game started. Attempt ID:", attemptId);
 });
 
 /* SOUNDS */
@@ -392,16 +398,28 @@ window.addEventListener("mouseup",()=>{
   selected=[];
   if(foundWords.size === words.length){
 
-    sndWin.play();
+    console.log("Final Score sending:", score);
+    console.log("Attempt ID sending:", attemptId);
 
-    /* 🔥 FINISH GAME ENTRY */
-    fetch("/finish_game", {
-        method: "POST"
-    });
+    if(attemptId){
+        fetch("/update_score", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                score: score,
+                attempt_id: attemptId
+            })
+        })
+        .then(res => res.json())
+        .then(data => console.log("Score saved:", data))
+        .finally(() => {
+            fetch("/finish_game", { method: "POST" });
+        });
+    }
 
     document.getElementById("congrats-screen").style.display="flex";
 }
-});
+});   // 🔥 CLOSE mouseup event properly
 
 document.getElementById("btn-new-puzzle").onclick=()=>{level=1;setup();};
 document.getElementById("btn-next-level").onclick=()=>{level++;document.getElementById("congrats-screen").style.display="none";setup();};

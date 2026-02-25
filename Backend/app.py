@@ -131,9 +131,9 @@ def dashboard():
 
     conn = get_db()
 
-    # Get user basic info
+    # Get user basic info INCLUDING login_streak
     user = conn.execute(
-        "SELECT username, coins, level FROM users WHERE id=?",
+        "SELECT username, coins, level, login_streak FROM users WHERE id=?",
         (session['user_id'],)
     ).fetchone()
 
@@ -152,15 +152,44 @@ def dashboard():
     if total_score is None:
         total_score = 0
 
+    # =============================
+    # LEVEL SYSTEM (1 to 12)
+    # =============================
+    level = (total_score // 500) + 1
+
+    if level > 12:
+        level = 12
+
+    # =============================
+    # BADGE SYSTEM
+    # =============================
+    if level <= 3:
+        badge = "🥉 Beginner"
+    elif level <= 6:
+        badge = "🥈 Explorer"
+    elif level <= 9:
+        badge = "🥇 Master"
+    else:
+        badge = "👑 Legend"
+
+    # Update level in database
+    conn.execute(
+        "UPDATE users SET level=? WHERE id=?",
+        (level, session['user_id'])
+    )
+    conn.commit()
+
     conn.close()
 
     return render_template(
         "dashboard.html",
         user=user,
         total_score=total_score,
-        total_games_played=total_games_played
+        total_games_played=total_games_played,
+        login_streak=user["login_streak"],
+        level=level,
+        badge=badge
     )
-
 # ---------------- LOGIN ----------------
 
 @app.route("/login", methods=["GET", "POST"])
@@ -185,24 +214,74 @@ def login():
             session["role"] = user["role"]
             session["username"] = user["username"]
 
-            # 🔥 Update last login
             conn = get_db()
+
+            # Get streak data
+            streak_data = conn.execute(
+                "SELECT login_streak, last_streak_date FROM users WHERE id=?",
+                (user["id"],)
+            ).fetchone()
+
+            current_streak = streak_data["login_streak"] or 0
+            last_date = streak_data["last_streak_date"]
+
+            today = datetime.now().date()
+            reward_message = ""
+
+            if last_date:
+                last_login_date = datetime.strptime(last_date, "%Y-%m-%d").date()
+                difference = (today - last_login_date).days
+
+                if difference == 1:
+                    current_streak += 1
+
+                elif difference > 1:
+                    current_streak = 1
+
+                elif difference == 0:
+                    session["reward_message"] = ""
+
+                    conn.close()
+
+                    if user["role"] == "admin":
+                        return redirect("/admin")
+                    return redirect("/slide")
+            else:
+                current_streak = 1
+
+            # 🎯 Check 7th day bonus
+            if current_streak == 7:
+                conn.execute(
+                    "UPDATE users SET coins = coins + 50 WHERE id=?",
+                    (user["id"],)
+                )
+                reward_message = "🔥 7-Day Streak Completed! +50 Coins!"
+                current_streak = 0
+            else:
+                reward_message = f"🔥 Streak Day {current_streak}/7"
+
+            # Update streak + last login
             conn.execute(
-                "UPDATE users SET last_login=? WHERE id=?",
-                (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), user["id"])
+                "UPDATE users SET login_streak=?, last_streak_date=?, last_login=? WHERE id=?",
+                (
+                    current_streak,
+                    today.strftime("%Y-%m-%d"),
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    user["id"]
+                )
             )
+
             conn.commit()
             conn.close()
+
+            session["reward_message"] = reward_message
 
             if user["role"] == "admin":
                 return redirect("/admin")
 
             return redirect("/slide")
 
-        return render_template(
-            "FSLOGIN.html",
-            error="Invalid Login"
-        )
+        return render_template("FSLOGIN.html", error="Invalid Login")
 
     return render_template("FSLOGIN.html")
 

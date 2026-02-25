@@ -25,12 +25,14 @@ body{
 /* Profile Section */
 .profile-section{
     display:flex;
+    justify-content:space-between;  /* important */
     align-items:center;
     gap:20px;
     margin-bottom:30px;
     padding-bottom:20px;
     border-bottom:1px solid #36f5c7;
 }
+
 
 .profile-img{
     width:120px;
@@ -53,13 +55,13 @@ body{
 /* Cards */
 .card{
     background:#0f2f34;
-    padding:20px;
+    padding:16px;
     border-radius:12px;
     border:1px solid #36f5c7;
     margin-bottom:20px;
 }
 .card p{
-    font-size:20px;   /* was default, now slightly bigger */
+    font-size:24px;   /* was default, now slightly bigger */
     font-weight:bold;
 }
 
@@ -157,20 +159,76 @@ body{
     background:#36f5c7;
     cursor:pointer;
 }
+/* BADGE DESIGN */
+.badge-box{
+    margin-top:10px;
+    display:inline-block;
+    padding:10px 25px;
+    border-radius:40px;
+    background:linear-gradient(45deg,#00ffcc,#36f5c7);
+    box-shadow:0 0 15px #36f5c7;
+    animation:glow 2s infinite alternate;
+    backdrop-filter:blur(6px);
+}
+
+.badge-text{
+    font-weight:bold;
+    font-size:16px;
+    color:#003c3c;
+    letter-spacing:1px;
+}
+
+/* Glow Animation */
+@keyframes glow{
+    from{
+        box-shadow:0 0 10px #36f5c7;
+    }
+    to{
+        box-shadow:0 0 25px #00ffcc;
+    }
+}
+.level-text{
+    font-weight:600;   /* semi-bold, more modern */
+    font-size:18px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
+    
 
     <div class="profile-section">
+
+    <!-- LEFT SIDE (Profile) -->
+    <div style="display:flex; align-items:center; gap:20px;">
         <img src="{{ url_for('static', filename='profile.png') }}" class="profile-img">
         <div class="profile-info">
             <h2>{{ user['username'] }}</h2>
-            <p>Level: {{ user['level'] }}</p>
+            <div class="badge-box">
+    <span class="badge-text">{{ badge }}</span>
+</div>
+            <p class="level-text">Level: {{ level }}</p>
         </div>
     </div>
+
+    <!-- RIGHT SIDE (Streak) -->
+    <div style="
+        background:#0f2f34;
+        padding:15px 25px;
+        border-radius:15px;
+        border:1px solid #36f5c7;
+        text-align:center;
+        box-shadow:0 0 15px #36f5c7;">
+        
+        <h3 style="margin:0;">🔥 7 Day Streak</h3>
+        <p style="margin:5px 0; font-size:20px; font-weight:bold;">
+            {{ login_streak }}/7
+        </p>
+    </div>
+
+</div>
 
     <div class="card">
         <h3>🪙 Coins</h3>
