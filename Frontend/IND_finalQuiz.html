@@ -481,9 +481,9 @@ function checkAnswer(selected) {
 fetch("/update_score", {
   method: "POST",
   headers: {
-    "Content-Type": "application/x-www-form-urlencoded"
+    "Content-Type": "application/json"
   },
-  body: "score=" + score
+  body: JSON.stringify({ score: score })
 });
   setTimeout(() => {
     overlay.style.display = "flex";

@@ -209,18 +209,17 @@ button:hover {
 (() => {
 "use strict";
 let attemptId;
-/* 🔥 START GAME ENTRY */
+/* 🔥 START GAME ENTRY 
 fetch("/start_game", {
   method: "POST",
   headers: { "Content-Type": "application/x-www-form-urlencoded" },
   body: "game_name=Solar Puzzle"
 })
-.then(res => res.text())
+.then(res => res.json()) // <-- use .json() instead of .text()
 .then(data => {
-    attemptId = parseInt(data);
+    attemptId = data.attempt_id; // <-- get the correct property
     console.log("Game started. Attempt ID:", attemptId);
-});
-
+});/*
 /* SOUNDS */
 const sndSelect = new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
 const sndCorrect = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
@@ -397,26 +396,13 @@ window.addEventListener("mouseup",()=>{
   selected.forEach(c=>c.classList.remove("selected"));
   selected=[];
   if(foundWords.size === words.length){
-
     console.log("Final Score sending:", score);
     console.log("Attempt ID sending:", attemptId);
 
-    if(attemptId){
-        fetch("/update_score", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                score: score,
-                attempt_id: attemptId
-            })
-        })
-        .then(res => res.json())
-        .then(data => console.log("Score saved:", data))
-        .finally(() => {
-            fetch("/finish_game", { method: "POST" });
-        });
-    }
+    // Add this line for extra debugging
+    console.log("Sending score:", score, "for attempt:", attemptId);
 
+    
     document.getElementById("congrats-screen").style.display="flex";
 }
 });   // 🔥 CLOSE mouseup event properly

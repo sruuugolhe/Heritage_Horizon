@@ -300,21 +300,32 @@ def logout():
 def update_score():
     data = request.get_json()
     score = int(data.get("score", 0))
+    game = data.get("game", "Unknown Game")  # Frontend must send this
+    user_id = session.get("user_id")
     attempt_id = data.get("attempt_id") or session.get("attempt_id")
-
-    if not attempt_id:
-        return jsonify({"error": "No active game"}), 400
-
     ist_time = get_ist_time().strftime("%Y-%m-%d %H:%M:%S")
 
     conn = get_db()
-    conn.execute("""
-        UPDATE scores
-        SET score=?, played_at=?
-        WHERE id=?
-    """, (score, ist_time, attempt_id))
+
+    if attempt_id:
+        # Update existing attempt
+        conn.execute("""
+            UPDATE scores
+            SET score=?, played_at=?
+            WHERE id=?
+        """, (score, ist_time, attempt_id))
+    else:
+        # Insert new attempt
+        cursor = conn.execute("""
+            INSERT INTO scores (user_id, game, score, played_at)
+            VALUES (?, ?, ?, ?)
+        """, (user_id, game, score, ist_time))
+        attempt_id = cursor.lastrowid
+        session['attempt_id'] = attempt_id  # Save for future updates
+
     conn.commit()
     conn.close()
+    return jsonify({"success": True, "attempt_id": attempt_id})
 
     return jsonify({"message": "Score updated", "score": score})
 

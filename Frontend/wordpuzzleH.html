@@ -463,12 +463,20 @@ window.addEventListener("mouseup",()=>{
 
   sndWin.play();
 
-  /* 🔥 FINISH GAME ENTRY */
-  fetch("/finish_game", {
-    method: "POST"
-  });
-
   document.getElementById("congrats-screen").style.display="flex";
+
+  // 🔹 Submit score to backend
+  fetch("/update_score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+          game: "Heritage Puzzle",  // important!
+          score: score               // send the current score
+      })
+  })
+  .then(res => res.json())
+  .then(data => console.log("Heritage Puzzle score submitted:", data))
+  .catch(err => console.error(err));
 }
 
 });
