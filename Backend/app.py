@@ -19,7 +19,7 @@ app = Flask(
     static_folder="../frontend"
 )
 
-app.secret_key = "secret123"
+app.secret_key = os.environ.get("SECRET_KEY", "secret123")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_NAME = os.path.join(BASE_DIR, "game_scores.db")
